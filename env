@@ -52,7 +52,7 @@
 
 # database.default.hostname = localhost
 
-# database.default.database = finedu
+# database.default.database = ci4
 
 # database.default.username = root
 

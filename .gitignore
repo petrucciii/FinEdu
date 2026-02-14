@@ -44,75 +44,62 @@ $RECYCLE.BIN/
 .env
 .vagrant
 Vagrantfile
-/user_guide_src/venv/
-.python-version
-/user_guide_src/.python-version
 
 #-------------------------
 # Temporary Files
 #-------------------------
-/writable/cache/*
-!/writable/cache/index.html
+writable/cache/*
+!writable/cache/index.html
 
-/writable/logs/*
-!/writable/logs/index.html
+writable/logs/*
+!writable/logs/index.html
 
-/writable/session/*
-!/writable/session/index.html
+writable/session/*
+!writable/session/index.html
 
-/writable/uploads/*
-!/writable/uploads/index.html
+writable/uploads/*
+!writable/uploads/index.html
 
-/writable/debugbar/*
-!/writable/debugbar/index.html
-
-/writable/**/*.db
-/writable/**/*.sqlite
+writable/debugbar/*
 
 php_errors.log
 
 #-------------------------
 # User Guide Temp Files
 #-------------------------
-/user_guide_src/build/*
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
 
 #-------------------------
 # Test Files
 #-------------------------
-/tests/coverage*
+tests/coverage*
 
 # Don't save phpunit under version control.
-/phpunit
+phpunit
 
 #-------------------------
 # Composer
 #-------------------------
 vendor/
-composer.lock
 
 #-------------------------
-# IDE / Development Files
+# IDE Files
 #-------------------------
-
-# Modules Testing
-_modules/*
-
-# phpenv local config
-.php-version
-
-# Jetbrains editors (PHPStorm, etc)
-.idea/
-*.iml
+# phpStorm
+.idea/*
 
 # Netbeans
-/nbproject/
-/build/
-/nbbuild/
-/dist/
-/nbdist/
-/nbactions.xml
-/nb-configuration.xml
-/.nb-gradle/
+nbproject/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+.nb-gradle/
 
 # Sublime Text
 *.tmlanguage.cache
@@ -128,5 +115,21 @@ _modules/*
 
 /results/
 /phpunit*.xml
+/.phpunit.*.cache
 
-/.php-cs-fixer.php
+#-------------------------
+# Node.js
+#-------------------------
+node_modules/
+npm-debug.log
+yarn-error.log
+
+#-------------------------
+# CodeIgniter 4 specific
+#-------------------------
+/builds/
+/writable/cache/*
+/writable/debugbar/*
+/writable/logs/*
+/writable/session/*
+/writable/uploads/*
