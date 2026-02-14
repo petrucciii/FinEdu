@@ -6,10 +6,12 @@ class Home extends BaseController
 {
     public function index()
     {
-        $this->session->set('utente','pluto');
-        $data=[];
-    echo view('Views/pages/vwheader.php', $data);
-    echo view('Views/pages/vwhome.php', $data);
-    echo view('Views/pages/vwfooter.php', $data);
+        $this->session->set('logged', true);
+        $data = [
+            //'logged' => $this->session->get('logged')
+        ];
+        echo view('Views/templates/header.php', $data);
+        echo view('pages/viewHome.php', $data);
+        echo view('Views/templates/footer.php', $data);
     }
 }
