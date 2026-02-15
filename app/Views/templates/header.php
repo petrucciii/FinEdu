@@ -17,7 +17,8 @@
 
 
 <body>
-    <?= $this->include('templates/modals') ?>
+
+
     <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">
@@ -79,6 +80,10 @@
             </div>
         </div>
     </nav>
+    <?= $this->include('templates/modals') ?>
+    <?php if (session()->role == "admin"):
+        echo view("templates/adminSidebar");
+    endif; ?>
 
 
     <?php if (isset($login_error) && $login_error != "" || isset($signup_success)): ?>
