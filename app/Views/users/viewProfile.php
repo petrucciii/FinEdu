@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
 
@@ -8,28 +8,32 @@
                 <div class="profile-info-overlay">
 
                     <div class="user-details-text">
-                        <h3 class="fw-bold text-dark">Mario Rossi</h3>
+                        <h3 class="fw-bold text-dark">
+                            <?= session()->get('first_name') . "" . session()->get('last_name') ?>
+                        </h3>
                         <span class="user-email-pill">
-                            <i class="far fa-envelope me-1"></i> mario.rossi@email.it
+                            <i class="far fa-envelope me-1"></i>
+                            <?= session()->get('email') ?>
                         </span>
                     </div>
                 </div>
 
                 <ul class="nav nav-tabs border-0 px-4 mt-2" id="profileTab" role="tablist">
                     <li class="nav-item">
-                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
-                            data-bs-target="#overview" type="button">Attività</button>
-                    </li>
                     <li class="nav-item">
-                        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings"
-                            type="button">Impostazioni</button>
+                        <button class="nav-link active" id="settings-tab" data-bs-toggle="tab"
+                            data-bs-target="#settings" type="button">Impostazioni</button>
                     </li>
+                    <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview"
+                        type="button">Attività</button>
+                    </li>
+
                 </ul>
             </div>
 
             <div class="tab-content" id="profileTabContent">
 
-                <div class="tab-pane fade show active" id="overview">
+                <div class="tab-pane fade" id="overview">
                     <div class="row">
                         <div class="col-md-4 mb-4">
                             <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center">
@@ -108,7 +112,7 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="settings">
+                <div class="tab-pane fade show active" id="settings">
                     <div class="row justify-content-center">
                         <div class="col-md-10">
 
