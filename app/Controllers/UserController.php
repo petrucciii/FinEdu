@@ -10,7 +10,7 @@ class UserController extends BaseController
     {
         if ($this->session->has('logged')) {
             echo view("templates/header");
-            echo view("users/viewProfile", );
+            echo view("users/viewProfile");
             echo view("templates/footer");
             return;
         }
