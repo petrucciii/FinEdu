@@ -74,7 +74,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
                     <p class="text-danger">
                         <?= (isset($signup_error)) ? $signup_error : "" ?>
                     </p>

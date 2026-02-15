@@ -83,19 +83,33 @@
 
     <?php if (isset($login_error) && $login_error != "" || isset($signup_success)): ?>
         <script>
-            // Attende che il DOM sia pronto prima di mostrare il modal
+            //after the DOM is ready modal opens
             document.addEventListener("DOMContentLoaded", function () {
                 var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
             });
         </script>
-    <?php endif;
-    if (isset($signup_error) && $signup_error != ""): ?>
+        <?php
+    elseif (isset($signup_error) && $signup_error != ""): ?>
         <script>
-            // Attende che il DOM sia pronto prima di mostrare il modal
-            document.addEventListener("DOMCoVarntentLoaded", function () {
+
+            document.addEventListener("DOMContentLoaded", function () {
                 var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
                 registerModal.show();
             });
+
         </script>
-    <?php endif; ?>
+        <?php
+    endif; ?>
+    <!-- remove error after modal gets closed -->
+    <script>
+        document.getElementById('loginModal').addEventListener('hidden.bs.modal', function () {
+            let error = this.querySelector('.text-danger');
+            if (error) error.innerHTML = '';
+        });
+
+        document.getElementById('registerModal').addEventListener('hidden.bs.modal', function () {
+            let error = this.querySelector('.text-danger');
+            if (error) error.innerHTML = '';
+        });
+    </script>

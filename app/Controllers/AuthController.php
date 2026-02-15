@@ -73,7 +73,7 @@ class AuthController extends BaseController
             if ($model->fcreate($user)) {
                 $data['signup_success'] = true;
             } else {
-                $data['singup_error'] = "Registrazione Non Riuscita";
+                $data['signup_error'] = "Registrazione Non Riuscita";
             }
 
 
