@@ -143,59 +143,6 @@
  }
 
 
- /* Profile Summary Card */
- .profile-card {
-     background: white;
-     border-radius: 20px;
-     border: none;
-     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-     overflow: hidden;
- }
-
- .profile-cover {
-     height: 100px;
-     background: linear-gradient(135deg, #0d6efd 0%, #0046af 100%);
- }
-
- .avatar-wrapper {
-     margin-top: -50px;
-     text-align: center;
- }
-
- .avatar-circle {
-     width: 100px;
-     height: 100px;
-     background: white;
-     color: var(--primary-color);
-     border-radius: 50%;
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 2.5rem;
-     font-weight: bold;
-     border: 5px solid white;
-     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
- }
-
- /* Nav Tabs Custom */
- .nav-tabs {
-     border-bottom: 2px solid #eee;
-     margin-bottom: 2rem;
- }
-
- .nav-link {
-     color: #6c757d;
-     border: none;
-     font-weight: 600;
-     padding: 1rem 1.5rem;
- }
-
- .nav-link.active {
-     color: var(--primary-color);
-     background: none;
-     border-bottom: 3px solid var(--primary-color);
- }
-
  /* Stats & Items */
  .stat-box {
      background: #f8f9ff;
@@ -232,4 +179,76 @@
      font-weight: 600;
      font-size: 0.85rem;
      color: #495057;
+ }
+
+ .profile-cover {
+     height: 80px;
+
+     /* Texture sottile */
+     border-radius: 20px 20px 0 0;
+     position: relative;
+ }
+
+ /* Wrapper con Glassmorphism */
+ .profile-info-overlay {
+     margin-top: -60px;
+     padding: 0 30px 20px;
+     display: flex;
+     align-items: flex-end;
+     gap: 20px;
+ }
+
+ .avatar-container {
+     position: relative;
+     display: inline-block;
+ }
+
+ .avatar-circle {
+     width: 110px;
+     height: 110px;
+     background: white;
+     color: #0d6efd;
+     border-radius: 25px;
+     /* Squadrato con bordi molto arrotondati, più moderno */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 2.8rem;
+     font-weight: 800;
+     border: 6px solid white;
+     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+ }
+
+ /* Badge di livello sull'avatar */
+ .level-badge-float {
+     position: absolute;
+     bottom: -5px;
+     right: -5px;
+     background: #ffc107;
+     color: #000;
+     font-size: 0.7rem;
+     font-weight: 800;
+     padding: 5px 10px;
+     border-radius: 10px;
+     border: 3px solid white;
+     text-transform: uppercase;
+ }
+
+ .user-details-text {
+     padding-bottom: 5px;
+ }
+
+ .user-details-text h3 {
+     font-size: 1.8rem;
+     letter-spacing: -0.5px;
+     margin-bottom: 2px;
+ }
+
+ .user-email-pill {
+     background: rgba(13, 110, 253, 0.08);
+     color: #0d6efd;
+     padding: 4px 12px;
+     border-radius: 50px;
+     font-size: 0.9rem;
+     font-weight: 500;
  }

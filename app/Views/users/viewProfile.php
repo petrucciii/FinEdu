@@ -4,24 +4,25 @@
 
             <div class="profile-card mb-4">
                 <div class="profile-cover"></div>
-                <div class="avatar-wrapper">
-                    <div class="avatar-circle">MR</div>
-                    <h3 class="fw-bold mt-2 mb-0">Mario Rossi</h3>
-                    <p class="text-muted">mario.rossi@email.it</p>
+
+                <div class="profile-info-overlay">
+
+                    <div class="user-details-text">
+                        <h3 class="fw-bold text-dark">Mario Rossi</h3>
+                        <span class="user-email-pill">
+                            <i class="far fa-envelope me-1"></i> mario.rossi@email.it
+                        </span>
+                    </div>
                 </div>
 
-                <ul class="nav nav-tabs justify-content-center" id="profileTab" role="tablist">
+                <ul class="nav nav-tabs border-0 px-4 mt-2" id="profileTab" role="tablist">
                     <li class="nav-item">
                         <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
-                            data-bs-target="#overview" type="button">
-                            <i class="fas fa-chart-line me-2"></i>Attività
-                        </button>
+                            data-bs-target="#overview" type="button">Attività</button>
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings"
-                            type="button">
-                            <i class="fas fa-user-cog me-2"></i>Impostazioni
-                        </button>
+                            type="button">Impostazioni</button>
                     </li>
                 </ul>
             </div>
@@ -117,22 +118,26 @@
                                     <form class="mb-3">
                                         <label class="form-label">Nome</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" value="Mario">
+                                            <input type="text" class="form-control" name="first_name" required
+                                                value="<?= session()->get('first_name') ?>">
                                             <button class="btn btn-outline-primary px-4" type="submit">Salva</button>
                                         </div>
                                     </form>
                                     <form class="mb-3">
                                         <label class="form-label">Cognome</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" value="Rossi">
+                                            <input type="text" class="form-control" name="last_name" required
+                                                value="<?= session()->get('last_name') ?>">
                                             <button class="btn btn-outline-primary px-4" type="submit">Salva</button>
                                         </div>
                                     </form>
                                     <form>
                                         <label class="form-label">Email</label>
                                         <div class="input-group">
-                                            <input type="email" class="form-control" value="mario.rossi@email.it">
-                                            <button class="btn btn-outline-primary px-4" type="submit">Salva</button>
+                                            <input type="email" class="form-control" name="email" readonly
+                                                value="<?= session()->get('email') ?>">
+                                            <button class="btn btn-outline-primary px-4" type="submit"
+                                                disabled>Salva</button>
                                         </div>
                                     </form>
                                 </div>
@@ -144,19 +149,25 @@
                                     <form>
                                         <div class="mb-3">
                                             <label class="form-label">Password Attuale</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" name="password" class="form-control" required>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Nuova Password</label>
-                                                <input type="password" class="form-control">
+                                                <input type="password" name="new_password" class="form-control"
+                                                    required>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Conferma Nuova</label>
-                                                <input type="password" class="form-control">
+                                                <input type="password" name="repeat_password" class="form-control"
+                                                    required>
+                                                <div id="validationPasswordFeedback" class="invalid-feedback">
+                                                    Password non coincidono
+                                                </div>
                                             </div>
                                         </div>
-                                        <button type="submit" class="btn btn-warning w-100 fw-bold">Aggiorna
+                                        <button type="submit" name="password_change"
+                                            class="btn btn-warning w-100 fw-bold">Aggiorna
                                             Password</button>
                                     </form>
                                 </div>
