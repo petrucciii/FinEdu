@@ -9,7 +9,7 @@
 
                     <div class="user-details-text">
                         <h3 class="fw-bold text-dark">
-                            <?= session()->get('first_name') . "" . session()->get('last_name') ?>
+                            <?= session()->get('first_name') . " " . session()->get('last_name') ?>
                         </h3>
                         <span class="user-email-pill">
                             <i class="far fa-envelope me-1"></i>
@@ -119,29 +119,31 @@
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Dati Personali</h5>
-                                    <form class="mb-3">
+                                    <form action="/UserController/editColumn" method="post" class="mb-3">
                                         <label class="form-label">Nome</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" name="first_name" required
+                                            <input type="text" class="form-control" name="new_value" required
                                                 value="<?= session()->get('first_name') ?>">
-                                            <button class="btn btn-outline-primary px-4" type="submit">Salva</button>
+                                            <button class="btn btn-outline-primary px-4" name="edit" value="first_name"
+                                                type="submit">Salva</button>
                                         </div>
                                     </form>
-                                    <form class="mb-3">
+                                    <form action="/UserController/editColumn" method="post" class="mb-3">
                                         <label class="form-label">Cognome</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" name="last_name" required
+                                            <input type="text" class="form-control" name="new_value" required
                                                 value="<?= session()->get('last_name') ?>">
-                                            <button class="btn btn-outline-primary px-4" type="submit">Salva</button>
+                                            <button class="btn btn-outline-primary px-4" name="edit" value="last_name"
+                                                type="submit">Salva</button>
                                         </div>
                                     </form>
-                                    <form>
+                                    <form action="/UserController/editColumn" method="post">
                                         <label class="form-label">Email</label>
                                         <div class="input-group">
-                                            <input type="email" class="form-control" name="email" readonly
+                                            <input type="email" class="form-control" name="new_value"
                                                 value="<?= session()->get('email') ?>">
-                                            <button class="btn btn-outline-primary px-4" type="submit"
-                                                disabled>Salva</button>
+                                            <button class="btn btn-outline-primary px-4" type="submit" name="edit"
+                                                value="email">Salva</button>
                                         </div>
                                     </form>
                                 </div>
@@ -150,7 +152,7 @@
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Cambia Password</h5>
-                                    <form>
+                                    <form action="/editPassword" method="post">
                                         <div class="mb-3">
                                             <label class="form-label">Password Attuale</label>
                                             <input type="password" name="password" class="form-control" required>

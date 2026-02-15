@@ -55,12 +55,11 @@ class UserModel extends Model
 
           if (!empty($where)) {
                $conditions = [];
-               foreach ($where as $key => $value) {
-                    if (!in_array($key, $this->allowedColumns)) {
-                         continue; // ignora colonne non permesse
+               foreach ($this->allowedColumns as $col) {
+                    if (isset($where[$col])) {
+                         $conditions[] = "$col = :$col:";//placeholders
+                         $params[$col] = $where[$col];
                     }
-                    $conditions[] = "$key = :$key:";
-                    $params[$key] = $value;
                }
                if (!empty($conditions)) {
                     $sql .= ' WHERE ' . implode(' AND ', $conditions);
@@ -77,27 +76,32 @@ class UserModel extends Model
      {
           $db = db_connect();
 
-          // Hash della password se presente
+          // hash password
           if (!empty($data['password'])) {
                $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
           }
 
-          // Aggiorna solo colonne consentite
+
           $setParts = [];
           $params = [];
-          foreach ($this->allowedColumns as $col) {
+          foreach ($this->allowedColumns as $col) {//only allowed columns
                if ($col === 'user_id')
                     continue; //primary key cannot be updated
-               if (isset($data[$col])) {
+               if (isset($data[$col])) {//only columns that have to be updated
                     $setParts[] = "$col = :$col:";//placeholders
                     $params[$col] = $data[$col];
                }
           }
 
           $params['user_id'] = $data['user_id']; //where
-          $sql = 'UPDATE users SET ' . implode(', ', $setParts) . ' WHERE user_id = :user_id:';
+          $sql = 'UPDATE users SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
 
-          return $db->query($sql, $params);
+          try {
+               return $db->query($sql, $params);
+          } catch (Exception $e) {
+               return false;
+          }
+
      }
 
      //delete
@@ -106,6 +110,11 @@ class UserModel extends Model
           $db = db_connect();
           $sql = 'DELETE FROM users WHERE user_id = :user_id:';
           $params = ['user_id' => $data['user_id']];
-          return $db->query($sql, $params);
+          try {
+               return $db->query($sql, $params);
+          } catch (Exception $e) {
+               return false;
+          }
+
      }
 }

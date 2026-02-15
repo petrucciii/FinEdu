@@ -16,7 +16,7 @@ class AuthController extends BaseController
         if ($this->request->getPost('email') && ($this->request->getPost('password')) && !$logged) {
             $model = model(UserModel::class);
             //get user by mail
-            $result = $model->fread(["email" => strtolower($this->request->getPost('email'))]);
+            $result = $model->fread(["email" => strtolower(trim($this->request->getPost('email')))]);
 
 
 
@@ -63,10 +63,10 @@ class AuthController extends BaseController
             $data = [];
 
             $user = [
-                'first_name' => ucwords(strtolower($this->request->getPost('first_name'))), //first letter of each word uppercase
-                'last_name' => ucwords(strtolower($this->request->getPost('last_name'))),
-                'email' => strtolower($this->request->getPost('email')),
-                'password' => $this->request->getPost('password')
+                'first_name' => ucwords(strtolower(trim($this->request->getPost('first_name')))), //first letter of each word uppercase
+                'last_name' => ucwords(strtolower(trim($this->request->getPost('last_name')))),
+                'email' => strtolower(trim($this->request->getPost('email'))),
+                'password' => trim($this->request->getPost('password'))
             ];
 
 
