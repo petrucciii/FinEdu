@@ -6,7 +6,6 @@ class Home extends BaseController
 {
     public function index()
     {
-        $this->session->set('logged', true);
         $data = [
             //'logged' => $this->session->get('logged')
         ];

@@ -10,8 +10,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Email</label>
-                        <input type="email" name="email" class="form-control" required
-                            placeholder="<?= old('email') ?>">
+                        <input type="email" name="email" class="form-control" required value="<?= old('email') ?>"
+                            placeholder="nome.cognome@email.com">
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
@@ -26,7 +26,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
-                    <p>
+                    <p class="text-danger">
                         <?= (isset($error)) ? $error : "" ?>
                     </p>
                     <button type="submit" class="btn btn-primary">Login</button>

@@ -46,31 +46,33 @@
                     </li>
                 </ul>
                 <?php
-                if (!isset($logged)):
-                    ?>
-                    <div class="d-flex">
-                        <button class="btn btn-light text-primary me-2" data-bs-toggle="modal"
-                            data-bs-target="#loginModal">Accedi</button>
-                        <button class="btn btn-outline-light" data-bs-toggle="modal"
-                            data-bs-target="#registerModal">Registrati</button>
-                    </div>
-                    <?php
-                else:
+                var_dump(session()->get());
+                if (session()->has('logged')):
                     ?>
                     <div class="d-flex">
                         <div class="dropdown">
                             <button class="btn btn-outline-light dropdown-toggle me-2" type="button"
                                 data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle"></i> Mario (Liv: 3)
+                                <i class="fas fa-user-circle"></i>
+                                <?= session()->get('first_name') . " " . session()->get('last_name') ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Profilo</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Logout</a></li>
+                                <li><a class="dropdown-item" href="/AuthController/logout">Logout</a></li>
                             </ul>
                         </div>
+                    </div>
+                    <?php
+                else:
+                    ?>
+                    <div class="d-flex">
+                        <button class="btn btn-light text-primary me-2" data-bs-toggle="modal"
+                            data-bs-target="#loginModal">Accedi</button>
+                        <button class="btn btn-outline-light" data-bs-toggle="modal"
+                            data-bs-target="#registerModal">Registrati</button>
                     </div>
                     <?php
                 endif;

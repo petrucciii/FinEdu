@@ -9,13 +9,11 @@ class AuthController extends BaseController
     public function login()
     {
 
-        //has() check the existance of the key ('logged')
         $logged = $this->session->has('logged');
 
-        $data = ['error' => ""];
+        $data = [];
 
-        if ($this->request->getPost('email') && ($this->request->getPost('password'))) {
-            echo $this->request->getPost('email') . ",  " . ($this->request->getPost('password'));
+        if ($this->request->getPost('email') && ($this->request->getPost('password')) && !$logged) {
             $model = model(UserModel::class);
             //get user by mail
             $result = $model->fread(["email" => strtolower($this->request->getPost('email'))]);
@@ -27,18 +25,11 @@ class AuthController extends BaseController
             //check if exists
             if (!empty($user)) {
                 //compare input password with user's hashed password
-
-                // var_dump($user);
-                // echo "<br>";
-                // echo $this->request->getPost('password');
-                // echo "<br>";
-                // echo password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
-                // die;
                 if (password_verify(trim($this->request->getPost('password')), $user['password'])) {
                     unset($user['password']);
                     $this->session->set('logged', true);
                     $this->session->set($user);
-                    return redirect()->to('/AuthController/profile');
+                    return redirect()->to('/UserController/profile');
                 } else {
                     $data['error'] = "Password Errata!";
                 }
@@ -49,6 +40,7 @@ class AuthController extends BaseController
             echo view("templates/header", $data);
             echo view("pages/viewHome");
             echo view("templates/footer");
+            return;
         }
 
         return redirect()->to("/");
@@ -56,6 +48,14 @@ class AuthController extends BaseController
     }
 
 
-    //singup
+    //logout
+    public function logout()
+    {
+        $logged = $this->session->has('logged');
+        if ($logged) {
+            $this->session->remove('logged');
+        }
 
+        return redirect()->to("/");
+    }
 }
