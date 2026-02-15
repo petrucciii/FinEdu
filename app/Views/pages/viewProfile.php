@@ -207,11 +207,15 @@
                 <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3.5rem;"></i>
                 <h4 class="fw-bold">Sei sicuro?</h4>
                 <p class="text-muted">L'azione è irreversibile. Digita la tua password per confermare.</p>
-                <input type="password" class="form-control mb-3" placeholder="Password attuale">
-                <div class="d-flex gap-2 justify-content-center">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annulla</button>
-                    <button type="button" class="btn btn-danger px-4">Elimina Definitivamente</button>
-                </div>
+                <form action="/UserController/delete" method="post">
+                    <input type="password" name="password" class="form-control mb-3" placeholder="Password attuale"
+                        required>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annulla</button>
+                        <button type="sumbit" class="btn btn-danger px-4">Elimina Definitivamente</button>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>

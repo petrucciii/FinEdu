@@ -10,7 +10,7 @@ class UserController extends BaseController
     {
         if ($this->session->has('logged')) {
             echo view("templates/header");
-            echo view("users/viewProfile");
+            echo view("pages/viewProfile");
             echo view("templates/footer");
             return;
         }
@@ -81,5 +81,38 @@ class UserController extends BaseController
                 return redirect()->back()->with('alert', 'La nuova password non corrisponde!');
             }
         }
+
+        return redirect()->to('/');
+    }
+
+    public function delete()
+    {
+        $model = model(UserModel::class);
+        if ($this->request->getPost('password') && $this->session->has('logged')) {
+            $user = $model->fread(['user_id' => $this->session->get('user_id')]);
+            $hashPassword = $user[0]['password'];
+            //password validation
+            if (password_verify($this->request->getPost('password'), $hashPassword)) {
+                if ($model->fdelete(['user_id' => $this->session->get('user_id')])) {//delete user
+                    $this->session->remove([
+                        'user_id',
+                        'first_name',
+                        'last_name',
+                        'email',
+                        'experience',
+                        'level',
+                        'role',
+                        'logged'
+                    ]);
+                    return redirect()->to('/')->with('alert', 'Profilo eliminato!');
+
+                } else {
+                    return redirect()->back()->with('alert', 'Profilo non eliminato!');
+                }
+            } else {
+                return redirect()->back()->with('alert', 'Password Errata!');
+            }
+        }
+        return redirect()->to('/');
     }
 }
