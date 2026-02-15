@@ -10,8 +10,8 @@ class Home extends BaseController
         $data = [
             //'logged' => $this->session->get('logged')
         ];
-        echo view('Views/templates/header.php', $data);
-        echo view('pages/viewHome.php', $data);
-        echo view('Views/templates/footer.php', $data);
+        echo view('Views/templates/header', $data);
+        echo view('pages/viewHome', $data);
+        echo view('Views/templates/footer', $data);
     }
 }

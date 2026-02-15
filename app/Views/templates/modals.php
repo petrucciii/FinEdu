@@ -6,12 +6,12 @@
                 <h5 class="modal-title">Accedi a FinEdu</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="#" method="post">
+            <form action="/AuthController/login" method="post">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Email</label>
                         <input type="email" name="email" class="form-control" required
-                            placeholder="nome.cognome@email.com">
+                            placeholder="<?= old('email') ?>">
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
@@ -26,6 +26,9 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
+                    <p>
+                        <?= (isset($error)) ? $error : "" ?>
+                    </p>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </div>
             </form>

@@ -78,3 +78,18 @@
             </div>
         </div>
     </nav>
+
+
+    <?php if (isset($error) && $error != ""): ?>
+        <?= $error ?>
+        <script>
+            // Attende che il DOM sia pronto prima di mostrare il modal
+            document.addEventListener("DOMContentLoaded", function () {
+                var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            });
+        </script>
+    <?php elseif (isset($error) && $error == ""): ?>
+        <h1>success</h1>
+
+    <?php endif; ?>
