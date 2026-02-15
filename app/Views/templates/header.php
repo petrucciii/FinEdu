@@ -46,7 +46,6 @@
                     </li>
                 </ul>
                 <?php
-                var_dump(session()->get());
                 if (session()->has('logged')):
                     ?>
                     <div class="d-flex">
@@ -57,7 +56,7 @@
                                 <?= session()->get('first_name') . " " . session()->get('last_name') ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Profilo</a></li>
+                                <li><a class="dropdown-item" href="/UserController/profile">Profilo</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -82,8 +81,7 @@
     </nav>
 
 
-    <?php if (isset($error) && $error != ""): ?>
-        <?= $error ?>
+    <?php if (isset($login_error) && $login_error != "" || isset($signup_success)): ?>
         <script>
             // Attende che il DOM sia pronto prima di mostrare il modal
             document.addEventListener("DOMContentLoaded", function () {
@@ -91,7 +89,13 @@
                 loginModal.show();
             });
         </script>
-    <?php elseif (isset($error) && $error == ""): ?>
-        <h1>success</h1>
-
+    <?php endif;
+    if (isset($signup_error) && $signup_error != ""): ?>
+        <script>
+            // Attende che il DOM sia pronto prima di mostrare il modal
+            document.addEventListener("DOMCoVarntentLoaded", function () {
+                var registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+                registerModal.show();
+            });
+        </script>
     <?php endif; ?>

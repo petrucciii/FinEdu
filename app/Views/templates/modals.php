@@ -27,7 +27,7 @@
                 <div class="modal-footer">
                     <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
                     <p class="text-danger">
-                        <?= (isset($error)) ? $error : "" ?>
+                        <?= (isset($login_error)) ? $login_error : "" ?>
                     </p>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </div>
@@ -44,7 +44,7 @@
                 <h5 class="modal-title">Crea un Account</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="#" method="post">
+            <form action="/AuthController/singup" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6 mb-3">
@@ -74,6 +74,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
+                    <p class="text-danger">
+                        <?= (isset($signup_error)) ? $signup_error : "" ?>
+                    </p>
                     <button type="submit" class="btn btn-success w-100">Registrati</button>
                 </div>
             </form>

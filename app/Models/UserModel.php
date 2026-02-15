@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use Exception;
 
 class UserModel extends Model
 {
@@ -21,18 +22,27 @@ class UserModel extends Model
      public function fcreate(array $data)
      {
           $db = db_connect();
+          // var_dump($data);
+          // echo "<br>";
 
-          // Se la password è presente, hashala
-          if (!empty($data['password'])) {
-               $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+          //hash password
+          $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allowedColumns (key and values swapped)
+          $columns = array_intersect_key($data, array_flip($this->allowedColumns));
+          $sqlColumns = implode(",", array_keys($columns));
+          $sqlPlaceholders = ":" . implode(":,:", array_keys($columns)) . ":";
+
+          $sql = "INSERT INTO users ($sqlColumns) VALUES ($sqlPlaceholders)";
+
+          // var_dump($columns);
+          // die;
+
+          try {
+               return $db->query($sql, $data);
+          } catch (Exception $e) {
+               return false;
           }
 
-          $sql = 'INSERT INTO users (user_id, first_name, last_name, email, password, experience, level, role) 
-                VALUES (:user_id:, :first_name:, :last_name:, :email:, :password:, :experience:, :level:, :role:)';
-
-
-
-          return $db->query($sql, $data);
      }
 
      //read
