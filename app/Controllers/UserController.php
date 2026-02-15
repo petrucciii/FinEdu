@@ -44,4 +44,42 @@ class UserController extends BaseController
         }
         return redirect()->to('/');
     }
+
+    public function editPassword()
+    {
+        $model = model(UserModel::class);
+        if (
+            $this->request->getPost('password') &&
+            $this->request->getPost('new_password') &&
+            $this->request->getPost('repeat_password') &&
+            $this->session->has('logged')
+        ) {
+            //new password and repeat match
+            if ($this->request->getPost('new_password') == $this->request->getPost('repeat_password')) {
+                if ($this->request->getPost('new_password') != $this->request->getPost('password')) {
+                    $user = $model->fread(['user_id' => $this->session->get('user_id')]);
+                    $hashPassword = $user[0]['password'];
+                    //password validation
+                    if (password_verify($this->request->getPost('password'), $hashPassword)) {
+                        $data = [
+                            'user_id' => $this->session->get('user_id'),
+                            'password' => $this->request->getPost('new_password')
+                        ];
+
+                        if ($model->fupdate($data)) {
+                            return redirect()->back()->with('alert', 'Password Modificata!');
+                        } else {
+                            return redirect()->back()->with('alert', 'Password Non Modificata!');
+                        }
+                    } else {
+                        return redirect()->back()->with('alert', 'Password Errata!');
+                    }
+                } else {
+                    return redirect()->back()->with('alert', 'La nuova password non può essere uguale a quella corrente!');
+                }
+            } else {
+                return redirect()->back()->with('alert', 'La nuova password non corrisponde!');
+            }
+        }
+    }
 }

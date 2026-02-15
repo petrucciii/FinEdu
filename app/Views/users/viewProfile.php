@@ -152,7 +152,7 @@
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Cambia Password</h5>
-                                    <form action="/editPassword" method="post">
+                                    <form action="/UserController/editPassword" method="post">
                                         <div class="mb-3">
                                             <label class="form-label">Password Attuale</label>
                                             <input type="password" name="password" class="form-control" required>

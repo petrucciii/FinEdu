@@ -66,7 +66,7 @@ class AuthController extends BaseController
                 'first_name' => ucwords(strtolower(trim($this->request->getPost('first_name')))), //first letter of each word uppercase
                 'last_name' => ucwords(strtolower(trim($this->request->getPost('last_name')))),
                 'email' => strtolower(trim($this->request->getPost('email'))),
-                'password' => trim($this->request->getPost('password'))
+                'password' => $this->request->getPost('password')
             ];
 
 
