@@ -4,7 +4,7 @@
             <h4 class="mb-0 fw-bold"><i class="fas fa-shield-alt text-primary"></i> FinEdu Admin</h4>
         </div>
         <ul class="nav flex-column mt-3">
-            <li class="nav-item"><a href="/Admin/DashboardController/index" class="nav-link active"><i
+            <li class="nav-item"><a href="/admin/DashboardController/" class="nav-link"><i
                         class="fas fa-tachometer-alt me-2"></i>
                     Dashboard</a></li>
 
