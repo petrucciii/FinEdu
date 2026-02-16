@@ -1,6 +1,6 @@
 <?= view("templates/alert"); ?>
 <?php if (session()->get('role') === 'admin'): ?>
-        </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
+    </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
 <?php endif; ?>
 <footer class="bg-primary text-white pt-5 pb-4 mt-auto">
     <div class="container">
@@ -42,6 +42,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= base_url("javascript/validation.js") ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.datatables.net/autofill/2.7.1/js/autoFill.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/autofill/2.7.1/js/dataTables.autoFill.min.js"></script>
 </body>
 
 </html>

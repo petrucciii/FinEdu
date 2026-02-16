@@ -12,8 +12,7 @@ class UserManagementController extends BaseController
 
         if ($this->session->has('logged') && $this->session->get('role') == "admin") {
 
-            $data['users'] = $userModel->paginate(5); // 5 utenti per pagina
-            $data['pager'] = $userModel->pager;
+            $data['users'] = $userModel->fread();
 
             echo view("templates/header");
             echo view("pages/admins/viewUserManagement", $data);

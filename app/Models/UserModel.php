@@ -10,7 +10,6 @@ class UserModel extends Model
      protected $table = 'users';
      protected $primaryKey = 'user_id';
      protected $allowedColumns = [
-          'user_id',
           'first_name',
           'last_name',
           'email',
@@ -21,6 +20,8 @@ class UserModel extends Model
           'created_at'
      ];
 
+     private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level', 'role', 'created_at'];
+
      //create 
      public function fcreate(array $data)
      {
@@ -30,8 +31,8 @@ class UserModel extends Model
 
           //hash password
           $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allowedColumns (key and values swapped)
-          $columns = array_intersect_key($data, array_flip($this->allowedColumns));
+          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allColumns (key and values swapped)
+          $columns = array_intersect_key($data, array_flip($this->allColumns));
           $sqlColumns = implode(",", array_keys($columns));
           $sqlPlaceholders = ":" . implode(":,:", array_keys($columns)) . ":";
 
@@ -58,7 +59,7 @@ class UserModel extends Model
 
           if (!empty($where)) {
                $conditions = [];
-               foreach ($this->allowedColumns as $col) {
+               foreach ($this->allColumns as $col) {
                     if (isset($where[$col])) {
                          $conditions[] = "$col = :$col:";//placeholders
                          $params[$col] = $where[$col];
@@ -87,7 +88,7 @@ class UserModel extends Model
 
           $setParts = [];
           $params = [];
-          foreach ($this->allowedColumns as $col) {//only allowed columns
+          foreach ($this->allColumns as $col) {//only allowed columns
                if ($col === 'user_id')
                     continue; //primary key cannot be updated
                if (isset($data[$col])) {//only columns that have to be updated

@@ -76,7 +76,7 @@
             <div class="card-footer bg-white">
                 <div class="d-flex justify-content-between align-items-center">
                     <small class="text-muted">Visualizzati 5 di 1,250 utenti</small>
-                    <?= $pager->links() ?>
+                    <?= $pager->links('default', 'custom_bootstrap') ?>
 
                 </div>
             </div>
