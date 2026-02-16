@@ -121,7 +121,7 @@
     </div>
 </div>
 
-<?= view("modals/modalUserManagement"); ?>
+<?= $this->include("modals/modalUserManagement"); ?>
 <script>
     document.addEventListener('click', function (e) {
 
@@ -131,21 +131,22 @@
         let userId = btn.dataset.id;
 
         //ajax request to get user data by id, then populate and open the modal
-        fetch('/admin/user/' + userId)
+        fetch('/admin/UserManagementController/settings/' + userId)//endpoint : UserManagement::settings($userId)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Errore server');
                 }
+
                 return response.json();
             })
             .then(data => {
-
+                console.log(data);
                 //populate modal with user data
-                document.getElementById('modalUserId').value = data.user_id;
-                document.getElementById('modalUserName').textContent =
-                    data.first_name + ' ' + data.last_name;
-                document.getElementById('modalUserEmail').textContent =
-                    data.email;
+                document.getElementById('modalTitle').textContent = data.first_name + ' ' + data.last_name + ' (ID: ' + data.user_id + ')';
+                document.getElementById('modalEmail').textContent = data.email;
+                document.getElementById('modalCreatedAt').textContent = new Date(data.created_at).toLocaleDateString();
+                document.getElementById('level').textContent = data.level;
+
 
                 //open modal
                 let modal = new bootstrap.Modal(

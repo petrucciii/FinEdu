@@ -26,4 +26,18 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
+    public function settings($userId)
+    {
+        $userModel = model(UserModel::class);
+        $user = $userModel->fread(['user_id' => $userId]);
+
+        if ($this->session->has('logged') && $this->session->get('role') == "admin" && $user[0]) {
+            unset($user[0]['password']);
+
+            return $this->response->setJSON($user[0]);
+        }
+
+        return redirect()->to(uri: '/');
+    }
+
 }
