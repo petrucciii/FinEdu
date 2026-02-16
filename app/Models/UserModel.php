@@ -9,7 +9,7 @@ class UserModel extends Model
 {
      protected $table = 'users';
      protected $primaryKey = 'user_id';
-     protected $allowedColumns = [
+     protected $allowedFields = [
           'first_name',
           'last_name',
           'email',
@@ -19,6 +19,8 @@ class UserModel extends Model
           'role',
           'created_at'
      ];
+
+     protected $useTimestamps = false;
 
      private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level', 'role', 'created_at'];
 
@@ -128,5 +130,11 @@ class UserModel extends Model
           $sql = 'SELECT COUNT(*) as count FROM  GROUP BY role HAVING role = :role:';
           $query = $db->query($sql, $data);
           return $query->getRow()->count;
+     }
+
+     //neccessary for pagination in UserManagementController, otherwise pagination would not workn
+     public function getAllUsers()
+     {
+          return $this->findAll();
      }
 }

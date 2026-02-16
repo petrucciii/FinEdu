@@ -309,3 +309,29 @@
      align-items: center;
      justify-content: center;
  }
+
+ .pagination .page-link {
+     color: #6c757d;
+     transition: all 0.2s ease;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     min-width: 35px;
+     height: 35px;
+ }
+
+ .pagination .page-item.active .page-link {
+     background-color: #0d6efd;
+     color: #fff;
+     box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+ }
+
+ .pagination .page-item:not(.active) .page-link:hover {
+     background-color: #f8f9fa;
+     color: #0d6efd;
+ }
+
+ .pagination .page-item.disabled .page-link {
+     background-color: transparent;
+     opacity: 0.5;
+ }
