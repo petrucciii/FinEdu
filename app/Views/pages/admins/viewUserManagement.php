@@ -94,7 +94,20 @@
 
                     <div class="card-footer bg-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">Visualizzati 5 di 1,250 utenti</small>
+                            <div class="text-muted small">
+                                <?php
+                                $start = ($pager->getCurrentPage() - 1) * $pager->getPerPage() + 1;//first item number = (currentPage - 1) * itemsPerPage + 1 = 1 for page 1, 11 for page 2, etc.
+                                $end = min($pager->getCurrentPage() * $pager->getPerPage(), $pager->getTotal()); //last item number = currentPage * itemsPerPage, but cannot exceed total items
+                                $total = $pager->getTotal();//total items
+                                ?>
+                                Utenti da <strong>
+                                    <?= $start ?>
+                                </strong> a <strong>
+                                    <?= $end ?>
+                                </strong> di <strong>
+                                    <?= $total ?>
+                                </strong>
+                            </div>
                             <?php if ($pager): ?>
                                 <?= $pager->links() ?>
                             <?php endif; ?>
