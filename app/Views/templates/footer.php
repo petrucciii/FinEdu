@@ -1,4 +1,4 @@
-<?= view("templates/alert"); ?>
+<?= view("modals/modalAlert"); ?>
 <footer class="bg-dark text-white pt-5 pb-4 mt-auto">
     <div class="container">
         <div class="row">

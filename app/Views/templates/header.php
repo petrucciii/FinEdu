@@ -17,7 +17,7 @@
 
 
 <body>
-    <?= $this->include('templates/modals') ?>
+    <?= $this->include('modals/modalAlert') ?>
     <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">
