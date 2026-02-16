@@ -1,6 +1,6 @@
 <?= view("templates/alert"); ?>
 <?php if (session()->get('role') === 'admin'): ?>
-    </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
+        </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
 <?php endif; ?>
 <footer class="bg-primary text-white pt-5 pb-4 mt-auto">
     <div class="container">

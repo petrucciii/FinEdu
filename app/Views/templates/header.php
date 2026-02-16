@@ -81,7 +81,7 @@
         </div>
     </nav>
     <?= $this->include('templates/modals') ?>
-    <?php if (session()->role == "admin"):
+    <?php if (session()->get('role') == "admin" && session()->has('logged')):
         echo view("templates/adminSidebar");
     endif; ?>
 

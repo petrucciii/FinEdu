@@ -7,7 +7,9 @@ use Exception;
 
 class UserModel extends Model
 {
-     private $allowedColumns = [
+     protected $table = 'users';
+     protected $primaryKey = 'user_id';
+     protected $allowedColumns = [
           'user_id',
           'first_name',
           'last_name',
@@ -15,7 +17,8 @@ class UserModel extends Model
           'password',
           'experience',
           'level',
-          'role'
+          'role',
+          'created_at'
      ];
 
      //create 
@@ -32,7 +35,7 @@ class UserModel extends Model
           $sqlColumns = implode(",", array_keys($columns));
           $sqlPlaceholders = ":" . implode(":,:", array_keys($columns)) . ":";
 
-          $sql = "INSERT INTO users ($sqlColumns) VALUES ($sqlPlaceholders)";
+          $sql = "INSERT INTO {$this->table} ($sqlColumns) VALUES ($sqlPlaceholders)";
 
           // var_dump($columns);
           // die;
@@ -46,11 +49,11 @@ class UserModel extends Model
      }
 
      //read
-     public function fread(array $where = [])
+     public function fread($where = [])
      {
           $db = db_connect();
 
-          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, level, role FROM users';
+          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, level, role, created_at FROM ' . $this->table;
           $params = [];
 
           if (!empty($where)) {
@@ -94,7 +97,7 @@ class UserModel extends Model
           }
 
           $params['user_id'] = $data['user_id']; //where
-          $sql = 'UPDATE users SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
+          $sql = 'UPDATE ' . $this->table . ' SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
 
           try {
                return $db->query($sql, $params);
@@ -108,7 +111,7 @@ class UserModel extends Model
      public function fdelete(array $data)
      {
           $db = db_connect();
-          $sql = 'DELETE FROM users WHERE user_id = :user_id:';
+          $sql = 'DELETE FROM ' . $this->table . ' WHERE user_id = :user_id:';
           $params = ['user_id' => $data['user_id']];
           try {
                return $db->query($sql, $params);
@@ -121,7 +124,7 @@ class UserModel extends Model
      public function countUsers($data)
      {
           $db = db_connect();
-          $sql = 'SELECT COUNT(*) as count FROM users GROUP BY role HAVING role = :role:';
+          $sql = 'SELECT COUNT(*) as count FROM  GROUP BY role HAVING role = :role:';
           $query = $db->query($sql, $data);
           return $query->getRow()->count;
      }

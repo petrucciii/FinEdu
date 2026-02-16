@@ -29,7 +29,8 @@
             </li>
 
             <div class="text-uppercase small text-muted px-4 mt-3 mb-1" style="color: white !important;">Utenti</div>
-            <li class="nav-item"><a href="/admin/UserController/" class="nav-link"><i class="fas fa-users me-2"></i>
+            <li class="nav-item"><a href="/admin/UserManagementController/" class="nav-link"><i
+                        class="fas fa-users me-2"></i>
                     Gestione
                     Utenti</a></li>
             <li class="nav-item"><a href="/admin/PortfolioManagementController/" class="nav-link"><i
