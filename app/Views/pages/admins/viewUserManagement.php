@@ -71,7 +71,7 @@
                                         </td>
                                         <td><?= htmlspecialchars($user['email']) ?></td>
                                         <td><span
-                                                class="badge <?= $roleBadge ?>"><?= htmlspecialchars($user['role']) ?></span>
+                                                class="badge <?= $roleBadge ?>"><?= htmlspecialchars(ucfirst($user['role'])) ?></span>
                                         </td>
                                         <td><span
                                                 class="badge <?= $lvlBadge ?>"><?= htmlspecialchars($user['level']) ?></span>
@@ -122,44 +122,7 @@
 </div>
 
 <?= $this->include("modals/modalUserManagement"); ?>
-<script>
-    document.addEventListener('click', function (e) {
+<script src="<?= base_url('javascript/ajaxUserManagement.js') ?>"></script>
 
-        let btn = e.target.closest('.open-user-btn');//iif the clicked element or any of its parents has the class .open-user-btn, it will be assigned to btn, otherwise btn will be null
-        if (!btn) return;
-
-        let userId = btn.dataset.id;
-
-        //ajax request to get user data by id, then populate and open the modal
-        fetch('/admin/UserManagementController/settings/' + userId)//endpoint : UserManagement::settings($userId)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Errore server');
-                }
-
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                //populate modal with user data
-                document.getElementById('modalTitle').textContent = data.first_name + ' ' + data.last_name + ' (ID: ' + data.user_id + ')';
-                document.getElementById('modalEmail').textContent = data.email;
-                document.getElementById('modalCreatedAt').textContent = new Date(data.created_at).toLocaleDateString();
-                document.getElementById('level').textContent = data.level;
-
-
-                //open modal
-                let modal = new bootstrap.Modal(
-                    document.getElementById('userModal')
-                );
-
-                modal.show();
-            })
-            //other tyoes of errors (network, json, etc.)
-            .catch(err => {
-                console.error(err);
-                alert("Errore caricamento utente");
-            });
-    });
 
 </script>

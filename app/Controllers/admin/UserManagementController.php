@@ -40,4 +40,55 @@ class UserManagementController extends BaseController
         return redirect()->to(uri: '/');
     }
 
+    public function editColumn($userId)
+    {
+        $allowedColumns = ['first_name', 'last_name', 'email'];
+
+        $model = model(UserModel::class);
+        //if is admin and fields have been inserted
+        if ($this->session->has('logged') && $this->session->get('role') == "admin" && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
+            if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
+                $data = [
+                    'user_id' => $userId,
+                    trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value'))
+                ];
+
+                if ($model->fupdate($data)) {
+                    return redirect()->back()->with('alert', "Modifica Riuscita");
+                } else {
+                    return redirect()->back()->with('alert', 'Modifica non avvenuta');
+                }
+
+            } else {
+                return redirect()->back()->with('alert', 'Si è verificato un problema');
+            }
+
+        }
+        return redirect()->to('/');
+    }
+
+    public function delete($userId)
+    {
+        $model = model(UserModel::class);
+        if ($this->request->getPost('password') && $this->session->has('logged') && $this->session->get('role') == "admin") {
+            $user = $model->fread(['user_id' => $userId]);
+
+            $admin = $model->fread(['user_id' => $this->session->get('user_id')]);
+            $hashAdminPassword = $admin[0]['password'];
+
+            //admin's password needed to delete user
+            if (password_verify($this->request->getPost('password'), $hashAdminPassword)) {
+                if ($model->fdelete(['user_id' => $userId])) {//delete user
+                    return redirect()->back()->with('alert', 'Profilo eliminato!');
+
+                } else {
+                    return redirect()->back()->with('alert', 'Profilo non eliminato!');
+                }
+            } else {
+                return redirect()->back()->with('alert', 'Password Errata!');
+            }
+        }
+        return redirect()->to('/');
+    }
+
 }
