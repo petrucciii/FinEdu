@@ -86,7 +86,7 @@ let currentQuery = '';
 let currentRole = '';
 let currentLevel = '';
 let currentOrder = '';
-let orderType = 'DESC';
+let orderType = 'ASC';
 
 //build the url for fetching users
 const buildUsersUrl = (page = 1) => {
@@ -115,7 +115,8 @@ const searchUser = () => {
 
 
 
-//load users with ajax, passing page number as parameter, and using global status for search query and filters. then render users and pagination.
+//load users with ajax, passing page number as parameter, and using global status for search query and filters.
+//  then render users and pagination.
 const loadUsers = (page = 1) => {
 
     fetch(buildUsersUrl(page))
@@ -124,10 +125,30 @@ const loadUsers = (page = 1) => {
             renderUsers(data.users);
             renderPagination(data.pagination);
         });
+
+    seeFilters();
 }
 
+const seeFilters = () => {
+    //update dropdown buttons styles based on current filters, using global status
+    document.querySelectorAll('button[data-role]').forEach(btn => {
+        if (btn.dataset.role === currentRole) {
+            btn.classList.add('bg-primary', 'text-white');
+        } else {
+            btn.classList.remove('bg-primary', 'text-white');
+        }
 
 
+    });
+
+    document.querySelectorAll('button[data-level]').forEach(btn => {
+        if (btn.dataset.level === currentLevel) {
+            btn.classList.add('bg-primary', 'text-white');
+        } else {
+            btn.classList.remove('bg-primary', 'text-white');
+        }
+    });
+}
 
 //render users in the table
 const renderUsers = (users) => {
@@ -286,14 +307,45 @@ const filterByRole = () => {
 
 
 const orderBy = () => {
+
     document.addEventListener('click', (e) => {
-        let a = e.target.closest('a[data-order]');//header fields
-        if (!a) return;
-        currentOrder = a.dataset.order || '';//set status
-        orderType = orderType === 'ASC' ? 'DESC' : 'ASC';
+
+        const th = e.target.closest('a[data-order]');//header fields
+        if (!th) return;
+
+        const clickedOrder = th.dataset.order;
+
+        if (currentOrder === clickedOrder) {//chenge order type
+            orderType = orderType === 'ASC' ? 'DESC' : 'ASC';
+        } else {
+            currentOrder = clickedOrder;
+            orderType = 'DESC'; //default order type when clicking a new header
+        }
+
+        //chaneing icons of all the other headers (besides the clicked one)
+        document.querySelectorAll('a[data-order]').forEach(header => {
+            if (header.dataset.order !== currentOrder) {
+                header.innerHTML = header.textContent + "<i class='fas fa-sort-amount-up ms-1'></i>";
+            }
+        });
+
+
+        //add icon to the clicked header
+        const icon = document.createElement('i');
+        icon.className = orderType === 'ASC'
+            ? 'fas fa-sort-amount-up ms-1'
+            : 'fas fa-sort-amount-down ms-1';
+
+        //add the icon to the clicked header
+        th.innerHTML = `${th.textContent} ${icon.outerHTML}`;
+
         loadUsers(1);
+
     });
-}
+
+};
+
+
 
 
 //utility functions

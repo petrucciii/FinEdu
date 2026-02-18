@@ -19,7 +19,7 @@
 
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Database Utenti</h5>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 filter-container">
                         <div class="input-group" style="width: 300px;">
                             <input type="text" class="form-control" id="searchInput"
                                 placeholder="Cerca email o nome...">
@@ -58,7 +58,7 @@
                                 foreach ($roles as $role):
                                     ?>
                                     <li><button class="dropdown-item" data-role="<?= $role ?>">
-                                            <?= $role ?>
+                                            <?= ucfirst($role) ?>
                                         </button></li>
                                     <?php
 
@@ -75,13 +75,16 @@
                         <table class="table align-middle table-hover w-100" id="usersTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th><a data-order="user_id">ID</a></th>
-                                    <th><a data-order="last_name, first_name">Utente</a></th>
-                                    <th><a data-order="email">Email</a></th>
+                                    <th><a data-order="user_id">ID <i class="fas fa-sort-amount-up ms-1"></i> </a>
+                                    </th>
+                                    <th><a data-order="last_name, first_name">Utente <i
+                                                class="fas fa-sort-amount-up ms-1"></i></a></th>
+                                    <th><a data-order="email">Email <i class="fas fa-sort-amount-up ms-1"></i></a></th>
                                     <th>Ruolo</th>
                                     <th>Livello Educazione</th>
                                     <th>Portafogli</th>
-                                    <th><a data-order="created_at">Data Registrazione</a></th>
+                                    <th><a data-order="created_at">Data Registrazione <i
+                                                class="fas fa-sort-amount-up ms-1"></i></a></th>
                                     <th class="text-end">Azioni</th>
                                 </tr>
                             </thead>
