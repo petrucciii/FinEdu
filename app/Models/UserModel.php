@@ -133,9 +133,5 @@ class UserModel extends Model
           return $query->getRow()->count;
      }
 
-     //neccessary for pagination in UserManagementController, otherwise pagination would not workn
-     public function getAllUsers()
-     {
-          return $this->findAll();
-     }
+
 }
