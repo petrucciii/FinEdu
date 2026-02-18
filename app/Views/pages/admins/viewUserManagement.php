@@ -75,13 +75,13 @@
                         <table class="table align-middle table-hover w-100" id="usersTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Utente</th>
-                                    <th>Email</th>
+                                    <th><a data-order="user_id">ID</a></th>
+                                    <th><a data-order="last_name, first_name">Utente</a></th>
+                                    <th><a data-order="email">Email</a></th>
                                     <th>Ruolo</th>
                                     <th>Livello Educazione</th>
                                     <th>Portafogli</th>
-                                    <th>Data Registrazione</th>
+                                    <th><a data-order="created_at">Data Registrazione</a></th>
                                     <th class="text-end">Azioni</th>
                                 </tr>
                             </thead>

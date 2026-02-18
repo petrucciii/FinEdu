@@ -27,6 +27,7 @@ class UserManagementController extends BaseController
     public function search($where = '')
     {
         $userModel = model(UserModel::class);
+        $allowedOrderFields = ['user_id', 'last_name, first_name', 'email', 'created_at'];
 
         //only admin can search users, otherwise redirect to home page
         if ($this->session->get('role') == 'admin' && $this->session->has('logged')) {
@@ -46,18 +47,50 @@ class UserManagementController extends BaseController
                     ->groupEnd();
             }
 
-            //optional filters for role and level, if not "all" and present in get request
+            //optional filters for role and level, if not "all" and present in get request and valid (exists in database)
             if ($this->request->getGet('role') != "all") {
-                if ($this->request->getGet('role')) {
+                if (
+                    $this->request->getGet('role') &&
+                    in_array(
+                        trim($this->request->getGet('role')),
+                        model(RoleModel::class)->fread()
+                    )
+                ) {
                     $builder = $builder->where('role', trim($this->request->getGet('role')));
                 }
             }
 
             if ($this->request->getGet('level') != "all") {
-                if ($this->request->getGet('level')) {
+                if (
+                    $this->request->getGet('level') &&
+                    in_array(
+                        trim($this->request->getGet('level')),
+                        model(LevelModel::class)->fread()
+                    )
+                ) {
                     $builder = $builder->where('level', trim($this->request->getGet('level')));
                 }
             }
+
+            //optional order by, if present in get request and valid
+            if (
+                $this->request->getGet('order') &&
+                in_array(
+                    trim($this->request->getGet('order')),
+                    $allowedOrderFields
+                ) &&
+                $this->request->getGet('order_type') &&
+                in_array(
+                    trim($this->request->getGet('order_type')),
+                    ['ASC', 'DESC']
+                )
+            ) {
+                $builder = $builder->orderBy(
+                    $this->request->getGet(index: 'order'),
+                    $this->request->getGet(index: 'order_type')
+                );
+            }
+
 
             //paginate results, 10 users per page
             $users = $builder->paginate(10, 'default', $page);

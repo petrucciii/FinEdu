@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUsers();//load all users when page is loaded
     searchUser();
     filterByLevel();
+    filterByRole();
+    orderBy();
 });
 
 const settingsModal = () => {
@@ -83,6 +85,8 @@ const avatarColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg
 let currentQuery = '';
 let currentRole = '';
 let currentLevel = '';
+let currentOrder = '';
+let orderType = 'DESC';
 
 //build the url for fetching users
 const buildUsersUrl = (page = 1) => {
@@ -92,6 +96,7 @@ const buildUsersUrl = (page = 1) => {
     //optional filters
     if (currentRole) queryString += `&role=${encodeURIComponent(currentRole)}`;
     if (currentLevel) queryString += `&level=${encodeURIComponent(currentLevel)}`;
+    if (currentOrder) queryString += `&order=${encodeURIComponent(currentOrder)}&order_type=${encodeURIComponent(orderType)}`;
 
     //final URL
     return `/admin/UserManagementController/search/${encodeURIComponent(currentQuery)}?${queryString}`;
@@ -280,12 +285,21 @@ const filterByRole = () => {
 }
 
 
+const orderBy = () => {
+    document.addEventListener('click', (e) => {
+        let a = e.target.closest('a[data-order]');//header fields
+        if (!a) return;
+        currentOrder = a.dataset.order || '';//set status
+        orderType = orderType === 'ASC' ? 'DESC' : 'ASC';
+        loadUsers(1);
+    });
+}
+
 
 //utility functions
-
-//first name and last name initials used for avatar, converted to uppercase
-const getInitials = (first, last) =>
-    (first[0] + last[0]).toUpperCase();
+const getInitials = (first, last) => { //first name and last name initials used for avatar, converted to uppercase
+    return (first[0] + last[0]).toUpperCase();
+};
 
 const formatDate = (dateString) =>
     new Date(dateString).toLocaleDateString('it-IT');
