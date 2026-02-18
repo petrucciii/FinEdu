@@ -7,6 +7,7 @@ use Exception;
 
 class UserModel extends Model
 {
+     //necessary for pagination in UserManagementController, otherwise pagination would not workn
      protected $table = 'users';
      protected $primaryKey = 'user_id';
      protected $allowedFields = [

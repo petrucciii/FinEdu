@@ -45,7 +45,15 @@
                             <button class="btn btn-outline-primary px-4" type="submit" name="edit"
                                 value="email">Salva</button>
                         </div>
+
                     </form>
+                    <form class="d-flex align-items" action="" name="modalEditForm" method="post">
+                        <div id="modalRolesContainer" class="mt-2"></div>
+                        <button class="btn btn-outline-primary px-2" name="edit" value="role"
+                            type="submit">Salva</button>
+                    </form>
+
+
 
                     <div class="d-flex align-items-center mb-1">
                         <strong class="me-1">Registrato il: </strong>

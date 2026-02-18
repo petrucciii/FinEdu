@@ -3,6 +3,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use App\Models\RoleModel;
 
 class UserManagementController extends BaseController
 {
@@ -30,11 +31,12 @@ class UserManagementController extends BaseController
     {
         $userModel = model(UserModel::class);
         $user = $userModel->fread(['user_id' => $userId]);
+        $roles = model(RoleModel::class)->fread();
 
         if ($this->session->has('logged') && $this->session->get('role') == "admin" && $user[0]) {
             unset($user[0]['password']);
-
-            return $this->response->setJSON($user[0]);
+            //return user data as json and all roles to populate dropdown 
+            return $this->response->setJSON(['user' => $user[0], 'roles' => $roles]);
         }
 
         return redirect()->to(uri: '/');
@@ -42,7 +44,7 @@ class UserManagementController extends BaseController
 
     public function editColumn($userId)
     {
-        $allowedColumns = ['first_name', 'last_name', 'email'];
+        $allowedColumns = ['first_name', 'last_name', 'email', 'role'];
 
         $model = model(UserModel::class);
         //if is admin and fields have been inserted
@@ -58,7 +60,6 @@ class UserManagementController extends BaseController
                 } else {
                     return redirect()->back()->with('alert', 'Modifica non avvenuta');
                 }
-
             } else {
                 return redirect()->back()->with('alert', 'Si è verificato un problema');
             }
@@ -71,7 +72,6 @@ class UserManagementController extends BaseController
     {
         $model = model(UserModel::class);
         if ($this->request->getPost('password') && $this->session->has('logged') && $this->session->get('role') == "admin") {
-            $user = $model->fread(['user_id' => $userId]);
 
             $admin = $model->fread(['user_id' => $this->session->get('user_id')]);
             $hashAdminPassword = $admin[0]['password'];
