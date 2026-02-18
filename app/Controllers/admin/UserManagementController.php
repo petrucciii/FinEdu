@@ -4,15 +4,18 @@ namespace App\Controllers\Admin;
 use App\Controllers\BaseController;
 use App\Models\UserModel;
 use App\Models\RoleModel;
+use App\Models\LevelModel;
 
 class UserManagementController extends BaseController
 {
     public function index()
     {
+        $levels = model(LevelModel::class)->fread();
+        $roles = model(RoleModel::class)->fread();
         if ($this->session->has('logged') && $this->session->get('role') == "admin") {
 
             echo view("templates/header");
-            echo view("pages/admins/viewUserManagement");
+            echo view("pages/admins/viewUserManagement", ['levels' => $levels, 'roles' => $roles]);
             echo view("templates/footer");
             return;
         }
@@ -26,34 +29,42 @@ class UserManagementController extends BaseController
         $userModel = model(UserModel::class);
 
         //only admin can search users, otherwise redirect to home page
-        if ($this->session->get('role') == 'admin' || $this->session->has('logged')) {
-
-
+        if ($this->session->get('role') == 'admin' && $this->session->has('logged')) {
 
             //get page number by GET method, if not present set it to 1
             $page = $this->request->getGet('page') ?? 1;
 
-
             $builder = $userModel;
 
             if (!empty(trim($where))) {
-                //search users by email, first name or last name with like operator, so partial matches are allowed, for example if query is "ma" it will match "Mario", "Matteo", "Rossi Mario" and so on...
+                //search users by email, first name or last name
                 $builder = $builder
-                    ->groupStart()//open parenthesis for where conditions
-                    ->like('email', $where)
-                    ->orLike('first_name', $where)
-                    ->orLike('last_name', $where)
-                    ->groupEnd();//close parenthesis
+                    ->groupStart()
+                    ->like('email', trim($where))
+                    ->orLike('first_name', trim($where))
+                    ->orLike('last_name', trim($where))
+                    ->groupEnd();
             }
 
+            //optional filters for role and level, if not "all" and present in get request
+            if ($this->request->getGet('role') != "all") {
+                if ($this->request->getGet('role')) {
+                    $builder = $builder->where('role', trim($this->request->getGet('role')));
+                }
+            }
 
-            //paginate results, 10 users per page, page number is passed as parameter, pagination managed in frontedn
+            if ($this->request->getGet('level') != "all") {
+                if ($this->request->getGet('level')) {
+                    $builder = $builder->where('level', trim($this->request->getGet('level')));
+                }
+            }
+
+            //paginate results, 10 users per page
             $users = $builder->paginate(10, 'default', $page);
             $pager = $userModel->pager;
 
             return $this->response->setJSON([
                 'users' => $users,
-                //pagination data to manage pagination in frontend
                 'pagination' => [
                     'currentPage' => $pager->getCurrentPage(),
                     'perPage' => $pager->getPerPage(),

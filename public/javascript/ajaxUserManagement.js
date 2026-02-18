@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsModal();
     loadUsers();//load all users when page is loaded
     searchUser();
+    filterByLevel();
 });
 
 const settingsModal = () => {
@@ -78,45 +79,48 @@ const settingsModal = () => {
 }
 const avatarColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg-info'];
 
+//global status
+let currentQuery = '';
+let currentRole = '';
+let currentLevel = '';
 
-//search user by name, email or role, with debounce of 300ms to avoid too many requests while typing
+//build the url for fetching users
+const buildUsersUrl = (page = 1) => {
+    //get parameters building
+    let queryString = `page=${page}`;
 
+    //optional filters
+    if (currentRole) queryString += `&role=${encodeURIComponent(currentRole)}`;
+    if (currentLevel) queryString += `&level=${encodeURIComponent(currentLevel)}`;
+
+    //final URL
+    return `/admin/UserManagementController/search/${encodeURIComponent(currentQuery)}?${queryString}`;
+};
+
+
+//search user by name, email or role.
 const searchUser = () => {
     const input = document.getElementById('searchInput');
 
-    //when the user types something, the request is sent.
     input.addEventListener('input', (e) => {
-        const query = e.target.value;
-
-        //ajax request to search users by query, then render users and pagination
-        fetch('/admin/UserManagementController/search/' + query)
-            .then(res => {
-                if (!res.ok) throw new Error('Errore server');
-                return res.json();
-            })
-            .then(data => {
-                if (!data.users) return;
-                renderUsers(data.users);
-                renderPagination(data.pagination);
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Errore ricerca utenti');
-            });
+        currentQuery = e.target.value.trim();
+        loadUsers(1);
     });
 };
 
 
-//load users with pagination, page number and search query are passed as parameters, default values are page=1 and query='' (all users)
 
-const loadUsers = (page = 1, query = '') => {
-    fetch(`/admin/UserManagementController/search/${query}?page=${page}`)
+//load users with ajax, passing page number as parameter, and using global status for search query and filters. then render users and pagination.
+const loadUsers = (page = 1) => {
+
+    fetch(buildUsersUrl(page))
         .then(res => res.json())
         .then(data => {
             renderUsers(data.users);
             renderPagination(data.pagination);
         });
 }
+
 
 
 
@@ -252,6 +256,29 @@ const createUserRow = (user, index) => {
 
     return tr;
 };
+
+//filter users by level, when dropdown item is clicked
+const filterByLevel = () => {
+    document.addEventListener('click', (e) => {
+        let btn = e.target.closest('button[data-level]');//dropdown buttons
+        if (!btn) return;
+
+        currentLevel = btn.dataset.level || '';//set status
+        loadUsers(1);//load users with new filter
+    });
+}
+
+//filter users by level, when dropdown item is clicked
+const filterByRole = () => {
+    document.addEventListener('click', (e) => {
+        let btn = e.target.closest('button[data-role]');//dropdown buttons
+        if (!btn) return;
+
+        currentRole = btn.dataset.role || '';//set status
+        loadUsers(1);//load users with new filter
+    });
+}
+
 
 
 //utility functions

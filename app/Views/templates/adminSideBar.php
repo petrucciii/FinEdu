@@ -38,7 +38,8 @@
             </li>
 
             <li class="nav-item mt-auto border-top border-secondary">
-                <a href="#" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+                <a href="/UserController/logout" class="nav-link text-danger"><i class="fas fa-sign-out-alt me-2"></i>
+                    Logout</a>
             </li>
         </ul>
     </div>

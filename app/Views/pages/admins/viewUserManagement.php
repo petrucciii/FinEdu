@@ -25,17 +25,48 @@
                                 placeholder="Cerca email o nome...">
                         </div>
                         <div class="dropdown">
-                            <button class="btn btn-outline-primary dropdown-toggle" type="button"
+                            <button class="btn btn-outline-primary dropdown-toggle " type="button"
                                 data-bs-toggle="dropdown">
-                                <i class="fas fa-filter"></i> Filtra
+                                <i class="fas fa-filter"></i> Filtra per Livello
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Tutti gli utenti</a></li>
-                                <li><a class="dropdown-item" href="#">Livello: Principiante</a></li>
-                                <li><a class="dropdown-item" href="#">Livello: Intermedio</a></li>
-                                <li><a class="dropdown-item" href="#">Livello: Avanzato</a></li>
+                                <li><button class="dropdown-item" data-level="all">Tutti gli
+                                        utenti</button>
+                                </li>
+                                <?php
+                                foreach ($levels as $level):
+                                    ?>
+                                    <li><button class="dropdown-item" data-level="<?= $level ?>">
+                                            <?= $level ?>
+                                        </button></li>
+                                    <?php
+
+                                endforeach;
+                                ?>
                             </ul>
                         </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle " type="button"
+                                data-bs-toggle="dropdown">
+                                <i class="fas fa-filter"></i> Filtra per Ruolo
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button class="dropdown-item" data-role="all">Tutti gli
+                                        utenti</button>
+                                </li>
+                                <?php
+                                foreach ($roles as $role):
+                                    ?>
+                                    <li><button class="dropdown-item" data-role="<?= $role ?>">
+                                            <?= $role ?>
+                                        </button></li>
+                                    <?php
+
+                                endforeach;
+                                ?>
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
 
