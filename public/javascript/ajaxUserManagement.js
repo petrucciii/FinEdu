@@ -17,6 +17,7 @@ document.addEventListener('click', (e) => {
         })
         .then(data => {
 
+
             //populate modal with user data
             document.getElementById('modalUserTitle').textContent = " Utente #" + data.user.user_id;
             document.getElementsByClassName('modalInputFirstName')[0].value = data.user.first_name;
@@ -33,11 +34,11 @@ document.addEventListener('click', (e) => {
 
             //roles radiobuttons
             let rolesContainer = document.getElementById('modalRolesContainer');
+            rolesContainer.innerHTML = "";//clear previous roles
 
             //populate radiobuttons with all roles, and check the one that is the current role of the user
             data.roles.forEach(role => {
                 let div = document.createElement('div');
-                div.innerHTML = "";
                 div.className = "form-check form-check-inline";
                 div.innerHTML = `
                     <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role}"
@@ -56,6 +57,8 @@ document.addEventListener('click', (e) => {
             );
 
             modal.show();
+
+
         })
         //other tyoes of errors (network, json, etc.)
         .catch(err => {
