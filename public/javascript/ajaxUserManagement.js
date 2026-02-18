@@ -84,6 +84,7 @@ const avatarColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg
 const searchUser = () => {
     const input = document.getElementById('searchInput');
 
+    //when the user types something, the request is sent.
     input.addEventListener('input', (e) => {
         const query = e.target.value;
 
