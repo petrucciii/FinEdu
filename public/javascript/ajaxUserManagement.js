@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     filterByLevel();
     filterByRole();
     orderBy();
+    exportUsers();
 });
 
 const settingsModal = () => {
@@ -89,7 +90,7 @@ let currentOrder = '';
 let orderType = 'ASC';
 
 //build the url for fetching users
-const buildUsersUrl = (page = 1) => {
+const buildUsersUrl = (page = 1, exportCsv = false) => {
     //get parameters building
     let queryString = `page=${page}`;
 
@@ -97,16 +98,56 @@ const buildUsersUrl = (page = 1) => {
     if (currentRole) queryString += `&role=${encodeURIComponent(currentRole)}`;
     if (currentLevel) queryString += `&level=${encodeURIComponent(currentLevel)}`;
     if (currentOrder) queryString += `&order=${encodeURIComponent(currentOrder)}&order_type=${encodeURIComponent(orderType)}`;
+    if (exportCsv) queryString += `&export=${encodeURIComponent(exportCsv)}`;
 
     //final URL
     return `/admin/UserManagementController/search/${encodeURIComponent(currentQuery)}?${queryString}`;
 };
 
 
+//export csv
+const exportUsers = () => {
+    const exportBtn = document.getElementById("exportBtn");
+    if (!exportBtn) {console.log("non trovato"); return;}
+
+    //when btn clicked
+    exportBtn.addEventListener('click', () => {
+        exportBtn.disabled = true;
+
+        //ajax call with export mode true
+        fetch(buildUsersUrl(1, true))
+            .then(response => {
+                if (!response.ok) throw new Error("Errore nel download");
+                return response.blob();//server response is blob format (csv)
+            })
+            .then(blob => {
+                //temporary elements
+                const url = window.URL.createObjectURL(blob);//url that points to the blob
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                
+                a.download = `export_utenti_${formatDate(new Date())}.csv`;//filename
+                
+                document.body.appendChild(a);
+                a.click();
+                
+                //remove temporary
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                exportBtn.disabled = false;
+            })
+            .catch(error => {
+                console.error("Errore:", error);
+                exportBtn.disabled = false;
+            });
+    });
+};
+
 //search user by name, email or role.
 const searchUser = () => {
     const input = document.getElementById('searchInput');
-
+    
     input.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
         loadUsers(1);
@@ -118,7 +159,6 @@ const searchUser = () => {
 //load users with ajax, passing page number as parameter, and using global status for search query and filters.
 //  then render users and pagination.
 const loadUsers = (page = 1) => {
-
     fetch(buildUsersUrl(page))
         .then(res => res.json())
         .then(data => {
@@ -126,7 +166,7 @@ const loadUsers = (page = 1) => {
             renderPagination(data.pagination);
         });
 
-    seeFilters();
+    seeFilters();//update dropdown buttons styles based on current filters, using global status
 }
 
 const seeFilters = () => {

@@ -22,6 +22,10 @@ use Psr\Log\LoggerInterface;
 abstract class BaseController extends Controller
 {
     /**
+        * @var \CodeIgniter\Session\Session 
+    */
+    protected $session;
+    /**
      * Instance of the main Request object.
      *
      * @var CLIRequest|IncomingRequest
@@ -48,6 +52,7 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+        
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
         $this->session = \Config\Services::session(); 

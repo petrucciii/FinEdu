@@ -3,7 +3,7 @@
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <h5 class="m-0 text-muted">Gestione Utenti</h5>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" type="button">
+            <button class="btn btn-outline-secondary" type="button" id="exportBtn">
                 <i class="fas fa-download"></i> Esporta CSV
             </button>
             <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#addUserModal">

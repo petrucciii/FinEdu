@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
@@ -8,6 +9,7 @@ use App\Models\LevelModel;
 
 class UserManagementController extends BaseController
 {
+
     public function index()
     {
         $levels = model(LevelModel::class)->fread();
@@ -90,9 +92,15 @@ class UserManagementController extends BaseController
                     $this->request->getGet(index: 'order_type')
                 );
             }
+            //if is export mode pass everything at once not page by page
+            if ($this->request->getGet('export')) {
+                $users = $builder->findAll();
+                
+                $columns = ['user_id', 'first_name', 'last_name', 'email', 'role', 'level', 'created_at'];
 
-
-            //paginate results, 10 users per page
+                self::toCSV($users, $columns);
+            }
+            //paginate results, 10 users per page*/
             $users = $builder->paginate(10, 'default', $page);
             $pager = $userModel->pager;
 
@@ -146,7 +154,6 @@ class UserManagementController extends BaseController
             } else {
                 return redirect()->back()->with('alert', 'Si è verificato un problema');
             }
-
         }
         return redirect()->to('/');
     }
@@ -161,9 +168,8 @@ class UserManagementController extends BaseController
 
             //admin's password needed to delete user
             if (password_verify($this->request->getPost('password'), $hashAdminPassword)) {
-                if ($model->fdelete(['user_id' => $userId])) {//delete user
+                if ($model->fdelete(['user_id' => $userId])) { //delete user
                     return redirect()->back()->with('alert', 'Profilo eliminato!');
-
                 } else {
                     return redirect()->back()->with('alert', 'Profilo non eliminato!');
                 }
@@ -174,4 +180,33 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
+    //return a CSV file
+    /**
+     * @param $mdArray multi dimensional array 
+     * @param $columns fields that should be included
+     */
+    public static function toCSV($mdArray, $columns)
+    {
+        //file specifics
+        header('Content-Type: text/csv; charset=utf-8');
+
+        //output stream: send the response to an output window like an echo
+        $output = fopen('php://output', 'w');
+
+        //header of the csv
+        fputcsv($output, $columns);
+
+        //populate csv
+        foreach ($mdArray as $user) {
+            $row = [];
+            foreach ($columns as $column) {
+                //csv row
+                $row[] = $user[$column] ?? '';
+            }
+            fputcsv($output, $row); 
+        }
+
+        fclose($output);
+        exit;
+    }
 }
