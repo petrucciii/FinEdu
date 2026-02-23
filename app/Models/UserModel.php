@@ -57,7 +57,7 @@ class UserModel extends Model
      {
           $db = db_connect();
 
-          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, level, role, created_at FROM ' . $this->table;
+          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, u.level_id, u.role_id, u.created_at, role, level FROM ' . $this->table . " as u JOIN levels USING(level_id) JOIN roles USING(role_id)";
           $params = [];
 
           if (!empty($where)) {
@@ -132,6 +132,5 @@ class UserModel extends Model
           $query = $db->query($sql, $data);
           return $query->getRow()->count;
      }
-
 
 }

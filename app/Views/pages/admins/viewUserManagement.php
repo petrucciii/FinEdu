@@ -30,16 +30,15 @@
                                 <i class="fas fa-filter"></i> Filtra per Livello
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><button class="dropdown-item" data-level="all">Tutti gli
+                                <li><button class="dropdown-item" data-level_id="all">Tutti gli
                                         utenti</button>
                                 </li>
                                 <?php
                                 foreach ($levels as $level):
                                     ?>
-                                    <li><button class="dropdown-item" data-level="<?= $level ?>">
-                                            <?= $level ?>
-                                        </button></li>
-                                    <?php
+                                    <li><button class="dropdown-item" data-level_id=<?= $level['level_id'] ?>>
+                                            <?= $level['level'] ?> </button></li>
+                                            <?php
 
                                 endforeach;
                                 ?>
@@ -51,15 +50,14 @@
                                 <i class="fas fa-filter"></i> Filtra per Ruolo
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><button class="dropdown-item" data-role="all">Tutti gli
+                                <li><button class="dropdown-item" data-role_id="all">Tutti gli
                                         utenti</button>
                                 </li>
                                 <?php
                                 foreach ($roles as $role):
                                     ?>
-                                    <li><button class="dropdown-item" data-role="<?= $role ?>">
-                                            <?= ucfirst($role) ?>
-                                        </button></li>
+                                    <li><button class="dropdown-item" data-role_id=<?= $role['role_id'] ?>>
+                                            <?= ucfirst($role['role']) ?> </button></li>
                                     <?php
 
                                 endforeach;
@@ -119,11 +117,11 @@
             <td data-field="email"></td>
 
             <td>
-                <span class="badge" data-field="role"></span>
+                <span class="badge" data-field="role_id"></span>
             </td>
 
             <td>
-                <span class="badge" data-field="level"></span>
+                <span class="badge" data-field="level_id"></span>
             </td>
 
             <td>

@@ -1,6 +1,6 @@
 <?= view("templates/alert"); ?>
 
-<?php if (session()->get('role') === 'admin' && session()->has('logged')): ?>
+<?php if (session()->get('role_id') === 1 && session()->has('logged')): ?>
     </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
 <?php else: ?>
     <footer class="bg-dark text-white pt-5 pb-4 mt-auto">

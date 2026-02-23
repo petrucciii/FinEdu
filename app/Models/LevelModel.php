@@ -3,28 +3,29 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 use Exception;
+use Kint\Renderer\RichRenderer;
 
 class LevelModel extends Model
 {
     protected $table = 'levels';
-    protected $primaryKey = 'level';
+    protected $primaryKey = 'level_id';
+
+    protected $allowedFields = ['level'];
 
 
-
-    //returns an array with the levels: [level1, level2, ...] 
     public function fread()
     {
         $db = db_connect();
 
 
-        $sql = "SELECT level FROM " . $this->table;
+        $sql = "SELECT level_id, level FROM " . $this->table;
 
         try {
-            $result = $db->query($sql)->getResultArray();
-            return array_column($result, 'level');
+            return $db->query(sql: $sql)->getResultArray();
         } catch (Exception $e) {
             return false;
         }
     }
 
 }
+

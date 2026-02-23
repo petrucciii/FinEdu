@@ -54,11 +54,11 @@ const settingsModal = () => {
                     let div = document.createElement('div');
                     div.className = "form-check form-check-inline";
                     div.innerHTML = `
-                    <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role}"
-                        value="${role}">
-                    <label class="form-check-label" for="inlineRadio${role}">${role[0].toUpperCase() + role.slice(1)}</label>
+                    <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role['role']}"
+                        value=${role['role_id']}>
+                    <label class="form-check-label" for="inlineRadio${role['role_id']}">${role['role'][0].toUpperCase() + role['role'].slice(1)}</label>
                 `;
-                    if (role == data.user.role) {
+                    if (role['role_id'] == data.user.role_id) {
                         div.querySelector('input').checked = true;
                     }
                     rolesContainer.appendChild(div);
@@ -95,8 +95,8 @@ const buildUsersUrl = (page = 1, exportCsv = false) => {
     let queryString = `page=${page}`;
 
     //optional filters
-    if (currentRole) queryString += `&role=${encodeURIComponent(currentRole)}`;
-    if (currentLevel) queryString += `&level=${encodeURIComponent(currentLevel)}`;
+    if (currentRole) queryString += `&role_id=${encodeURIComponent(currentRole)}`;
+    if (currentLevel) queryString += `&level_id=${encodeURIComponent(currentLevel)}`;
     if (currentOrder) queryString += `&order=${encodeURIComponent(currentOrder)}&order_type=${encodeURIComponent(orderType)}`;
     if (exportCsv) queryString += `&export=${encodeURIComponent(exportCsv)}`;
 
@@ -108,7 +108,7 @@ const buildUsersUrl = (page = 1, exportCsv = false) => {
 //export csv
 const exportUsers = () => {
     const exportBtn = document.getElementById("exportBtn");
-    if (!exportBtn) {console.log("non trovato"); return;}
+    if (!exportBtn) { console.log("non trovato"); return; }
 
     //when btn clicked
     exportBtn.addEventListener('click', () => {
@@ -126,12 +126,12 @@ const exportUsers = () => {
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                
+
                 a.download = `export_utenti_${formatDate(new Date())}.csv`;//filename
-                
+
                 document.body.appendChild(a);
                 a.click();
-                
+
                 //remove temporary
                 window.URL.revokeObjectURL(url);
                 a.remove();
@@ -147,7 +147,7 @@ const exportUsers = () => {
 //search user by name, email or role.
 const searchUser = () => {
     const input = document.getElementById('searchInput');
-    
+
     input.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
         loadUsers(1);
@@ -171,8 +171,8 @@ const loadUsers = (page = 1) => {
 
 const seeFilters = () => {
     //update dropdown buttons styles based on current filters, using global status
-    document.querySelectorAll('button[data-role]').forEach(btn => {
-        if (btn.dataset.role === currentRole) {
+    document.querySelectorAll('button[data-role_id]').forEach(btn => {
+        if (btn.dataset.role_id === currentRole) {
             btn.classList.add('bg-primary', 'text-white');
         } else {
             btn.classList.remove('bg-primary', 'text-white');
@@ -181,8 +181,8 @@ const seeFilters = () => {
 
     });
 
-    document.querySelectorAll('button[data-level]').forEach(btn => {
-        if (btn.dataset.level === currentLevel) {
+    document.querySelectorAll('button[data-level_id]').forEach(btn => {
+        if (btn.dataset.level_id === currentLevel) {
             btn.classList.add('bg-primary', 'text-white');
         } else {
             btn.classList.remove('bg-primary', 'text-white');
@@ -292,14 +292,14 @@ const createUserRow = (user, index) => {
     const colorClass = avatarColors[index % avatarColors.length];
 
     //role badge: red: Admin, gray: User
-    const roleBadge = user.role.toLowerCase() === 'admin' ? 'bg-danger' : 'bg-secondary';
+    const roleBadge = user.role_id === 1 ? 'bg-danger' : 'bg-secondary';
 
     //level badge: green: Principiante, blue: Intermedio, yellow: Avanzato
     const lvlBadgeMap = {
-        'Principiante': 'bg-success',
-        'Intermedio': 'bg-primary',
+        1: 'bg-success',
+        2: 'bg-primary',
     };
-    const lvlBadge = lvlBadgeMap[user.level] ?? 'bg-warning text-dark';
+    const lvlBadge = lvlBadgeMap[user.level_id] ?? 'bg-warning text-dark';
 
     //populate <template> with user dat
     const template = document.getElementById('userRowTemplate');
@@ -313,10 +313,10 @@ const createUserRow = (user, index) => {
     tr.querySelector('[data-field="avatar"]').textContent = getInitials(user.first_name, user.last_name);
     tr.querySelector('[data-field="full_name"]').textContent = `${user.first_name} ${user.last_name}`;
     tr.querySelector('[data-field="email"]').textContent = user.email;
-    tr.querySelector('[data-field="role"]').className += ` ${roleBadge}`;
-    tr.querySelector('[data-field="role"]').textContent = ucFirst(user.role);
-    tr.querySelector('[data-field="level"]').className += ` ${lvlBadge}`;
-    tr.querySelector('[data-field="level"]').textContent = user.level;
+    tr.querySelector('[data-field="role_id"]').className += ` ${roleBadge}`;
+    tr.querySelector('[data-field="role_id"]').textContent = ucFirst(user.role);
+    tr.querySelector('[data-field="level_id"]').className += ` ${lvlBadge}`;
+    tr.querySelector('[data-field="level_id"]').textContent = user.level;
     tr.querySelector('[data-field="created_at"]').textContent = formatDate(user.created_at);
     tr.querySelector('[data-field="manage_btn"]').dataset.id = user.user_id;
 
@@ -326,10 +326,10 @@ const createUserRow = (user, index) => {
 //filter users by level, when dropdown item is clicked
 const filterByLevel = () => {
     document.addEventListener('click', (e) => {
-        let btn = e.target.closest('button[data-level]');//dropdown buttons
+        let btn = e.target.closest('button[data-level_id]');//dropdown buttons
         if (!btn) return;
 
-        currentLevel = btn.dataset.level || '';//set status
+        currentLevel = btn.dataset.level_id || 0;//set status
         loadUsers(1);//load users with new filter
     });
 }
@@ -337,10 +337,10 @@ const filterByLevel = () => {
 //filter users by level, when dropdown item is clicked
 const filterByRole = () => {
     document.addEventListener('click', (e) => {
-        let btn = e.target.closest('button[data-role]');//dropdown buttons
+        let btn = e.target.closest('button[data-role_id]');//dropdown buttons
         if (!btn) return;
 
-        currentRole = btn.dataset.role || '';//set status
+        currentRole = btn.dataset.role_id || 0;//set status
         loadUsers(1);//load users with new filter
     });
 }

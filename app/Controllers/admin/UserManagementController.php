@@ -14,7 +14,7 @@ class UserManagementController extends BaseController
     {
         $levels = model(LevelModel::class)->fread();
         $roles = model(RoleModel::class)->fread();
-        if ($this->session->has('logged') && $this->session->get('role') == "admin") {
+        if ($this->session->has('logged') && $this->session->get('role_id') == 1) {
 
             echo view("templates/header");
             echo view("pages/admins/viewUserManagement", ['levels' => $levels, 'roles' => $roles]);
@@ -32,12 +32,16 @@ class UserManagementController extends BaseController
         $allowedOrderFields = ['user_id', 'last_name, first_name', 'email', 'created_at'];
 
         //only admin can search users, otherwise redirect to home page
-        if ($this->session->get('role') == 'admin' && $this->session->has('logged')) {
+        if ($this->session->get('role_id') == 1 && $this->session->has('logged')) {
 
             //get page number by GET method, if not present set it to 1
             $page = $this->request->getGet('page') ?? 1;
 
             $builder = $userModel;
+            $builder = $builder
+
+                ->join('levels', "users.level_id = levels.level_id")
+                ->join('roles', "users.role_id = roles.role_id");
 
             if (!empty(trim($where))) {
                 //search users by email, first name or last name
@@ -49,28 +53,28 @@ class UserManagementController extends BaseController
                     ->groupEnd();
             }
 
-            //optional filters for role and level, if not "all" and present in get request and valid (exists in database)
-            if ($this->request->getGet('role') != "all") {
+            //optional filters for role_id and level, if not "all" and present in get request and valid (exists in database)
+            if ($this->request->getGet('role_id') != "all") {
                 if (
-                    $this->request->getGet('role') &&
-                    in_array(
-                        trim($this->request->getGet('role')),
-                        model(RoleModel::class)->fread()
-                    )
+                    $this->request->getGet('role_id') /*&&
+in_array(
+trim($this->request->getGet('role_id')),
+model(RoleModel::class)->fread()
+)*/
                 ) {
-                    $builder = $builder->where('role', trim($this->request->getGet('role')));
+                    $builder = $builder->where('users.role_id', (int) $this->request->getGet('role_id'));
                 }
             }
 
-            if ($this->request->getGet('level') != "all") {
+            if ($this->request->getGet('level_id') != "all") {
                 if (
-                    $this->request->getGet('level') &&
-                    in_array(
-                        trim($this->request->getGet('level')),
-                        model(LevelModel::class)->fread()
-                    )
+                    $this->request->getGet('level_id') /*&&
+in_array(
+$this->request->getGet('level_id'),
+model(LevelModel::class)->fread();
+)*/
                 ) {
-                    $builder = $builder->where('level', trim($this->request->getGet('level')));
+                    $builder = $builder->where('users.level_id', (int) $this->request->getGet('level_id'));
                 }
             }
 
@@ -95,8 +99,8 @@ class UserManagementController extends BaseController
             //if is export mode pass everything at once not page by page
             if ($this->request->getGet('export')) {
                 $users = $builder->findAll();
-                
-                $columns = ['user_id', 'first_name', 'last_name', 'email', 'role', 'level', 'created_at'];
+
+                $columns = ['user_id', 'first_name', 'last_name', 'email', 'role_id', 'level_id', 'created_at'];
 
                 self::toCSV($users, $columns);
             }
@@ -124,7 +128,7 @@ class UserManagementController extends BaseController
         $user = $userModel->fread(['user_id' => $userId]);
         $roles = model(RoleModel::class)->fread();
 
-        if ($this->session->has('logged') && $this->session->get('role') == "admin" && $user[0]) {
+        if ($this->session->has('logged') && $this->session->get('role_id') == 1 && $user[0]) {
             unset($user[0]['password']);
             //return user data as json and all roles to populate dropdown 
             return $this->response->setJSON(['user' => $user[0], 'roles' => $roles]);
@@ -135,11 +139,11 @@ class UserManagementController extends BaseController
 
     public function editColumn($userId)
     {
-        $allowedColumns = ['first_name', 'last_name', 'email', 'role'];
+        $allowedColumns = ['first_name', 'last_name', 'email', 'role_id'];
 
         $model = model(UserModel::class);
         //if is admin and fields have been inserted
-        if ($this->session->has('logged') && $this->session->get('role') == "admin" && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
+        if ($this->session->has('logged') && $this->session->get('role_id') == 1 && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
                 $data = [
                     'user_id' => $userId,
@@ -161,7 +165,7 @@ class UserManagementController extends BaseController
     public function delete($userId)
     {
         $model = model(UserModel::class);
-        if ($this->request->getPost('password') && $this->session->has('logged') && $this->session->get('role') == "admin") {
+        if ($this->request->getPost('password') && $this->session->has('logged') && $this->session->get('role_id') == 1) {
 
             $admin = $model->fread(['user_id' => $this->session->get('user_id')]);
             $hashAdminPassword = $admin[0]['password'];
@@ -203,10 +207,11 @@ class UserManagementController extends BaseController
                 //csv row
                 $row[] = $user[$column] ?? '';
             }
-            fputcsv($output, $row); 
+            fputcsv($output, $row);
         }
 
         fclose($output);
         exit;
     }
 }
+

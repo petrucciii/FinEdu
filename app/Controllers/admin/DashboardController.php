@@ -9,7 +9,7 @@ class DashboardController extends BaseController
     public function index()
     {
         $modelUser = model(UserModel::class);
-        if ($this->session->has('logged') && $this->session->get('role') == "admin") {
+        if ($this->session->has('logged') && $this->session->get('role_id') == 1) {
             $data = [
                 'userCount' => $modelUser->countUsers(['role' => 'user'])
             ];

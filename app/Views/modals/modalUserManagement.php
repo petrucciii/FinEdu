@@ -49,7 +49,7 @@
                     </form>
                     <form class="d-flex align-items" action="" name="modalEditForm" method="post">
                         <div id="modalRolesContainer" class="mt-2"></div>
-                        <button class="btn btn-outline-primary px-2" name="edit" value="role"
+                        <button class="btn btn-outline-primary px-2" name="edit" value="role_id"
                             type="submit">Salva</button>
                     </form>
 

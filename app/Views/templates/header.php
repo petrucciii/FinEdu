@@ -82,7 +82,7 @@
         </div>
     </nav>
     <?= $this->include('templates/modals') ?>
-    <?php if (session()->get('role') == "admin" && session()->has('logged')):
+    <?php if (session()->get('role_id') == 1 && session()->has('logged')):
         echo view("templates/adminBottombar");
     endif; ?>
 

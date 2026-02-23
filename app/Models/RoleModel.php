@@ -7,24 +7,23 @@ use Exception;
 class RoleModel extends Model
 {
     protected $table = 'roles';
-    protected $primaryKey = 'role';
+    protected $primaryKey = 'role_id';
 
 
 
-    //returns an array with the roles: [role1, role2, ...] 
     public function fread()
     {
         $db = db_connect();
 
 
-        $sql = "SELECT role FROM " . $this->table;
+        $sql = "SELECT role_id, role FROM " . $this->table;
 
         try {
-            $result = $db->query($sql)->getResultArray();
-            return array_column($result, 'role');
+            return $db->query($sql)->getResultArray();
         } catch (Exception $e) {
             return false;
         }
     }
 
 }
+
