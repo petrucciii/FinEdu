@@ -88,11 +88,9 @@
 
                 <p class="text-danger mb-2"><strong>Azioni Irreversibili</strong></p>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-danger"><i class="fas fa-ban me-2"></i> Disativa
+                    <button class="btn btn-outline-danger"><i class="fas fa-ban me-2"></i> Disattiva
                         Utente</button>
-                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i
-                            class="fas fa-trash me-2"></i> Elimina
-                        Definitivamente</button>
+                    
                 </div>
 
 
@@ -110,13 +108,13 @@
             <div class="modal-body text-center p-5">
                 <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3.5rem;"></i>
                 <h4 class="fw-bold">Sei sicuro?</h4>
-                <p class="text-muted">L'azione è irreversibile. Digita la tua password per confermare.</p>
+                <p class="text-muted">Digita la tua password per confermare.</p>
                 <form action="" id="modalDeleteForm" method="post">
                     <input type="password" name="password" class="form-control mb-3" placeholder="Password attuale"
                         required>
                     <div class="d-flex gap-2 justify-content-center">
                         <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annulla</button>
-                        <button type="submit" class="btn btn-danger px-4">Elimina Definitivamente</button>
+                        <button type="submit" class="btn btn-danger px-4">Elimina</button>
                     </div>
                 </form>
 

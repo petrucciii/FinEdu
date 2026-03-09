@@ -138,8 +138,8 @@
         </tr>
     </template>
 
-
-    <?= $this->include("modals/modalUserManagement"); ?>
+    <?= $this->include("modals/modalUserAdd"); ?>
+    <? view("modals/modalUserManagement", $roles); ?>
     <script src="<?= base_url('javascript/ajaxUserManagement.js') ?>"></script>
 
 </div>
