@@ -125,11 +125,11 @@ class UserModel extends Model
 
      }
 
-     public function countUsers($data)
+     public function countUsers()
      {
           $db = db_connect();
           $sql = 'SELECT COUNT(*) as count FROM ' . $this->table . ' GROUP BY role_id HAVING role_id = :role_id:';
-          $query = $db->query($sql, $data);
+          $query = $db->query($sql);
           return $query->getRow()->count;
      }
 
