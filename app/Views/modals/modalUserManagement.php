@@ -88,6 +88,8 @@
 
                 <p class="text-danger mb-2"><strong>Azioni Irreversibili</strong></p>
                 <div class="d-grid gap-2">
+                    <button class="btn btn-outline-danger"><i class="fas fa-ban me-2"></i> Disativa
+                        Utente</button>
                     <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal"><i
                             class="fas fa-trash me-2"></i> Elimina
                         Definitivamente</button>

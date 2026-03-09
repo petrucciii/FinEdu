@@ -2,7 +2,7 @@
     <div id="bottombar" class="fixed-bottom border-top border-secondary">
         <div class="container-fluid h-100">
             <div class="d-flex justify-content-center align-items-center h-100">
-                
+
                 <div class="me-4 d-none d-md-block border-end border-secondary pe-4">
                     <h6 class="mb-0 fw-bold text-white"><i class="fas fa-shield-alt text-primary"></i> FinEdu</h6>
                 </div>
@@ -22,7 +22,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="/admin/NewsManagementController/" class="nav-link">
-                            <i class="fas fa-building"></i>
+                            <i class="far fa-newspaper"></i>
                             <span class="d-none d-sm-block">News</span>
                         </a>
                     </li>
@@ -34,7 +34,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="/admin/QuizManagementController/" class="nav-link">
-                            <i class="fas fa-graduation-cap"></i>
+                            <i class="far fa-clipboard"></i>
                             <span class="d-none d-sm-block">Quiz</span>
                         </a>
                     </li>
@@ -46,7 +46,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="/admin/UserManagementController/" class="nav-link">
-                            <i class="fas fa-users"></i>
+                            <i class="fas fa-wallet"></i>
                             <span class="d-none d-sm-block">Portafogli</span>
                         </a>
                     </li>
