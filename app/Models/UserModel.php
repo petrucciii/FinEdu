@@ -16,14 +16,14 @@ class UserModel extends Model
           'email',
           'password',
           'experience',
-          'level',
-          'role',
+          'level_id',
+          'role_id',
           'created_at'
      ];
 
      protected $useTimestamps = false;
 
-     private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level', 'role', 'created_at'];
+     private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level_id', 'role_id', 'created_at'];
 
      //create 
      public function fcreate(array $data)

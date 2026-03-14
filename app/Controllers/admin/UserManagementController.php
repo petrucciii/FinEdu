@@ -57,8 +57,8 @@ class UserManagementController extends BaseController
             if ($this->request->getGet('role_id') != "all") {
                 if (
                     $this->request->getGet('role_id') /*&&
-in_array(
-trim($this->request->getGet('role_id')),
+            in_array(
+            trim($this->request->getGet('role_id')),
 model(RoleModel::class)->fread()
 )*/
                 ) {
@@ -128,7 +128,7 @@ model(LevelModel::class)->fread();
         $user = $userModel->fread(['user_id' => $userId]);
         $roles = model(RoleModel::class)->fread();
 
-        if ($this->session->has('logged') && $this->session->get('role_id') == 1 && $user[0]) {
+        if ($this->session->has('logged') && $this->session->get('role_id') == 1 && isset($user[0])) {
             unset($user[0]['password']);
             //return user data as json and all roles to populate dropdown 
             return $this->response->setJSON(['user' => $user[0], 'roles' => $roles]);
@@ -214,4 +214,3 @@ model(LevelModel::class)->fread();
         exit;
     }
 }
-

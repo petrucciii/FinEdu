@@ -29,8 +29,6 @@ const settingsModal = () => {
                 return response.json();
             })
             .then(data => {
-
-
                 //populate modal with user data
                 document.getElementById('modalUserTitle').textContent = " Utente #" + data.user.user_id;
                 document.getElementsByClassName('modalInputFirstName')[0].value = data.user.first_name;
@@ -54,7 +52,7 @@ const settingsModal = () => {
                     let div = document.createElement('div');
                     div.className = "form-check form-check-inline";
                     div.innerHTML = `
-                    <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role['role']}"
+                    <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role['role_id']}"
                         value=${role['role_id']}>
                     <label class="form-check-label" for="inlineRadio${role['role_id']}">${role['role'][0].toUpperCase() + role['role'].slice(1)}</label>
                 `;
@@ -292,7 +290,8 @@ const createUserRow = (user, index) => {
     const colorClass = avatarColors[index % avatarColors.length];
 
     //role badge: red: Admin, gray: User
-    const roleBadge = user.role_id === 1 ? 'bg-danger' : 'bg-secondary';
+    let role_id = new Number(user.role_id);
+    const roleBadge = role_id == 1 ? 'bg-danger' : 'bg-secondary';
 
     //level badge: green: Principiante, blue: Intermedio, yellow: Avanzato
     const lvlBadgeMap = {
