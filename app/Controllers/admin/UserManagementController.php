@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\UserModel;
 use App\Models\RoleModel;
 use App\Models\LevelModel;
+use Exception;
 
 class UserManagementController extends BaseController
 {
@@ -57,10 +58,10 @@ class UserManagementController extends BaseController
             if ($this->request->getGet('role_id') != "all") {
                 if (
                     $this->request->getGet('role_id') /*&&
-            in_array(
-            trim($this->request->getGet('role_id')),
-model(RoleModel::class)->fread()
-)*/
+                in_array(
+                trim($this->request->getGet('role_id')),
+                model(RoleModel::class)->fread()
+                )*/
                 ) {
                     $builder = $builder->where('users.role_id', (int) $this->request->getGet('role_id'));
                 }
@@ -69,10 +70,10 @@ model(RoleModel::class)->fread()
             if ($this->request->getGet('level_id') != "all") {
                 if (
                     $this->request->getGet('level_id') /*&&
-in_array(
-$this->request->getGet('level_id'),
-model(LevelModel::class)->fread();
-)*/
+                    in_array(
+                    $this->request->getGet('level_id'),
+                    model(LevelModel::class)->fread();
+                    )*/
                 ) {
                     $builder = $builder->where('users.level_id', (int) $this->request->getGet('level_id'));
                 }
@@ -151,7 +152,7 @@ model(LevelModel::class)->fread();
                 ];
 
                 if ($model->fupdate($data)) {
-                    return redirect()->back()->with('alert', "Modifica Riuscita");
+                    return redirect()->back()->with('alert', "Modifica Riuscita");//set 'alert' as a session variable
                 } else {
                     return redirect()->back()->with('alert', 'Modifica non avvenuta');
                 }
@@ -183,6 +184,37 @@ model(LevelModel::class)->fread();
         }
         return redirect()->to('/');
     }
+
+    public function add(){
+        $userModel = model(UserModel::class);
+
+        //is admin
+        if($this->session->has('logged') && $this->session->get('role_id') == 1) {
+            if($this->request->getPost('email') && $this->request->getPost('password') && $this->request->getPost('first_name') && $this->request->getPost('last_name') && $this->request->getPost('role_id')) {
+                $data = [
+                    'email' => strtolower(trim($this->request->getPost('email'))),
+                    'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+                    'first_name' => ucwords(strtolower(trim($this->request->getPost('first_name')))),
+                    'last_name' => ucwords(strtolower(trim($this->request->getPost('last_name')))),
+                    'role_id' => (int) $this->request->getPost('role_id')
+                ];
+
+                try{
+                    $userModel->fcreate($data);
+                    return redirect()->to('/admin/UserManagementController/index')->with('alert', "Inserimento Riuscito");
+                } catch (Exception $e){
+                    echo "Errore"; die;
+                    return redirect()->to('/admin/UserManagementController/index')->with('alert', "Errore durante l'inserimento");
+                }
+                return redirect()->to('/admin/UserManagementController/index')->with('alert', "Dati non validi");
+
+            }
+            
+            
+        }
+
+    }
+
 
     //return a CSV file
     /**

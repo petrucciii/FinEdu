@@ -9,7 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                 <form action="/AuthController/singup" method="post">
+                 <form action="/admin/UserManagementController/add" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6 mb-3">
@@ -36,8 +36,8 @@
                         foreach ($roles as $role) :
                         ?>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" value="<?= intval($role['role_id']) ?>" checked=<?= intval($role['role_id']) == 2 ? true : false ?>>
-                                <label class="form-check-label" for="inlineRadio1"><?= ucfirst($role['role']) ?></label>
+                                <input class="form-check-input" type="radio" name="role_id" value="<?= intval($role['role_id']) ?>" checked=<?= intval($role['role_id']) == 2 ? true : false ?>>
+                                <label class="form-check-label" for="role_id"><?= ucfirst($role['role']) ?></label>
                             </div>
                             <?php
                         endforeach;
