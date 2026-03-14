@@ -7,16 +7,23 @@ use Exception;
 
 class UserModel extends Model
 {
-     private $allowedColumns = [
-          'user_id',
+     //necessary for pagination in UserManagementController, otherwise pagination would not workn
+     protected $table = 'users';
+     protected $primaryKey = 'user_id';
+     protected $allowedFields = [
           'first_name',
           'last_name',
           'email',
           'password',
           'experience',
-          'level',
-          'role'
+          'level_id',
+          'role_id',
+          'created_at'
      ];
+
+     protected $useTimestamps = false;
+
+     private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level_id', 'role_id', 'created_at'];
 
      //create 
      public function fcreate(array $data)
@@ -27,12 +34,12 @@ class UserModel extends Model
 
           //hash password
           $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allowedColumns (key and values swapped)
-          $columns = array_intersect_key($data, array_flip($this->allowedColumns));
+          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allColumns (key and values swapped)
+          $columns = array_intersect_key($data, array_flip($this->allColumns));
           $sqlColumns = implode(",", array_keys($columns));
           $sqlPlaceholders = ":" . implode(":,:", array_keys($columns)) . ":";
 
-          $sql = "INSERT INTO users ($sqlColumns) VALUES ($sqlPlaceholders)";
+          $sql = "INSERT INTO {$this->table} ($sqlColumns) VALUES ($sqlPlaceholders)";
 
           // var_dump($columns);
           // die;
@@ -46,16 +53,16 @@ class UserModel extends Model
      }
 
      //read
-     public function fread(array $where = [])
+     public function fread($where = [])
      {
           $db = db_connect();
 
-          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, level, role FROM users';
+          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, u.level_id, u.role_id, u.created_at, role, level FROM ' . $this->table . " as u JOIN levels USING(level_id) JOIN roles USING(role_id)";
           $params = [];
 
           if (!empty($where)) {
                $conditions = [];
-               foreach ($this->allowedColumns as $col) {
+               foreach ($this->allColumns as $col) {
                     if (isset($where[$col])) {
                          $conditions[] = "$col = :$col:";//placeholders
                          $params[$col] = $where[$col];
@@ -84,7 +91,7 @@ class UserModel extends Model
 
           $setParts = [];
           $params = [];
-          foreach ($this->allowedColumns as $col) {//only allowed columns
+          foreach ($this->allColumns as $col) {//only allowed columns
                if ($col === 'user_id')
                     continue; //primary key cannot be updated
                if (isset($data[$col])) {//only columns that have to be updated
@@ -94,7 +101,7 @@ class UserModel extends Model
           }
 
           $params['user_id'] = $data['user_id']; //where
-          $sql = 'UPDATE users SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
+          $sql = 'UPDATE ' . $this->table . ' SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
 
           try {
                return $db->query($sql, $params);
@@ -108,7 +115,7 @@ class UserModel extends Model
      public function fdelete(array $data)
      {
           $db = db_connect();
-          $sql = 'DELETE FROM users WHERE user_id = :user_id:';
+          $sql = 'DELETE FROM ' . $this->table . ' WHERE user_id = :user_id:';
           $params = ['user_id' => $data['user_id']];
           try {
                return $db->query($sql, $params);
@@ -117,4 +124,13 @@ class UserModel extends Model
           }
 
      }
+
+     public function countUsers()
+     {
+          $db = db_connect();
+          $sql = 'SELECT COUNT(*) as count FROM ' . $this->table . ' GROUP BY role_id HAVING role_id = :role_id:';
+          $query = $db->query($sql);
+          return $query->getRow()->count;
+     }
+
 }

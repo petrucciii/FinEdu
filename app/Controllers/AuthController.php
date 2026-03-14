@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers;
 
-use App\Models\Molanguage;
 use App\Models\UserModel;
 
 class AuthController extends BaseController
