@@ -62,16 +62,10 @@ const createCompanyRow = (company, index) => {
     tr.querySelector('[data-field="name"]').textContent = company.name;
     tr.querySelector('[data-field="country"]').textContent = company.country;
     tr.querySelector('[data-field="isin"]').textContent = company.isin;
-    tr.querySelector('[data-field="ticker"]').textContent = company.ticker;
-    tr.querySelector('[data-field="sector"]').textContent = company.sector;
-    tr.querySelector('[data-field="mic"]').textContent = company.mic;
-    tr.querySelector('[data-field="currency"]').textContent = company.currency;
+    tr.querySelector('[data-field="sector"]').textContent = company.description;
 
 
-    const orderBtn = tr.querySelector('[data-field="order_btn"]');
-    orderBtn.dataset.ticker = company.ticker;
-    orderBtn.dataset.mic = company.mic;
-    orderBtn.dataset.isin = company.isin;
+    const viewBtn = tr.querySelector('[data-field="view_btn"]');
 
     return tr;
 };

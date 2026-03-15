@@ -19,7 +19,7 @@
                     <ul class="list-unstyled">
                         <li><a href="/CompanyController/index" class="text-white text-decoration-none">Mercati</a></li>
                         <li><a href="/EducationController/index" class="text-white text-decoration-none">Impara</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Chi Siamo</a></li>
+                        <li><a href="/Home/about" class="text-white text-decoration-none">Chi Siamo</a></li>
                     </ul>
                 </div>
 

@@ -40,7 +40,6 @@ class UserManagementController extends BaseController
 
             $builder = $userModel;
             $builder = $builder
-
                 ->join('levels', "users.level_id = levels.level_id")
                 ->join('roles', "users.role_id = roles.role_id");
 
@@ -57,11 +56,7 @@ class UserManagementController extends BaseController
             //optional filters for role_id and level, if not "all" and present in get request and valid (exists in database)
             if ($this->request->getGet('role_id') != "all") {
                 if (
-                    $this->request->getGet('role_id') /*&&
-in_array(
-trim($this->request->getGet('role_id')),
-model(RoleModel::class)->fread()
-)*/
+                    $this->request->getGet('role_id')
                 ) {
                     $builder = $builder->where('users.role_id', (int) $this->request->getGet('role_id'));
                 }
@@ -69,11 +64,7 @@ model(RoleModel::class)->fread()
 
             if ($this->request->getGet('level_id') != "all") {
                 if (
-                    $this->request->getGet('level_id') /*&&
-in_array(
-$this->request->getGet('level_id'),
-model(LevelModel::class)->fread();
-)*/
+                    $this->request->getGet('level_id')
                 ) {
                     $builder = $builder->where('users.level_id', (int) $this->request->getGet('level_id'));
                 }

@@ -16,7 +16,7 @@ class ExchangeModel extends Model
         $db = db_connect();
 
 
-        $sql = "SELECT mic, short_name, full_name, exchanges.country_code, currencies.currency_code, opening, closing, active FROM " . $this->table . "JOIN countries USING(country_code) JOIN currencies USING(currency_code)";
+        $sql = "SELECT mic, short_name, full_name, country_code, currency_code, opening_hour, closing_hour, active FROM " . $this->table; //. "JOIN countries USING(country_code) JOIN currencies USING(currency_code)";
 
         try {
             return $db->query($sql)->getResultArray();

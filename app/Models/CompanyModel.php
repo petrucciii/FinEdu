@@ -7,10 +7,10 @@ use Exception;
 
 class CompanyModel extends Model
 {
-    //ci standard
-    protected $table = 'companies';
-    protected $primaryKey = 'isin';
-    protected $allowedFields = [
+     //ci standard
+     protected $table = 'companies';
+     protected $primaryKey = 'isin';
+     protected $allowedFields = [
           'name',
           'website',
           'logo_path',
@@ -19,17 +19,17 @@ class CompanyModel extends Model
           'active',
      ];
 
-    protected $useTimestamps = false;
+     protected $useTimestamps = false;
 
-    //not ci standard
-    private $allColumns = [
-        'isin',
-        'name',
-        'website',
-        'logo_path',
-        'country_code',
-        'ea_code',
-        'active',
+     //not ci standard
+     private $allColumns = [
+          'isin',
+          'name',
+          'website',
+          'logo_path',
+          'country_code',
+          'ea_code',
+          'active',
      ];
 
      //create 
@@ -60,7 +60,8 @@ class CompanyModel extends Model
      {
           $db = db_connect();
 
-          $sql = "SELECT isin, name, website, logo_path, companies.country_code countries.country, companies.ea_code, sectors.description, active FROM " . $this->table . " JOIN countries USING(country_code) JOIN sectors USING(ea_code)";
+          $sql = "SELECT isin, name, website, logo_path, companies.country_code countries.country, companies.ea_code, sectors.description, active 
+               FROM " . $this->table . " JOIN countries USING(country_code) JOIN sectors USING(ea_code)";
           $params = [];
 
           if (!empty($where)) {
