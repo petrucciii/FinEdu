@@ -18,7 +18,7 @@
 
 
 <body>
-    <?= $this->include('templates/modals') ?>
+    <?= $this->include('modals/modalAlert') ?>
     <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-primary sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">
@@ -80,7 +80,8 @@
             </div>
         </div>
     </nav>
-    <?= $this->include('templates/modals') ?>
+    <?= $this->include('modals/modalAlert') ?>
+
     <?php if (session()->get('role_id') == 1 && session()->has('logged')):
         echo view("templates/adminBottombar");
     endif; ?>
