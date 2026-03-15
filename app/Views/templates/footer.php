@@ -17,8 +17,8 @@
                 <div class="col-md-4 mb-3">
                     <h5 class="text-uppercase text-primary">Link Rapidi</h5>
                     <ul class="list-unstyled">
-                        <li><a href="Market.html" class="text-white text-decoration-none">Mercati</a></li>
-                        <li><a href="Education.html" class="text-white text-decoration-none">Corsi</a></li>
+                        <li><a href="/CompanyController/index" class="text-white text-decoration-none">Mercati</a></li>
+                        <li><a href="/EducationController/index" class="text-white text-decoration-none">Impara</a></li>
                         <li><a href="#" class="text-white text-decoration-none">Chi Siamo</a></li>
                     </ul>
                 </div>

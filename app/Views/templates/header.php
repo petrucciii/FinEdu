@@ -18,10 +18,10 @@
 
 
 <body>
-    <?= $this->include('modals/modalAlert') ?>
+    <?= $this->include('modals/modalAuth') ?>
     <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-primary sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">
+            <a class="navbar-brand fw-bold" href="/">
                 <i class="fas fa-chart-line"></i> FinEdu
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -30,10 +30,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="Market.html">Analisi Mercati</a>
+                        <a class="nav-link" href="/CompanyController/index">Analisi Mercati</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="Education.html">Educazione Finanziaria</a>
+                        <a class="nav-link active" href="/EducationController/index">Educazione Finanziaria</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="portfolioDrop" role="button"
@@ -41,8 +41,8 @@
                             Portafoglio
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="Portfolio.html">I miei Portafogli</a></li>
-                            <li><a class="dropdown-item" href="Orders.html">Storico Ordini</a></li>
+                            <li><a class="dropdown-item" href="/PortfolioController/index">I miei Portafogli</a></li>
+                            <li><a class="dropdown-item" href="/PortfolioController/orders">Storico Ordini</a></li>
                         </ul>
                     </li>
                 </ul>
