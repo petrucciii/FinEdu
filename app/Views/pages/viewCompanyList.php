@@ -125,6 +125,6 @@
     </template>
 
     <?= $this->include("modals/modalOrderAdd"); ?>
-    <script src="<?= base_url('javascript/ajaxMarketCompanies.js') ?>"></script>
+    <script type="module" src="<?= base_url('javascript/ajaxMarketCompanies.js') ?>"></script>
 
 </div>

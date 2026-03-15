@@ -1,4 +1,4 @@
-import './control';
+import renderPagination from '../control.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     settingsModal();
@@ -162,7 +162,7 @@ const loadUsers = (page = 1) => {
         .then(res => res.json())
         .then(data => {
             renderUsers(data.users);
-            renderPagination(data.pagination);
+            renderPagination(data.pagination, loadUsers);//callback function
         });
 
     seeFilters();//update dropdown buttons styles based on current filters, using global status

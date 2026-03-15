@@ -1,7 +1,10 @@
-import './control';
+import renderPagination from '../control.js';
+
+//define global status for the query
+let currentQuery = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-    loadCompanies();//load all companies when page is loaded
+    loadCompanies();
     searchCompany();
 });
 
@@ -10,19 +13,22 @@ const searchCompany = () => {
 
     input.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
-        loadCompanies(1);
+        loadCompanies(1, currentQuery); //pass the query to the loader
     });
 };
 
-
 const loadCompanies = (page = 1, query = '') => {
-    fetch(`CompanyController/search/${urlencode(query)}?page=page`)
+    fetch(`/CompanyController/search/${encodeURIComponent(query)}?page=${page}`)
         .then(res => res.json())
         .then(data => {
             renderCompanies(data.companies);
-            renderPagination(data.pagination);
-        });
 
+            //pass callback function
+            renderPagination(data.pagination, (newPage) => {
+                loadCompanies(newPage, currentQuery);
+            });
+        })
+        .catch(err => console.error("Errore nel caricamento companies:", err)); // Always good to have a catch!
 }
 
 const renderCompanies = (companies) => {
@@ -47,10 +53,9 @@ const createCompanyRow = (company, index) => {
     // --- LOGO ---
     const logoImg = tr.querySelector('[data-field="logo"]');
     if (company.logo_path && company.logo_path.trim() !== '') {
-        logoImg.src = company.logo_path; // Supponendo che il percorso dal DB sia corretto o includa la base_url()
+        logoImg.src = company.logo_path;
     } else {
-        // Fallback se la società non ha un logo
-        logoImg.src = '/assets/img/default_company.png';
+        logoImg.src = '/images/logos/default_company.png';
     }
 
     // --- DATI TESTUALI ---
@@ -62,9 +67,7 @@ const createCompanyRow = (company, index) => {
     tr.querySelector('[data-field="mic"]').textContent = company.mic;
     tr.querySelector('[data-field="currency"]').textContent = company.currency;
 
-    // --- BOTTONE AZIONE (Negozia) ---
-    // Salviamo Ticker, MIC e ISIN nei data-attribute del bottone. 
-    // Quando l'utente cliccherà "Negozia", il tuo JS leggerà questi dati per popolare il Modale.
+
     const orderBtn = tr.querySelector('[data-field="order_btn"]');
     orderBtn.dataset.ticker = company.ticker;
     orderBtn.dataset.mic = company.mic;

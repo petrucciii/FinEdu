@@ -11,8 +11,10 @@
                         investimenti in un unico posto. Senza costi, senza barriere.
                     </p>
                     <div class="d-flex gap-3">
-                        <button class="btn btn-primary btn-lg px-4 py-3 shadow">Inizia ad imparare</button>
-                        <button class="btn btn-outline-dark btn-lg px-4 py-3">Esplora i mercati</button>
+                        <button href="/EducationController/index" class="btn btn-primary btn-lg px-4 py-3 shadow">Inizia
+                            ad imparare</button>
+                        <button href="/CompanyController/index" class="btn btn-outline-dark btn-lg px-4 py-3">Esplora i
+                            mercati</button>
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">

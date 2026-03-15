@@ -1,10 +1,11 @@
+/*DRY */
 
-//render pagination passing object with currentPage, pageCount, perPage and total. 
-const renderPagination = ({ currentPage, pageCount, perPage, total }) => {
+//render pagination passing object with currentPage, pageCount, perPage and total. in addition, onPageChange is the rendering function
+function renderPagination({ currentPage, pageCount, perPage, total }, onPageChange) {
     const container = document.getElementById('paginationContainer');
     container.innerHTML = '';
 
-    //left: info about how many users are showing and total users
+    //left: info about how many elements are showing
     const info = document.createElement('span');
     info.className = 'text-muted small';
     const showing = Math.min(perPage, total - (currentPage - 1) * perPage);
@@ -16,7 +17,9 @@ const renderPagination = ({ currentPage, pageCount, perPage, total }) => {
     ul.className = 'pagination pagination-sm mb-0 shadow-sm rounded';
 
     //how many pages before and after the current one.
-    const surroundCount = 2;//max 2 pages before and 2 pages after
+    const surroundCount = 2; //max 2 pages before and 2 pages after
+
+
 
     //if number is greater than pageCount (last page), end at pageCount, otherwise end at currentPage + surroundCount
     // page 3 + 2 -> range ends at page 5, but if pageCount is 4, range ends at page 4.
@@ -39,10 +42,10 @@ const renderPagination = ({ currentPage, pageCount, perPage, total }) => {
             const a = document.createElement('a');
             //if not didasbled, create a link and if it is not an icon doesn't add classes
             a.className = 'page-link border-0 px-3' + (isIcon ? '' : ' fw-bold mx-1 rounded');
-            a.href = '#';//page loaded with ajax so href not neccesary
+            a.href = '#'; //page loaded with ajax so href not neccesary
             a.innerHTML = label;
-            //preventDefault to avoid link usaual behavior with # as href, and load users of the page clicked
-            a.addEventListener('click', (e) => { e.preventDefault(); loadUsers(page); });
+            //preventDefault to avoid link usaual behavior with # as href, and load elements of the page clicked
+            a.addEventListener('click', (e) => { e.preventDefault(); onPageChange(page); });
             li.appendChild(a);
         }
 
@@ -79,4 +82,6 @@ const renderPagination = ({ currentPage, pageCount, perPage, total }) => {
     //DOM rendering
     container.appendChild(info);
     container.appendChild(nav);
-};
+}
+
+export default renderPagination;

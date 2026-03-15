@@ -140,6 +140,6 @@
 
     <?= $this->include("modals/modalUserAdd"); ?>
     <?= $this->include("modals/modalUserManagement"); ?>
-    <script src="<?= base_url('javascript/ajax/userManagement.js') ?>"></script>
+    <script type="module" src="<?= base_url('javascript/ajax/userManagement.js') ?>"></script>
 
 </div>
