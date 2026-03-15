@@ -38,7 +38,7 @@
                                     ?>
                                     <li><button class="dropdown-item" data-level_id=<?= $level['level_id'] ?>>
                                             <?= $level['level'] ?> </button></li>
-                                            <?php
+                                    <?php
 
                                 endforeach;
                                 ?>
@@ -140,6 +140,6 @@
 
     <?= $this->include("modals/modalUserAdd"); ?>
     <?= $this->include("modals/modalUserManagement"); ?>
-    <script src="<?= base_url('javascript/ajaxUserManagement.js') ?>"></script>
+    <script src="<?= base_url('javascript/ajax/userManagement.js') ?>"></script>
 
 </div>
