@@ -59,7 +59,6 @@
                         <img data-field="logo" src="" alt="logo" class="rounded bg-white shadow-sm p-1"
                             style="width: 40px; height: 40px; object-fit: contain; border-radius: 40px">
                     </div>
-                    <!-- Testo con margine a sinistra e font-weight bilanciato -->
                     <div class="ms-3">
                         <span data-field="name" class="fw-bold text-dark d-block lh-sm"></span>
                     </div>
@@ -79,14 +78,14 @@
 
 
             <td class="text-end">
-                <button class="btn btn-sm btn-primary shadow-sm open-order-btn fw-bold" data-field="view_btn">
-                    <i class="fas fa-eye"></i> Visualizza
-                </button>
+                <a class="btn btn-sm btn-primary shadow-sm open-order-btn fw-bold" data-field="view_btn">
+                    <i class="fas fa-eye"></i> Dettagli
+                </a>
             </td>
         </tr>
     </template>
 
-    <?/*= $this->include("modals/modalOrderAdd"); */ ?>
+    <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
     <script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>
 
 </div>

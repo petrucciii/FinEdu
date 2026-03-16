@@ -66,6 +66,7 @@ const createCompanyRow = (company, index) => {
 
 
     const viewBtn = tr.querySelector('[data-field="view_btn"]');
+    viewBtn.href = "/CompanyController/viewCompany/"+encodeURIComponent(company.isin)  //viewCompany(isin)
 
     return tr;
 };

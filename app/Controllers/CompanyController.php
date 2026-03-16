@@ -12,12 +12,6 @@ class CompanyController extends BaseController
 {
     public function index()
     {
-        $companyModel = model(CompanyModel::class);
-        $sectorModel = model(SectorModel::class);
-        $countryModel = model(CountryModel::class);
-        $exchangeModel = model(ExchangeModel::class);
-
-
         echo view("templates/header");
         echo view("pages/viewCompanyList");
         echo view("templates/footer");
@@ -38,7 +32,8 @@ class CompanyController extends BaseController
 
         $query = trim($query);
         if ($query != '') {
-            $builder = $builder->groupStart()
+            $builder = $builder
+                ->groupStart()
                 ->like('companies.name', $query)
                 ->orLike('companies.isin', $query)
                 ->orLike('listings.ticker', $query)
@@ -57,5 +52,24 @@ class CompanyController extends BaseController
                 'pageCount' => $pager->getPageCount()
             ]
         ]);
+    }
+
+    public function viewCompany($isin){
+        $companyModel = model(CompanyModel::class);
+        $sectorModel = model(SectorModel::class);
+        $countryModel = model(CountryModel::class);
+        $exchangeModel = model(ExchangeModel::class);
+
+        try{
+            $company = $companyModel->fread(['isin' => trim($isin)]);
+            $company = $company[0];
+        } catch (Exceception $e) {
+            return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
+        }
+
+        echo view("templates/header");
+        echo view("pages/viewCompany", ['company' => $company]);
+        echo view("templates/footer");
+        
     }
 }

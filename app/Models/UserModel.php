@@ -130,7 +130,7 @@ class UserModel extends Model
           $db = db_connect();
           $sql = 'SELECT COUNT(*) as count FROM ' . $this->table . ' GROUP BY role_id HAVING role_id = :role_id:';
           $query = $db->query($sql);
-          return $query->getRow()->count;
+          return $query->getRow()->count();
      }
 
 }
