@@ -7,6 +7,9 @@ use App\Models\CurrencyModel;
 use App\Models\CountryModel;
 use App\Models\ExchangeModel;
 use App\Models\AnalystConsensusModel;
+use App\Models\FinancialDataModel;
+
+use App\Controllers\BaseController;
 
 use Exception;
 
@@ -62,6 +65,9 @@ class CompanyController extends BaseController
         $countryModel = model(CountryModel::class);
         $exchangeModel = model(ExchangeModel::class);
         $consensusModel = model(AnalystConsensusModel::class);
+        $consensusModel = model(AnalystConsensusModel::class);
+        $financialDataModel = model(FinancialDataModel::class);
+
 
         try{
             $isin = trim($isin);
@@ -77,10 +83,11 @@ class CompanyController extends BaseController
                 'consensus' => $consensusModel->findConsensusPerCompany($isin),
                 'prices' => [],
                 'news' => [],
-                'financial_data' => [],
+                'financial_data' => $financialDataModel->findDataPerCompany($isin),
                 'board' => [],
                 'shareholders' => []
             ];
+
 
         echo view("templates/header");
         echo view("pages/viewCompany", $data);
