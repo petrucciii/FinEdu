@@ -6,7 +6,9 @@ use App\Models\SectorModel;
 use App\Models\CurrencyModel;
 use App\Models\CountryModel;
 use App\Models\ExchangeModel;
+use App\Models\AnalystConsensusModel;
 
+use Exception;
 
 class CompanyController extends BaseController
 {
@@ -59,16 +61,29 @@ class CompanyController extends BaseController
         $sectorModel = model(SectorModel::class);
         $countryModel = model(CountryModel::class);
         $exchangeModel = model(ExchangeModel::class);
+        $consensusModel = model(AnalystConsensusModel::class);
 
         try{
-            $company = $companyModel->fread(['isin' => trim($isin)]);
-            $company = $company[0];
-        } catch (Exceception $e) {
+            $isin = trim($isin);
+            $company = $companyModel->fread(['isin' => $isin]);
+           
+
+        } catch (Exception $e) {
             return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
         }
 
+         $data = [
+                'company' => $company[0],
+                'consensus' => $consensusModel->findConsensusPerCompany($isin),
+                'prices' => [],
+                'news' => [],
+                'financial_data' => [],
+                'board' => [],
+                'shareholders' => []
+            ];
+
         echo view("templates/header");
-        echo view("pages/viewCompany", ['company' => $company]);
+        echo view("pages/viewCompany", $data);
         echo view("templates/footer");
         
     }
