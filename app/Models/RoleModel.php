@@ -9,7 +9,10 @@ class RoleModel extends Model
     protected $table = 'roles';
     protected $primaryKey = 'role_id';
 
-
+    //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
     public function fread()
     {

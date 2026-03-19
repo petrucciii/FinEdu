@@ -21,7 +21,10 @@ class UserModel extends Model
           'created_at'
      ];
 
-     protected $useTimestamps = false;
+     //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
      private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level_id', 'role_id', 'created_at'];
 

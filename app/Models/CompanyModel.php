@@ -19,7 +19,10 @@ class CompanyModel extends Model
           'active',
      ];
 
-     protected $useTimestamps = false;
+     //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
      //not ci standard
      private $allColumns = [

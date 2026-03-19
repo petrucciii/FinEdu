@@ -16,6 +16,10 @@ class AnalystConsensusModel extends Model
         'target_price'
     ];
 
+    //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
     public function findConsensusPerCompany($isin)
     {

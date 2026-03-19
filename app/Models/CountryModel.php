@@ -9,7 +9,10 @@ class CountryModel extends Model
     protected $table = 'countries';
     protected $primaryKey = 'country_code';
 
-
+    //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
     public function fread()
     {

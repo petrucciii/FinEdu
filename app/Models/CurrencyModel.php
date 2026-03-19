@@ -9,7 +9,10 @@ class CurrencyModel extends Model
     protected $table = 'currencies';
     protected $primaryKey = 'currency_code';
 
-
+    //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
     public function fread()
     {

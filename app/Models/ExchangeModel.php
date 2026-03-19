@@ -4,11 +4,17 @@ namespace App\Models;
 use CodeIgniter\Model;
 use Exception;
 
+
+
 class ExchangeModel extends Model
 {
     protected $table = 'exchanges';
     protected $primaryKey = 'mic';
 
+    //automati update and creation timestamp
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'last_update';
 
 
     public function fread()
