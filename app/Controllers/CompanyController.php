@@ -8,6 +8,7 @@ use App\Models\CountryModel;
 use App\Models\ExchangeModel;
 use App\Models\AnalystConsensusModel;
 use App\Models\FinancialDataModel;
+use App\Models\BoardModel;
 
 use App\Controllers\BaseController;
 
@@ -67,6 +68,7 @@ class CompanyController extends BaseController
         $consensusModel = model(AnalystConsensusModel::class);
         $consensusModel = model(AnalystConsensusModel::class);
         $financialDataModel = model(FinancialDataModel::class);
+        $boardModel = model(BoardModel::class);
 
 
         try{
@@ -78,15 +80,19 @@ class CompanyController extends BaseController
             return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
         }
 
-         $data = [
-                'company' => $company[0],
-                'consensus' => $consensusModel->findConsensusPerCompany($isin),
-                'prices' => [],
-                'news' => [],
-                'financial_data' => $financialDataModel->findDataPerCompany($isin),
-                'board' => [],
-                'shareholders' => []
-            ];
+        $data = [
+            'company' => $company[0],
+            'consensus' => $consensusModel->findConsensusPerCompany($isin),
+            'prices' => [],
+            'news' => [],
+            'financial_data' => $financialDataModel->findDataPerCompany($isin),
+            'board' => $boardModel->findBoardPerCompany($isin),
+            'shareholders' => []
+        ];
+
+        echo "<pre>";
+        print_r($data);
+        echo "</pre>";
 
 
         echo view("templates/header");
