@@ -9,6 +9,8 @@ use App\Models\ExchangeModel;
 use App\Models\AnalystConsensusModel;
 use App\Models\FinancialDataModel;
 use App\Models\BoardModel;
+use App\Models\ShareholderModel;
+
 
 use App\Controllers\BaseController;
 
@@ -69,6 +71,7 @@ class CompanyController extends BaseController
         $consensusModel = model(AnalystConsensusModel::class);
         $financialDataModel = model(FinancialDataModel::class);
         $boardModel = model(BoardModel::class);
+        $shareholderModel = model(ShareholderModel::class);
 
 
         try{
@@ -87,7 +90,7 @@ class CompanyController extends BaseController
             'news' => [],
             'financial_data' => $financialDataModel->findDataPerCompany($isin),
             'board' => $boardModel->findBoardPerCompany($isin),
-            'shareholders' => []
+            'shareholders' => $shareholderModel->findShareholdersPerCompany($isin)
         ];
 
         echo "<pre>";
