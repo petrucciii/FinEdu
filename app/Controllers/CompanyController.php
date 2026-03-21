@@ -88,7 +88,7 @@ class CompanyController extends BaseController
             'consensus' => $consensusModel->findConsensusPerCompany($isin),
             'prices' => [],
             'news' => [],
-            'financial_data' => $financialDataModel->findDataPerCompany($isin),
+            'financialData' => self::buildFinancialArray($financialDataModel->findDataPerCompany($isin)),
             'board' => $boardModel->findBoardPerCompany($isin),
             'shareholders' => $shareholderModel->findShareholdersPerCompany($isin)
         ];
@@ -102,5 +102,61 @@ class CompanyController extends BaseController
         echo view("pages/viewCompany", $data);
         echo view("templates/footer");
         
+    }
+
+    private static function buildFinancialArray($result){
+        $labels = [
+        'revenues'                    => 'Ricavi',
+        'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
+        'ebit'                        => 'EBIT (Risultato Operativo)',
+        'interests'                   => 'Interessi',
+        'income_taxes'                => 'Imposte sul Reddito',
+        'net_profit'                  => 'Utile Netto',
+        'net_margin'                  => 'Margine Netto (%)',
+        'tax_rate'                    => 'Tax Rate (%)',
+        'free_cash_flow'              => 'Free Cash Flow',
+        'capex'                       => 'CAPEX',
+        'dividends'                   => 'Dividendi',
+        'net_debt'                    => 'Debito Netto',
+        'share_number'                => 'Numero Azioni'
+    ];
+
+    $years = [];
+    $rows = [];
+
+    //base structure for data
+    foreach ($labels as $key => $label) {
+        $rows[$key] = [
+            'label'  => $label,
+            'values' => []
+        ];
+    }
+
+
+    foreach ($result as $row) {
+        //calculated data
+        $ebit = (float)$row['net_profit'] + (float)$row['income_taxes'] + (float)$row['interests'];
+        $tax_rate = $ebit != 0 ? ((float)$row['income_taxes'] / $ebit) * 100 : 0;
+        $net_margin = $row['revenues'] != 0 ? ((float)$row['net_profit'] / (float)$row['revenues']) * 100 : 0;
+
+        $row['ebit']       = $ebit;
+        $row['tax_rate']   = $tax_rate;
+        $row['net_margin'] = $net_margin;
+
+        //headers
+        $yearKey = $row['year'];
+        $years[$yearKey] = $yearKey . " " . $row['type'];
+
+        //year foreach key data
+        foreach ($labels as $key => $label) {
+            $rows[$key]['values'][$yearKey] = $row[$key] ?? 0; 
+        }
+    }
+
+    return [
+        'years' => $years,
+        'rows'  => $rows, // ['net_profit' => ["label" => "utile netto", "values" => [ 2022 => 10000, 2023 => 400000] ] ]
+        'currency_code' => $result[0]['currency_code']
+    ];
     }
 }

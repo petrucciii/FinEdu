@@ -63,7 +63,7 @@ class CompanyModel extends Model
      {
           $db = db_connect();
 
-          $sql = "SELECT isin, name, website, logo_path, companies.country_code, countries.country, companies.ea_code, sectors.description, active 
+          $sql = "SELECT isin, name, website, logo_path, companies.country_code, countries.country, companies.ea_code, sectors.description, active,  
                FROM ". $this->table ." JOIN countries USING(country_code) JOIN sectors USING(ea_code)";
           $params = [];
 

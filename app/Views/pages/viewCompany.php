@@ -1,20 +1,19 @@
-
 <body>
 
     <div class="container mt-4 mb-5" style="min-height: 80vh;">
 
         <div class="row mb-4">
             <div class="col-md-1 d-flex align-items-center justify-content-center">
-                <img src="<?= $company['logo_path']?>" class="img-fluid rounded" alt="Logo">
+                <img src="<?= $company['logo_path'] ?>" class="img-fluid rounded" alt="Logo">
             </div>
             <div class="col-md-7">
                 <h1 class="display-5 fw-bold">
-                    <?= $company['name']?>
+                    <?= $company['name'] ?>
                 </h1>
-                <span class="badge bg-primary"><?= $company['description']?></span>
-                <span class="badge bg-info text-dark"><?= $company['country']?></span>
-                <a href="<?= $company['website']?>" target="_blank" class="text-decoration-none ms-2">
-                    <i class="fas fa-link"></i> <?= $company['website']?>
+                <span class="badge bg-primary"><?= $company['description'] ?></span>
+                <span class="badge bg-info text-dark"><?= $company['country'] ?></span>
+                <a href="<?= $company['website'] ?>" target="_blank" class="text-decoration-none ms-2">
+                    <i class="fas fa-link"></i> <?= $company['website'] ?>
                 </a>
             </div>
             <div class="col-md-4 text-end">
@@ -49,42 +48,38 @@
 
                 <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom shadow-sm">
                     <div class="tab-pane fade show active" id="financials">
-                        <h5 class="mb-3">Bilancio (Dati in USD Milioni)</h5>
+                        <h5 class="mb-3">Bilancio (Dati in <?= $financialData['currency_code'] ?> Migliaia)</h5>
                         <div class="table-responsive">
                             <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Voce</th>
-                                        <th class="text-end">2023 (A)</th>
-                                        <th class="text-end">2024 (A)</th>
-                                        <th class="text-end">2025 (C)</th>
+                                        <?php foreach ($financialData['years'] as $yearLabel): ?>
+                                            <th class="text-end"><?= esc($yearLabel) ?></th>
+                                        <?php endforeach; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Ricavi</td>
-                                        <td class="text-end">383,285</td>
-                                        <td class="text-end">394,328</td>
-                                        <td class="text-end">412,550</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Utile Netto</td>
-                                        <td class="text-end fw-bold">96,995</td>
-                                        <td class="text-end fw-bold">100,912</td>
-                                        <td class="text-end fw-bold">108,240</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Dividendi</td>
-                                        <td class="text-end">14,841</td>
-                                        <td class="text-end">15,025</td>
-                                        <td class="text-end">15,380</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Debito Netto</td>
-                                        <td class="text-end">78,120</td>
-                                        <td class="text-end">72,450</td>
-                                        <td class="text-end">65,890</td>
-                                    </tr>
+                                    <?php foreach ($financialData['rows'] as $key => $rowData): ?>
+                                        <tr>
+                                            <td>
+                                                <?= esc($rowData['label']) ?>
+                                            </td>
+
+                                            <?php foreach ($rowData['values'] as $year => $value): ?>
+                                                <td class="text-end <?= $key === 'net_profit' ? 'fw-bold' : '' ?>">
+                                                    <?php
+                                                    //if percentage
+                                                    if (in_array($key, ['net_margin', 'tax_rate'])) {
+                                                        echo number_format((float) $value, 2, ',', '.') . '%';
+                                                    } else {
+                                                        echo $value != 0 ? number_format((float) $value / 1000, 0, ',', '.') : "-";
+                                                    }
+                                                    ?>
+                                                </td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -168,6 +163,53 @@
                     <div class="card-body">
                         <h3 class="card-title text-uppercase">BUY</h3>
                         <p class="card-text small text-muted">Basato sulle ultime raccomandazioni</p>
+
+                    </div>
+                    <div class="card-footer p-0">
+                        <button class="btn btn-light w-100 p-3 d-flex justify-content-between align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
+                            <span class="fw-bold text-secondary">Dettagli Consensus</span>
+
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down icon-arrow text-secondary" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+                            </svg>
+                        </button>
+
+                        <div class="collapse" id="collapseConsensus">
+                            <div class="p-3 pt-0 bg-white">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-striped table-sm mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">Firm</th>
+                                                <th scope="col">Rating</th>
+                                                <th scope="col">Data</th>
+                                                <th scope="col" class="text-end">Target Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($consensus as $c): ?>
+                                                <tr>
+                                                    <td class="fw-semibold text-nowrap">
+                                                        <?= htmlspecialchars($c['firm_name']) ?>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary">
+                                                            <?= htmlspecialchars($c['rating']) ?>
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-muted small text-nowrap">
+                                                        <?= htmlspecialchars($c['date']) ?>
+                                                    </td>
+                                                    <td class="text-end fw-bold">
+                                                        <?= htmlspecialchars($c['target_price']) ?>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -230,17 +272,17 @@
                                 <label>Quantità</label>
                                 <input type="number" name="quantity" class="form-control" min="1" value="2">
                             </div>
-							 <div>
+                            <div>
                                 <span>Controvalore</span>
                                 <span>€ 357,00 </span>
                             </div>
                         </div>
                         <div class="modal-footer">
-							<div class="input-group">
-								<input type="password" name="password" class="form-control" placeholder="Password">
-								<button type="submit" class="btn btn-success">Conferma</button>
-							</div>
-						</div>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control" placeholder="Password">
+                                <button type="submit" class="btn btn-success">Conferma</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
