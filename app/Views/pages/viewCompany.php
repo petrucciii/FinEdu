@@ -10,7 +10,7 @@
                 <h1 class="display-5 fw-bold">
                     <?= $company['name'] ?>
                 </h1>
-                <span class="badge bg-primary"><?= $company['description'] ?></span>
+                <span class="badge bg-primary"><?= $company['sector'] ?></span>
                 <span class="badge bg-info text-dark"><?= $company['country'] ?></span>
                 <a href="<?= $company['website'] ?>" target="_blank" class="text-decoration-none ms-2">
                     <i class="fas fa-link"></i> <?= $company['website'] ?>

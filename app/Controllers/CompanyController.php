@@ -76,21 +76,30 @@ class CompanyController extends BaseController
 
         try{
             $isin = trim($isin);
-            $company = $companyModel->fread(['isin' => $isin]);
+            $company = $companyModel->getCompanyByISIN($isin);
            
 
         } catch (Exception $e) {
             return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
         }
 
+        $consensus = $consensusModel->findConsensusPerCompany($isin);
+        $financialData = $financialDataModel->findDataPerCompany($isin);
+        $board = $boardModel->findBoardPerCompany($isin);
+        $shareholders = $shareholderModel->findShareholdersPerCompany($isin);
+        
+
         $data = [
             'company' => $company[0],
-            'consensus' => $consensusModel->findConsensusPerCompany($isin),
+            'consensus' => $consensus,
+            'averageRating' => self::getAverageRating($consensus),
+            'averageTargetPrice' => self::getAverageTargetPrice($consensus),
+            'averageRating' => self::getAverageRating($consensus),
             'prices' => [],
             'news' => [],
-            'financialData' => self::buildFinancialArray($financialDataModel->findDataPerCompany($isin)),
-            'board' => $boardModel->findBoardPerCompany($isin),
-            'shareholders' => $shareholderModel->findShareholdersPerCompany($isin)
+            'financialData' => self::buildFinancialArray($financialData),
+            'board' => $board,
+            'shareholders' => $shareholders,
         ];
 
         echo "<pre>";
@@ -103,6 +112,43 @@ class CompanyController extends BaseController
         echo view("templates/footer");
         
     }
+
+    private static function getAverageRating($consensus) {
+        $ratings = [];
+
+        foreach ($consensus as $c) {
+            //ratings into numbers
+            if($c['rating'] == "BUY" ) $rating = 1;
+            else if($c['rating'] == "HOLD" ) $rating = 0;
+            else $rating = -1;
+
+            array_push($ratings, $rating);
+        }
+
+        $avgRating = array_sum($ratings) / count($ratings);
+        
+
+        if (round($avgRating) == 1) $avgRating = "BUY";
+        else if (round($avgRating) == 0) $avgRating = "HOLD";
+        else $avgRating = "SELL";
+
+        return $avgRating;
+
+    }
+    
+    private static function getAverageTargetPrice($consensus) {
+        $targetPrices = [];
+
+        foreach ($consensus as $c) {
+            array_push($targetPrices, $c['target_price']);
+        }
+
+        $avgTP = array_sum($targetPrices) / count($targetPrices);
+        
+        return $avgTP;    
+    }
+    
+
 
     private static function buildFinancialArray($result){
         $labels = [
