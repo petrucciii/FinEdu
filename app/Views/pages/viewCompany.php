@@ -91,46 +91,20 @@
                     <div class="tab-pane fade" id="board">
                         <?php if($board): ?>
                         <div class="row">
+                            <?php foreach ($board as $member) : ?>
                             <div class="col-md-6 mb-3">
+                                
                                 <div class="d-flex align-items-center border p-2 rounded">
-                                    <img src="https://via.placeholder.com/50?text=TC" class="rounded-circle me-3"
+                                    <img src="<?= $member['picture_path'] ?>" class="rounded-circle me-3"
                                         width="50" height="50">
                                     <div>
-                                        <h6 class="mb-0">Tim Cook</h6>
-                                        <small class="text-muted">CEO</small>
+                                        <h6 class="mb-0"><?= $member['full_name'] ?></h6>
+                                        <small class="text-muted"><?= $member['role'] ?></small>
                                     </div>
                                 </div>
+                                
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center border p-2 rounded">
-                                    <img src="https://via.placeholder.com/50?text=LM" class="rounded-circle me-3"
-                                        width="50" height="50">
-                                    <div>
-                                        <h6 class="mb-0">Luca Maestri</h6>
-                                        <small class="text-muted">CFO</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center border p-2 rounded">
-                                    <img src="https://via.placeholder.com/50?text=JW" class="rounded-circle me-3"
-                                        width="50" height="50">
-                                    <div>
-                                        <h6 class="mb-0">Jeff Williams</h6>
-                                        <small class="text-muted">COO</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-center border p-2 rounded">
-                                    <img src="https://via.placeholder.com/50?text=KA" class="rounded-circle me-3"
-                                        width="50" height="50">
-                                    <div>
-                                        <h6 class="mb-0">Kate Adams</h6>
-                                        <small class="text-muted">General Counsel</small>
-                                    </div>
-                                </div>
-                            </div>
+                            <?php endforeach; ?>
                         </div>
                         <?php else: ?>
                             <h3>Nessun Dato Disponibile</h3>
