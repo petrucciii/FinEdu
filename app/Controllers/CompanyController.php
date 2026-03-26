@@ -15,6 +15,7 @@ use App\Models\ShareholderModel;
 use App\Controllers\BaseController;
 
 use Exception;
+use Throwable;
 
 class CompanyController extends BaseController
 {
@@ -94,7 +95,6 @@ class CompanyController extends BaseController
             'consensus' => $consensus,
             'averageRating' => self::getAverageRating($consensus),
             'averageTargetPrice' => self::getAverageTargetPrice($consensus),
-            'averageRating' => self::getAverageRating($consensus),
             'prices' => [],
             'news' => [],
             'financialData' => self::buildFinancialArray($financialData),
@@ -125,14 +125,19 @@ class CompanyController extends BaseController
             array_push($ratings, $rating);
         }
 
-        $avgRating = array_sum($ratings) / count($ratings);
+        try{
+            $avgRating = array_sum($ratings) / count($ratings);
         
 
-        if (round($avgRating) == 1) $avgRating = "BUY";
-        else if (round($avgRating) == 0) $avgRating = "HOLD";
-        else $avgRating = "SELL";
+            if (round($avgRating) == 1) $avgRating = "BUY";
+            else if (round($avgRating) == 0) $avgRating = "HOLD";
+            else $avgRating = "SELL";
 
-        return $avgRating;
+            return $avgRating;
+        } catch (Throwable $e) {
+            return "N/A";   
+        }
+        
 
     }
     
@@ -143,9 +148,15 @@ class CompanyController extends BaseController
             array_push($targetPrices, $c['target_price']);
         }
 
-        $avgTP = array_sum($targetPrices) / count($targetPrices);
+        try{
+            $avgTP = array_sum($targetPrices) / count($targetPrices);
+            return $avgTP;
+        } catch (Throwable $e) {
+            return "N/A";   
+        }
         
-        return $avgTP;    
+        
+         
     }
     
 

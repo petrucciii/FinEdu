@@ -341,3 +341,36 @@
      background-color: transparent;
      opacity: 0.5;
  }
+
+.btn-collapse[aria-expanded="true"] .icon-arrow {
+    transform: rotate(180deg);
+}
+    
+.btn-collapse .icon-arrow {
+    transition: transform 0.3s ease;
+}
+
+.BUY {
+    color: green !important;
+}
+
+.SELL {
+    color: red !important;
+}
+
+.HOLD {
+    color: black !important;
+}
+
+.BUY_BADGE {
+    background-color: green !important;
+}
+
+.SELL_BADGE {
+    background-color: red !important;
+}
+
+
+.HOLD_BADGE {
+    background-color: #000;
+}

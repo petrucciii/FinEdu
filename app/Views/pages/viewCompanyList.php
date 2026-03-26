@@ -87,5 +87,3 @@
 
     <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
     <script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>
-
-</div>

@@ -1,6 +1,4 @@
-<body>
-
-    <div class="container mt-4 mb-5" style="min-height: 80vh;">
+<div class="container mt-4 mb-5" style="min-height: 80vh;">
 
         <div class="row mb-4">
             <div class="col-md-1 d-flex align-items-center justify-content-center">
@@ -17,7 +15,7 @@
                 </a>
             </div>
             <div class="col-md-4 text-end">
-                <div class="display-6 fw-bold">€ 178.50</div>
+                <div class="display-6 fw-bold"><?= $company['currency'] ?> 178.50</div>
                 <div class="text-muted">Ultimo aggiornamento: 12/02/2026</div>
                 <button class="btn btn-success btn-lg mt-2" data-bs-toggle="modal" data-bs-target="#buyModal">
                     <i class="fas fa-shopping-cart"></i> Negozia
@@ -161,13 +159,13 @@
                 <div class="card mb-4 text-center">
                     <div class="card-header bg-primary text-white">Consensus Analisti</div>
                     <div class="card-body">
-                        <h3 class="card-title text-uppercase">BUY</h3>
-                        <p class="card-text small text-muted">Basato sulle ultime raccomandazioni</p>
-
+                        <h3 class="card-title text-uppercase <?= $averageRating?>"><?= $averageRating ?></h3>
+                        <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?> <?= $averageTargetPrice ?></p>
+                        <p class="card-text small text-muted"></p>
                     </div>
                     <div class="card-footer p-0">
-                        <button class="btn btn-light w-100 p-3 d-flex justify-content-between align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
-                            <span class="fw-bold text-secondary">Dettagli Consensus</span>
+                        <button class="btn btn-light w-100 p-3 d-flex justify-content-center align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
+                          
 
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down icon-arrow text-secondary" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
@@ -193,7 +191,7 @@
                                                         <?= htmlspecialchars($c['firm_name']) ?>
                                                     </td>
                                                     <td>
-                                                        <span class="badge bg-secondary">
+                                                        <span class="badge bg-secondary <?= $c['rating']?>_BADGE">
                                                             <?= htmlspecialchars($c['rating']) ?>
                                                         </span>
                                                     </td>
@@ -354,7 +352,6 @@
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Grafico Chart.js con dati di esempio
@@ -388,4 +385,3 @@
             }
         });
     </script>
-</body>
