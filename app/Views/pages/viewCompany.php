@@ -95,7 +95,7 @@
                             <div class="col-md-6 mb-3">
                                 
                                 <div class="d-flex align-items-center border p-2 rounded">
-                                    <img src="<?= $member['picture_path'] ?>" class="rounded-circle me-3"
+                                    <img src="<?= base_url($member['picture_path']) ?>" class="rounded-circle me-3"
                                         width="50" height="50">
                                     <div>
                                         <h6 class="mb-0"><?= $member['full_name'] ?></h6>
@@ -138,7 +138,7 @@
                         <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?> <?= $averageTargetPrice ?></p>
                         <p class="card-text small text-muted"></p>
                     </div>
-                    <?php if(isset($consensus)): ?>
+                    <?php if($consensus): ?>
                     <div class="card-footer p-0">
                         <button class="btn btn-light w-100 p-3 d-flex justify-content-center align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
                           
