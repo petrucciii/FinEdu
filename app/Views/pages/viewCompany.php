@@ -114,10 +114,12 @@
                     <div class="tab-pane fade" id="shareholders">
                         <?php if($shareholders): ?>
                         <ul class="list-group">
+                            <?foreach ($shareholders as $firm): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                The Vanguard Group
-                                <span class="badge bg-primary rounded-pill">8.5%</span>
+                                <?= $firm['firm_name'] ?>
+                                <span class="badge bg-primary rounded-pill"><?= $firm['ownership'] ?>%</span>
                             </li>
+                            <?php endforeach; ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 BlackRock Inc.
                                 <span class="badge bg-primary rounded-pill">7.2%</span>
