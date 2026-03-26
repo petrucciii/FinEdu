@@ -160,9 +160,8 @@ class CompanyController extends BaseController
     }
     
 
-
-    private static function buildFinancialArray($result){
-        $labels = [
+    private static function buildFinancialArray($result) {
+    $labels = [
         'revenues'                    => 'Ricavi',
         'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
         'ebit'                        => 'EBIT (Risultato Operativo)',
@@ -181,7 +180,7 @@ class CompanyController extends BaseController
     $years = [];
     $rows = [];
 
-    //base structure for data
+    //base structure for views
     foreach ($labels as $key => $label) {
         $rows[$key] = [
             'label'  => $label,
@@ -189,31 +188,62 @@ class CompanyController extends BaseController
         ];
     }
 
+    //return false immediately if result is empty or invalid
+    if (empty($result) || !is_array($result)) {
+        return false;
+    }
+
+    //safely extract currency code and check for strictly null
+    $firstRow = reset($result);
+    if (!isset($firstRow['currency_code']) || $firstRow['currency_code'] === null) {
+        return false;
+    }
+    $currencyCode = $firstRow['currency_code'];
 
     foreach ($result as $row) {
-        //calculated data
-        $ebit = (float)$row['net_profit'] + (float)$row['income_taxes'] + (float)$row['interests'];
-        $tax_rate = $ebit != 0 ? ((float)$row['income_taxes'] / $ebit) * 100 : 0;
-        $net_margin = $row['revenues'] != 0 ? ((float)$row['net_profit'] / (float)$row['revenues']) * 100 : 0;
+        // check if any value in the current row is strictly null
+        foreach ($row as $value) {
+            if ($value === null) {
+                return false;
+            }
+        }
+
+        // check if critical keys for headers are missing
+        if (!isset($row['year']) || !isset($row['type'])) {
+            return false;
+        }
+
+        // calculate derived data safely. casting missing elements to float returns 0.
+        $net_profit   = (float)($row['net_profit'] ?? 0);
+        $income_taxes = (float)($row['income_taxes'] ?? 0);
+        $interests    = (float)($row['interests'] ?? 0);
+        $revenues     = (float)($row['revenues'] ?? 0);
+
+        $ebit       = $net_profit + $income_taxes + $interests;
+        $tax_rate   = $ebit != 0 ? ($income_taxes / $ebit) * 100 : 0;
+        $net_margin = $revenues != 0 ? ($net_profit / $revenues) * 100 : 0;
 
         $row['ebit']       = $ebit;
         $row['tax_rate']   = $tax_rate;
         $row['net_margin'] = $net_margin;
 
-        //headers
+        // headers 
         $yearKey = $row['year'];
-        $years[$yearKey] = $yearKey . " " . $row['type'];
+        $type    = $row['type'];
+        
+        // build year string safely
+        $years[$yearKey] = trim($yearKey . " " . $type);
 
-        //year foreach key data
+        // populate rows with fallback to '-' only if the key is totally missing (not null)
         foreach ($labels as $key => $label) {
-            $rows[$key]['values'][$yearKey] = $row[$key] ?? 0; 
+            $rows[$key]['values'][$yearKey] = $row[$key] ?? '-'; 
         }
     }
 
     return [
-        'years' => $years,
-        'rows'  => $rows, // ['net_profit' => ["label" => "utile netto", "values" => [ 2022 => 10000, 2023 => 400000] ] ]
-        'currency_code' => $result[0]['currency_code']
+        'years'         => $years,
+        'rows'          => $rows,
+        'currency_code' => $currencyCode
     ];
-    }
+}
 }

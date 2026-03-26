@@ -45,7 +45,9 @@
                 </ul>
 
                 <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom shadow-sm">
+                    
                     <div class="tab-pane fade show active" id="financials">
+                        <?php if($financialData): ?>
                         <h5 class="mb-3">Bilancio (Dati in <?= $financialData['currency_code'] ?> Migliaia)</h5>
                         <div class="table-responsive">
                             <table class="table table-sm table-striped">
@@ -81,9 +83,13 @@
                                 </tbody>
                             </table>
                         </div>
+                        <?php else: ?>
+                            <h3>Nessun Dato Disponibile</h3>
+                        <?php endif; ?>
                     </div>
 
                     <div class="tab-pane fade" id="board">
+                        <?php if($board): ?>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="d-flex align-items-center border p-2 rounded">
@@ -126,9 +132,13 @@
                                 </div>
                             </div>
                         </div>
+                        <?php else: ?>
+                            <h3>Nessun Dato Disponibile</h3>
+                        <?php endif; ?>
                     </div>
 
                     <div class="tab-pane fade" id="shareholders">
+                        <?php if($shareholders): ?>
                         <ul class="list-group">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 The Vanguard Group
@@ -151,6 +161,9 @@
                                 <span class="badge bg-primary rounded-pill">74.4%</span>
                             </li>
                         </ul>
+                        <?php else: ?>
+                            <h3>Nessun Dato Disponibile</h3>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -163,6 +176,7 @@
                         <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?> <?= $averageTargetPrice ?></p>
                         <p class="card-text small text-muted"></p>
                     </div>
+                    <?php if(isset($consensus)): ?>
                     <div class="card-footer p-0">
                         <button class="btn btn-light w-100 p-3 d-flex justify-content-center align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
                           
@@ -172,6 +186,7 @@
                             </svg>
                         </button>
 
+                        
                         <div class="collapse" id="collapseConsensus">
                             <div class="p-3 pt-0 bg-white">
                                 <div class="table-responsive">
@@ -208,8 +223,12 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
+                    <?php endif; ?>
+                    
                 </div>
+                
 
                 <h5 class="border-bottom pb-2">Ultime Notizie</h5>
                 <div class="list-group list-group-flush">
