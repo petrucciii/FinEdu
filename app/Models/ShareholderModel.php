@@ -29,6 +29,7 @@ class ShareholderModel extends Model
         return $this->select('companies_shareholders.*, firms.firm_name')
                     ->join('firms', 'firms.firm_id = companies_shareholders.firm_id')
                     ->where('companies_shareholders.isin', trim($isin))
+                    ->orderBy('ownership', 'DESC')
                     ->findAll();
     }
 }

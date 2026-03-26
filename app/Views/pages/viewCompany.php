@@ -114,28 +114,14 @@
                     <div class="tab-pane fade" id="shareholders">
                         <?php if($shareholders): ?>
                         <ul class="list-group">
-                            <?foreach ($shareholders as $firm): ?>
+                            <?php foreach ($shareholders as $firm): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <?= $firm['firm_name'] ?>
                                 <span class="badge bg-primary rounded-pill"><?= $firm['ownership'] ?>%</span>
                             </li>
                             <?php endforeach; ?>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                BlackRock Inc.
-                                <span class="badge bg-primary rounded-pill">7.2%</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Berkshire Hathaway
-                                <span class="badge bg-primary rounded-pill">5.8%</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                State Street Corporation
-                                <span class="badge bg-primary rounded-pill">4.1%</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Altri investitori istituzionali
-                                <span class="badge bg-primary rounded-pill">74.4%</span>
-                            </li>
+                           
+                            
                         </ul>
                         <?php else: ?>
                             <h3>Nessun Dato Disponibile</h3>
