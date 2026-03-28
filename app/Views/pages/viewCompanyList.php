@@ -73,7 +73,7 @@
             <td></td>
             <td class="text-end">
                 <?php if ($adminSection): ?>
-                    <a href="" data-field="view_btn" class="btn btn-sm btn-light text-primary border shadow-sm"
+                    <a href="" data-field="edit_btn" class="btn btn-sm btn-light text-primary border shadow-sm"
                         title="Modifica">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -86,19 +86,6 @@
         </tr>
     </template>
 
-    <?php if ($adminSection): ?>
-
-        <script>
-            window.isAdminUser = true;
-        </script>
-
-        <div class="modal fade" id="addCompanyModal" tabindex="-1">
-        </div>
-    <?php else: ?>
-        <script>
-            window.isAdminUser = false;
-        </script>
-    <?php endif; ?>
     <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
 </div>
 

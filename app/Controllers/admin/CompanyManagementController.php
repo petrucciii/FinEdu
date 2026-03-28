@@ -71,7 +71,7 @@ class CompanyManagementController extends BaseController
         ];
 
         if ($companyModel->insert($data)) {
-            return redirect()->to('/admin/CompanyController/edit/' . $data['isin'])->with('alert', "Azienda creata. Ora puoi completare il profilo.");
+            return redirect()->to('/admin/CompanyManagementController/edit/' . $data['isin'])->with('alert', "Azienda creata. Ora puoi completare il profilo.");
         }
 
         return redirect()->back()->with('alert', "Errore durante la creazione. Controlla che l'ISIN non esista già.");
@@ -86,7 +86,7 @@ class CompanyManagementController extends BaseController
         $company = $companyModel->getCompanyByISIN($isin);
 
         if (!$company)
-            return redirect()->to('/admin/CompanyController/index')->with('alert', "Azienda non trovata");
+            return redirect()->to('/admin/CompanyManagementController/index')->with('alert', "Azienda non trovata");
 
         $data = [
             'company' => $company,
@@ -99,7 +99,7 @@ class CompanyManagementController extends BaseController
         ];
 
         echo view("templates/header");
-        echo view("pages/admins/viewCompanyEdit", $data);
+        echo view("pages/admins/viewCompanyManagement", $data);
         echo view("templates/footer");
     }
 
@@ -117,7 +117,6 @@ class CompanyManagementController extends BaseController
             'id_user' => $this->session->get('user_id')
         ];
 
-        // Gestione logo se caricato
         $file = $this->request->getFile('logo');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newName = $file->getRandomName();
@@ -138,6 +137,6 @@ class CompanyManagementController extends BaseController
         // Logical delete
         $companyModel->update($isin, ['active' => 0, 'id_user' => $this->session->get('user_id')]);
 
-        return redirect()->to('/admin/CompanyController/index')->with('alert', 'Azienda eliminata (soft-delete).');
+        return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda eliminata (soft-delete).');
     }
 }

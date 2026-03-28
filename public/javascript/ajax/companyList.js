@@ -43,14 +43,10 @@ const renderCompanies = (companies) => {
 };
 
 
-// Costruisce la riga passando l'oggetto company (che contiene anche i dati del listing)
 const createCompanyRow = (company, index) => {
-
-    // Recupera il template e clona il contenuto (creando un fragment non ancora nel DOM)
     const template = document.getElementById('companyRowTemplate');
     const tr = template.content.cloneNode(true).querySelector('tr');
 
-    // --- LOGO ---
     const logoImg = tr.querySelector('[data-field="logo"]');
     if (company.logo_path && company.logo_path.trim() !== '') {
         logoImg.src = company.logo_path;
@@ -58,15 +54,24 @@ const createCompanyRow = (company, index) => {
         logoImg.src = '/images/logos/default_company.png';
     }
 
-    // --- DATI TESTUALI ---
     tr.querySelector('[data-field="name"]').textContent = company.name;
     tr.querySelector('[data-field="country"]').textContent = company.country;
     tr.querySelector('[data-field="isin"]').textContent = company.isin;
-    tr.querySelector('[data-field="sector"]').textContent = company.description;
+    tr.querySelector('[data-field="sector"]').textContent = company.description || 'N/D';
 
 
-    const viewBtn = tr.querySelector('[data-field="view_btn"]');
-    viewBtn.href = "/CompanyController/viewCompany/"+encodeURIComponent(company.isin)  //viewCompany(isin)
+    const editBtn = tr.querySelector('[data-field="edit_btn"]'); //bottone per Admin
+    const viewBtn = tr.querySelector('[data-field="view_btn"]'); //bottone per Utente
+
+    //se esiste bottone admin
+    if (editBtn) {
+        editBtn.href = `/admin/CompanyManagementController/edit/${encodeURIComponent(company.isin)}`;
+    }
+
+    //se esiste bottone per utente
+    if (viewBtn) {
+        viewBtn.href = `/CompanyController/viewCompany/${encodeURIComponent(company.isin)}`;
+    }
 
     return tr;
 };

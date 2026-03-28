@@ -17,7 +17,7 @@ class UserManagementController extends BaseController
         $roles = model(RoleModel::class)->fread();
         if ($this->session->has('logged') && $this->session->get('role_id') == 1) {
             echo view("templates/header");
-            echo view("pages/admins/viewUserManagement", ['levels' => $levels, 'roles' => $roles]);
+            echo view("pages/admins/viewUserManagement", ['levels' => $levels, 'roles' => $roles, 'adminSection' => true]);
             echo view("templates/footer");
             return;
         }
@@ -36,14 +36,14 @@ class UserManagementController extends BaseController
             $page = $this->request->getGet('page') ?? 1;
             $roleId = $this->request->getGet('role_id');
             $levelId = $this->request->getGet('level_id');
-            
+
             //validate ordering
             $order = $this->request->getGet('order');
             $orderType = $this->request->getGet('order_type');
-            
+
             $validOrder = null;
             $validOrderType = null;
-            
+
             if ($order && in_array(trim($order), $allowedOrderFields)) {
                 $validOrder = trim($order);
             }
@@ -55,12 +55,12 @@ class UserManagementController extends BaseController
 
             //call model method to handle logic
             $result = $userModel->searchAndPaginate(
-                $where, 
-                $roleId, 
-                $levelId, 
-                $validOrder, 
-                $validOrderType, 
-                $page, 
+                $where,
+                $roleId,
+                $levelId,
+                $validOrder,
+                $validOrderType,
+                $page,
                 $isExport
             );
 
@@ -110,7 +110,7 @@ class UserManagementController extends BaseController
         //if is admin and fields have been inserted
         if ($this->session->has('logged') && $this->session->get('role_id') == 1 && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
-                
+
                 $data = [
                     trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value')),
                     'id_user_updated' => $this->session->get('user_id')
