@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Models\CompanyModel;
@@ -24,7 +25,6 @@ class CompanyController extends BaseController
         echo view("templates/header");
         echo view("pages/viewCompanyList");
         echo view("templates/footer");
-
     }
 
     public function search($query = '')
@@ -63,7 +63,8 @@ class CompanyController extends BaseController
         ]);
     }
 
-    public function viewCompany($isin){
+    public function viewCompany($isin)
+    {
         $companyModel = model(CompanyModel::class);
         $sectorModel = model(SectorModel::class);
         $countryModel = model(CountryModel::class);
@@ -75,11 +76,9 @@ class CompanyController extends BaseController
         $shareholderModel = model(ShareholderModel::class);
 
 
-        try{
+        try {
             $isin = trim($isin);
             $company = $companyModel->getCompanyByISIN($isin);
-           
-
         } catch (Exception $e) {
             return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
         }
@@ -88,7 +87,7 @@ class CompanyController extends BaseController
         $financialData = $financialDataModel->findDataPerCompany($isin);
         $board = $boardModel->findBoardPerCompany($isin);
         $shareholders = $shareholderModel->findShareholdersPerCompany($isin);
-        
+
 
         $data = [
             'company' => $company[0],
@@ -110,24 +109,24 @@ class CompanyController extends BaseController
         echo view("templates/header");
         echo view("pages/viewCompany", $data);
         echo view("templates/footer");
-        
     }
 
-    private static function getAverageRating($consensus) {
+    private static function getAverageRating($consensus)
+    {
         $ratings = [];
 
         foreach ($consensus as $c) {
             //ratings into numbers
-            if($c['rating'] == "BUY" ) $rating = 1;
-            else if($c['rating'] == "HOLD" ) $rating = 0;
+            if ($c['rating'] == "BUY") $rating = 1;
+            else if ($c['rating'] == "HOLD") $rating = 0;
             else $rating = -1;
 
             array_push($ratings, $rating);
         }
 
-        try{
+        try {
             $avgRating = array_sum($ratings) / count($ratings);
-        
+
 
             if (round($avgRating) == 1) $avgRating = "BUY";
             else if (round($avgRating) == 0) $avgRating = "HOLD";
@@ -135,115 +134,103 @@ class CompanyController extends BaseController
 
             return $avgRating;
         } catch (Throwable $e) {
-            return "N/A";   
+            return "N/A";
         }
-        
-
     }
-    
-    private static function getAverageTargetPrice($consensus) {
+
+    private static function getAverageTargetPrice($consensus)
+    {
         $targetPrices = [];
 
         foreach ($consensus as $c) {
             array_push($targetPrices, $c['target_price']);
         }
 
-        try{
+        try {
             $avgTP = array_sum($targetPrices) / count($targetPrices);
             return $avgTP;
         } catch (Throwable $e) {
-            return "N/A";   
+            return "N/A";
         }
-        
-        
-         
     }
-    
 
-    private static function buildFinancialArray($result) {
-    $labels = [
-        'revenues'                    => 'Ricavi',
-        'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
-        'ebit'                        => 'EBIT (Risultato Operativo)',
-        'interests'                   => 'Interessi',
-        'income_taxes'                => 'Imposte sul Reddito',
-        'net_profit'                  => 'Utile Netto',
-        'net_margin'                  => 'Margine Netto (%)',
-        'tax_rate'                    => 'Tax Rate (%)',
-        'free_cash_flow'              => 'Free Cash Flow',
-        'capex'                       => 'CAPEX',
-        'dividends'                   => 'Dividendi',
-        'net_debt'                    => 'Debito Netto',
-        'share_number'                => 'Numero Azioni'
-    ];
 
-    $years = [];
-    $rows = [];
-
-    //base structure for views
-    foreach ($labels as $key => $label) {
-        $rows[$key] = [
-            'label'  => $label,
-            'values' => []
+    private static function buildFinancialArray($result)
+    {
+        $labels = [
+            'revenues'                    => 'Ricavi',
+            'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
+            'ebit'                        => 'EBIT (Risultato Operativo)',
+            'interests'                   => 'Interessi',
+            'income_taxes'                => 'Imposte sul Reddito',
+            'net_profit'                  => 'Utile Netto',
+            'net_margin'                  => 'Margine Netto (%)',
+            'tax_rate'                    => 'Tax Rate (%)',
+            'free_cash_flow'              => 'Free Cash Flow',
+            'capex'                       => 'CAPEX',
+            'dividends'                   => 'Dividendi',
+            'net_debt'                    => 'Debito Netto',
+            'share_number'                => 'Numero Azioni'
         ];
-    }
 
-    //return false immediately if result is empty or invalid
-    if (empty($result) || !is_array($result)) {
-        return false;
-    }
+        $years = [];
+        $rows = [];
 
-    //safely extract currency code and check for strictly null
-    $firstRow = reset($result);
-    if (!isset($firstRow['currency_code']) || $firstRow['currency_code'] === null) {
-        return false;
-    }
-    $currencyCode = $firstRow['currency_code'];
-
-    foreach ($result as $row) {
-        // check if any value in the current row is strictly null
-        foreach ($row as $value) {
-            if ($value === null) {
-                return false;
-            }
+        // base structure for views
+        foreach ($labels as $key => $label) {
+            $rows[$key] = [
+                'label'  => $label,
+                'values' => []
+            ];
         }
 
-        // check if critical keys for headers are missing
-        if (!isset($row['year']) || !isset($row['type'])) {
+        if (empty($result) || !is_array($result)) {
             return false;
         }
 
-        // calculate derived data safely. casting missing elements to float returns 0.
-        $net_profit   = (float)($row['net_profit'] ?? 0);
-        $income_taxes = (float)($row['income_taxes'] ?? 0);
-        $interests    = (float)($row['interests'] ?? 0);
-        $revenues     = (float)($row['revenues'] ?? 0);
+        $firstRow = reset($result);
+        $currencyCode = $firstRow['currency_code'] ?? 'N/A';
 
-        $ebit       = $net_profit + $income_taxes + $interests;
-        $tax_rate   = $ebit != 0 ? ($income_taxes / $ebit) * 100 : 0;
-        $net_margin = $revenues != 0 ? ($net_profit / $revenues) * 100 : 0;
+        foreach ($result as $row) {
+            //if null -> -
+            foreach ($row as $key => $value) {
+                if ($value === null) {
+                    $row[$key] = '-';
+                }
+            }
 
-        $row['ebit']       = $ebit;
-        $row['tax_rate']   = $tax_rate;
-        $row['net_margin'] = $net_margin;
+            if (!isset($row['year']) || !isset($row['type'])) {
+                return false;
+            }
 
-        // headers 
-        $yearKey = $row['year'];
-        $type    = $row['type'];
-        
-        // build year string safely
-        $years[$yearKey] = trim($yearKey . " " . $type);
+            $net_profit   = (float)($row['net_profit'] ?? 0);
+            $income_taxes = (float)($row['income_taxes'] ?? 0);
+            $interests    = (float)($row['interests'] ?? 0);
+            $revenues     = (float)($row['revenues'] ?? 0);
 
-        // populate rows with fallback to '-' only if the key is totally missing (not null)
-        foreach ($labels as $key => $label) {
-            $rows[$key]['values'][$yearKey] = $row[$key] ?? '-'; 
+            $ebit = $net_profit + $income_taxes + $interests;
+
+            // use '-' if the condition isn't met
+            $tax_rate   = $ebit > 0 ? ($income_taxes / $ebit) * 100 : '-';
+            $net_margin = $revenues != 0 ? ($net_profit / $revenues) * 100 : '-';
+
+            $row['ebit']       = $ebit;
+            $row['tax_rate']   = $tax_rate;
+            $row['net_margin'] = $net_margin;
+
+            $yearKey = $row['year'];
+            $type    = $row['type'];
+            $years[$yearKey] = trim($yearKey . " " . $type);
+
+            foreach ($labels as $key => $label) {
+                $rows[$key]['values'][$yearKey] = $row[$key] ?? '-';
+            }
         }
-    }
 
-    return [
-        'years'         => $years,
-        'rows'          => $rows,
-        'currency_code' => $currencyCode
-    ];
-}
+        return [
+            'years'         => $years,
+            'rows'          => $rows,
+            'currency_code' => $currencyCode
+        ];
+    }
 }
