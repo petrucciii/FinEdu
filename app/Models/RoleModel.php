@@ -8,25 +8,52 @@ class RoleModel extends Model
 {
     protected $table = 'roles';
     protected $primaryKey = 'role_id';
+    
+    //allowed fields for insert and update operations
+    protected $allowedFields = ['role', 'id_user', 'active'];
 
-    //automati update and creation timestamp
+    //automatic update and creation timestamp
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
+    //read only active records
     public function fread()
     {
-        $db = db_connect();
-
-
-        $sql = "SELECT role_id, role FROM " . $this->table;
-
         try {
-            return $db->query($sql)->getResultArray();
+            return $this->select('role_id, role')->where('active', 1)->findAll();
         } catch (Exception $e) {
             return false;
         }
     }
 
-}
+    //create a new record returning boolean
+    public function fcreate(array $data)
+    {
+        try {
+            return $this->insert($data) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
+    //update an existing record returning boolean
+    public function fupdate(int $id, array $data)
+    {
+        try {
+            return $this->update($id, $data) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    //logical delete returning boolean
+    public function fdelete(int $id)
+    {
+        try {
+            return $this->update($id, ['active' => 0]) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+}
