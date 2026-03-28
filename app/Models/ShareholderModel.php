@@ -4,9 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * Tabella `companies_shareholders`. PK (firm_id, isin).
- */
+//i Model tabella `companies_shareholders`: PK (firm_id, isin)
 class ShareholderModel extends Model
 {
     protected $table      = 'companies_shareholders';

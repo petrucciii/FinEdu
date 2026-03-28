@@ -1,6 +1,9 @@
 <?php
+//elenco ID già usati per escludere le option nelle form di aggiunta
 $boardMemberIds     = array_column($board ?? [], 'member_id');
 $shareholderFirmIds = array_column($shareholders ?? [], 'firm_id');
+//i etichette colonne bilancio (stessi testi di CompanyController::buildFinancialArray)
+$financialLabels    = $financialLabels ?? [];
 
 $finNumVal = static function ($v) {
     if ($v === null || $v === '') {
@@ -12,18 +15,6 @@ $finNumVal = static function ($v) {
 ?>
 <div id="content-wrapper">
 
-    <?php
-    $flashMsg  = session()->getFlashdata('alert');
-    $flashType = session()->getFlashdata('alert_type') ?? 'success';
-if ($flashMsg):
-    $alertClass = $flashType === 'danger' ? 'danger' : 'success';
-    $icon       = $flashType === 'danger' ? 'fa-exclamation-circle' : 'fa-check-circle';
-    ?>
-                <div class="alert alert-<?= esc($alertClass, 'attr') ?> alert-dismissible fade show m-3 shadow-sm" role="alert">
-                    <i class="fas <?= esc($icon, 'attr') ?> me-2"></i> <?= esc($flashMsg) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-    <?php endif; ?>
 
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -56,6 +47,9 @@ if ($flashMsg):
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#shareholders" type="button" role="tab">Azionisti</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#consensus" type="button" role="tab">Consensus</button>
                     </li>
                 </ul>
             </div>
@@ -169,9 +163,11 @@ if ($flashMsg):
 
                     <div class="tab-pane fade" id="financials" role="tabpanel">
                         <?php
+                        //i azione salvataggio bilanci e colonne numeriche tabella `data`
                         $finAction = base_url('admin/CompanyManagementController/saveFinancial');
 $idNew       = 'financial-form-new';
 $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'interests', 'net_profit', 'net_debt', 'share_number', 'free_cash_flow', 'capex', 'dividends'];
+$finColspan  = 3 + count($finCols) + 1;
 ?>
                         <form id="<?= esc($idNew, 'attr') ?>" action="<?= esc($finAction, 'attr') ?>" method="post" class="d-none" aria-hidden="true">
                             <input type="hidden" name="isin" value="<?= esc($company['isin'], 'attr') ?>">
@@ -184,33 +180,58 @@ $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'inte
                         </form>
                         <?php endforeach; ?>
 
-                        <h5 class="fw-bold mb-2">Bilanci (tabella <code class="small">data</code>)</h5>
-                        <p class="text-muted small mb-3">Ogni riga è un anno (chiave <code class="small">isin</code> + <code class="small">year</code>). Modifica i campi e usa <strong>Salva riga</strong>. Valori vuoti = NULL. Colonne DB:
-                            <span class="text-break">revenues, amortizations_depretiations, income_taxes, interests, net_profit, net_debt, share_number, free_cash_flow, capex, dividends</span>.</p>
+                        <h5 class="fw-bold mb-2">Bilanci</h5>
+                        <p class="text-muted small mb-3">Ogni riga è un anno (chiave <code class="small">isin</code> + <code class="small">year</code>). Modifica i campi e usa <strong>Salva riga</strong>. Valori vuoti = NULL nel database.</p>
+
+                        <div class="card border mb-3">
+                            <div class="card-body py-3">
+                                <h6 class="small fw-bold mb-2">Import da file XML</h6>
+                                <form action="<?= base_url('admin/CompanyManagementController/importFinancialXml') ?>" method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
+                                    <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label small mb-0">Tipo dato</label>
+                                        <select name="type_id" class="form-select form-select-sm" required>
+                                            <?php foreach ($data_types as $dt): ?>
+                                                    <option value="<?= esc($dt['type_id']) ?>"><?= esc($dt['name']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-2">
+                                        <label class="form-label small mb-0">Valuta</label>
+                                        <select name="currency_code" class="form-select form-select-sm" required>
+                                            <?php foreach ($currencies as $cur): ?>
+                                                    <option value="<?= esc($cur['currency_code']) ?>"><?= esc($cur['currency_code']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <label class="form-label small mb-0">File XML</label>
+                                        <input type="file" name="xml_file" class="form-control form-control-sm" accept=".xml,text/xml,application/xml" required>
+                                    </div>
+                                    <div class="col-12 col-md-auto">
+                                        <button type="submit" class="btn btn-sm btn-primary fw-bold"><i class="fas fa-file-import me-1"></i>Importa</button>
+                                    </div>
+                                </form>
+                                <p class="text-muted small mb-0 mt-2">Gli anni presenti nel file vengono inseriti o aggiornati (stesso <code class="small">type_id</code> e <code class="small">currency_code</code> scelti qui).</p>
+                            </div>
+                        </div>
 
                         <div class="table-responsive border rounded-3 bg-white" style="max-height:70vh;">
                             <table class="table table-sm table-bordered align-middle mb-0 financial-sheet" style="min-width: 1480px;">
                                 <thead class="table-light sticky-top">
                                     <tr class="small text-nowrap">
                                         <th>Anno</th>
-                                        <th>type_id</th>
-                                        <th>currency_code</th>
-                                        <th>revenues</th>
-                                        <th>amortizations_depretiations</th>
-                                        <th>income_taxes</th>
-                                        <th>interests</th>
-                                        <th>net_profit</th>
-                                        <th>net_debt</th>
-                                        <th>share_number</th>
-                                        <th>free_cash_flow</th>
-                                        <th>capex</th>
-                                        <th>dividends</th>
+                                        <th>Tipo dato</th>
+                                        <th>Valuta</th>
+                                        <?php foreach ($finCols as $col): ?>
+                                                <th title="<?= esc($col) ?>"><?= esc($financialLabels[$col] ?? $col) ?></th>
+                                        <?php endforeach; ?>
                                         <th class="text-end text-wrap" style="min-width:5.5rem;">Azioni</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr class="table-success bg-opacity-10">
-                                        <td colspan="14" class="py-1 small fw-bold">Nuovo esercizio — compila e salva</td>
+                                        <td colspan="<?= (int) $finColspan ?>" class="py-1 small fw-bold">Nuovo esercizio — compila e salva</td>
                                     </tr>
                                     <tr class="bg-light">
                                         <td>
@@ -238,7 +259,7 @@ $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'inte
                                         </td>
                                     </tr>
                                     <?php if (empty($financials)): ?>
-                                    <tr><td colspan="14" class="text-center text-muted py-3">Nessun bilancio presente: usa la riga verde per aggiungere il primo anno.</td></tr>
+                                    <tr><td colspan="<?= (int) $finColspan ?>" class="text-center text-muted py-3">Nessun bilancio presente: usa la riga verde per aggiungere il primo anno.</td></tr>
                                     <?php endif; ?>
                                     <?php foreach ($financials as $f):
                                         $fid = 'financial-form-' . (int) $f['year'];
@@ -282,7 +303,7 @@ $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'inte
                             <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
                             <div class="col-12 col-md-5">
                                 <label class="form-label small fw-bold mb-1">Membro</label>
-                                <select name="member_id" class="form-select form-select-sm" required>
+                                <select name="member_id" id="boardMemberSelect" class="form-select form-select-sm" required>
                                     <option value="" disabled selected>— seleziona —</option>
                                     <?php foreach ($all_members as $m): ?>
                                             <?php if (in_array((int) $m['member_id'], array_map('intval', $boardMemberIds), true)) {
@@ -290,7 +311,11 @@ $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'inte
                                             } ?>
                                             <option value="<?= esc($m['member_id']) ?>"><?= esc($m['full_name']) ?></option>
                                     <?php endforeach; ?>
+                                    <option value="<?= esc(\App\Controllers\Admin\CompanyManagementController::BOARD_MEMBER_NEW_OPTION) ?>">+ Nuovo membro (apre pagina dedicata)…</option>
                                 </select>
+                                <?php if (! empty($boardMemberCreateUrl)): ?>
+                                        <a href="<?= esc($boardMemberCreateUrl) ?>" class="small d-inline-block mt-1">Non trovi il membro? Vai alla creazione</a>
+                                <?php endif; ?>
                             </div>
                             <div class="col-12 col-md-5">
                                 <label class="form-label small fw-bold mb-1">Ruolo</label>
@@ -397,8 +422,106 @@ $finCols     = ['revenues', 'amortizations_depretiations', 'income_taxes', 'inte
                         </div>
                     </div>
 
+                    <div class="tab-pane fade" id="consensus" role="tabpanel">
+                        <h5 class="fw-bold mb-3">Consensus analisti</h5>
+
+                        <form action="<?= base_url('admin/CompanyManagementController/addConsensus') ?>" method="post" class="row g-2 align-items-end mb-4 p-3 bg-light rounded-3 border">
+                            <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small fw-bold mb-1">Casa d’analisi</label>
+                                <select name="firm_id" class="form-select form-select-sm" required>
+                                    <option value="" disabled selected>— seleziona —</option>
+                                    <?php foreach ($all_firms as $firm): ?>
+                                            <option value="<?= esc($firm['firm_id']) ?>"><?= esc($firm['firm_name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small fw-bold mb-1">Data</label>
+                                <input type="date" name="date" class="form-control form-control-sm" required value="<?= esc(date('Y-m-d')) ?>">
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label small fw-bold mb-1">Rating</label>
+                                <select name="rating_id" class="form-select form-select-sm" required>
+                                    <?php foreach (($ratings ?? []) as $r): ?>
+                                            <option value="<?= esc($r['rating_id']) ?>"><?= esc($r['rating']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small fw-bold mb-1">Prezzo obiettivo</label>
+                                <input type="number" name="target_price" class="form-control form-control-sm" step="0.01" min="0" placeholder="opz.">
+                            </div>
+                            <div class="col-6 col-md-auto">
+                                <button type="submit" class="btn btn-primary btn-sm fw-bold"><i class="fas fa-plus me-1"></i>Aggiungi</button>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle border mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Casa d’analisi</th>
+                                        <th>Data / rating / obiettivo</th>
+                                        <th class="text-end" style="width:3.5rem;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php if (empty($consensus)): ?>
+                                        <tr><td colspan="3" class="text-center text-muted py-3">Nessun consensus registrato.</td></tr>
+                                <?php else: ?>
+                                        <?php foreach ($consensus as $row): ?>
+                                                <tr>
+                                                    <td class="fw-semibold"><?= esc($row['firm_name']) ?></td>
+                                                    <td>
+                                                        <form action="<?= base_url('admin/CompanyManagementController/updateConsensus') ?>" method="post" class="row g-2 align-items-center mb-0">
+                                                            <input type="hidden" name="analysis_id" value="<?= esc($row['analysis_id']) ?>">
+                                                            <div class="col-auto">
+                                                                <input type="date" name="date" class="form-control form-control-sm" required value="<?= esc($row['date']) ?>">
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <select name="rating_id" class="form-select form-select-sm" required>
+                                                                    <?php foreach (($ratings ?? []) as $r): ?>
+                                                                            <option value="<?= esc($r['rating_id']) ?>" <?= (int) $row['rating_id'] === (int) $r['rating_id'] ? 'selected' : '' ?>><?= esc($r['rating']) ?></option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <input type="number" name="target_price" class="form-control form-control-sm" style="width:7rem;" step="0.01" min="0" value="<?= esc($row['target_price'] ?? '') ?>" placeholder="—">
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <button type="submit" class="btn btn-sm btn-outline-success" title="Salva"><i class="fas fa-save"></i></button>
+                                                            </div>
+                                                        </form>
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <a href="<?= base_url('admin/CompanyManagementController/deleteConsensus/' . (int) $row['analysis_id']) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Eliminare questo consensus?')" title="Elimina"><i class="fas fa-trash"></i></a>
+                                                    </td>
+                                                </tr>
+                                        <?php endforeach; ?>
+                                <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+//i se nella tendina CdA si sceglie “nuovo membro”, reindirizza alla pagina admin dedicata (route placeholder)
+(function () {
+    var sel = document.getElementById('boardMemberSelect');
+    var url = <?= json_encode($boardMemberCreateUrl ?? '') ?>;
+    if (!sel || !url) return;
+    var newVal = <?= json_encode(\App\Controllers\Admin\CompanyManagementController::BOARD_MEMBER_NEW_OPTION) ?>;
+    sel.addEventListener('change', function () {
+        if (this.value === newVal) {
+            window.location.href = url;
+        }
+    });
+})();
+</script>

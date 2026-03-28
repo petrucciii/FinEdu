@@ -4,9 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * Tabella `companies_board`. PK (isin, member_id).
- */
+//i Model tabella `companies_board` (CdA): PK (isin, member_id)
 class BoardModel extends Model
 {
     protected $table      = 'companies_board';

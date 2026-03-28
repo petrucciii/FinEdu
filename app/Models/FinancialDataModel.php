@@ -4,12 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * Tabella `data` (bilanci). PK composita (isin, year): insert/update/delete via Query Builder.
- */
+//i Model tabella `data` (bilanci): PK (isin, year) gestita con Query Builder
 class FinancialDataModel extends Model
 {
-    protected $table      = 'data';
+    protected $table = 'data';
     protected $primaryKey = 'isin';
     protected $returnType = 'array';
 
@@ -57,5 +55,14 @@ class FinancialDataModel extends Model
             ->where('isin', $isin)
             ->where('year', $year)
             ->delete();
+    }
+
+    //verifica se esiste già un bilancio per ISIN + anno (import XML / upsert)
+    public function hasYear(string $isin, int $year): bool
+    {
+        return $this->db->table($this->table)
+            ->where('isin', $isin)
+            ->where('year', $year)
+            ->countAllResults() > 0;
     }
 }

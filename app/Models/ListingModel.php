@@ -4,9 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * Tabella `listings`. PK (ticker, mic).
- */
+//i Model tabella `listings` (quotazioni): PK (ticker, mic)
 class ListingModel extends Model
 {
     protected $table      = 'listings';
