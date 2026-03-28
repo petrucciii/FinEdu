@@ -25,11 +25,10 @@ class UserController extends BaseController
         if ($this->session->has('logged') && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
                 $data = [
-                    'user_id' => $this->session->get('user_id'),
                     trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value'))
                 ];
 
-                if ($model->fupdate($data)) {
+                if ($model->fupdate($this->session->get('user_id'),$data)) {
                     $this->session->set(trim($this->request->getPost('edit')), trim($this->request->getPost('new_value')));
                     return redirect()->back()->with('alert', "Modifica Riuscita");
                 } else {
@@ -61,11 +60,10 @@ class UserController extends BaseController
                     //password validation
                     if (password_verify($this->request->getPost('password'), $hashPassword)) {
                         $data = [
-                            'user_id' => $this->session->get('user_id'),
                             'password' => $this->request->getPost('new_password')
                         ];
 
-                        if ($model->fupdate($data)) {
+                        if ($model->fupdate($this->session->get('user_id'), $data)) {
                             return redirect()->back()->with('alert', 'Password Modificata!');
                         } else {
                             return redirect()->back()->with('alert', 'Password Non Modificata!');
@@ -92,7 +90,7 @@ class UserController extends BaseController
             $hashPassword = $user[0]['password'];
             //password validation
             if (password_verify($this->request->getPost('password'), $hashPassword)) {
-                if ($model->fdelete(['user_id' => $this->session->get('user_id')])) {//delete user
+                if ($model->fdelete((int)$this->session->get('user_id'))) {//delete user
                     $this->session->remove([
                         'user_id',
                         'first_name',
