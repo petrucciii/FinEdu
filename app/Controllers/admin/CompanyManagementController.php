@@ -8,7 +8,7 @@ use App\Models\CountryModel;
 use App\Models\SectorModel;
 use App\Models\ExchangeModel;
 
-class CompanyController extends BaseController
+class CompanyManagementController extends BaseController
 {
     private function isAdmin()
     {

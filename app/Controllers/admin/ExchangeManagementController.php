@@ -7,7 +7,7 @@ use App\Models\ExchangeModel;
 use App\Models\CountryModel;
 use App\Models\CurrencyModel;
 
-class ExchangeController extends BaseController
+class ExchangeManagementController extends BaseController
 {
     private function isAdmin()
     {
