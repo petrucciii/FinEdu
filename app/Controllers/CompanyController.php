@@ -31,34 +31,22 @@ class CompanyController extends BaseController
     {
         $companyModel = model(CompanyModel::class);
 
+        //get page number by get method, if not present set it to 1
         $page = $this->request->getGet('page') ?? 1;
 
-        $builder = $companyModel;
-        $builder = $builder
-            ->join('sectors', "sectors.ea_code = companies.ea_code")
-            ->join('countries', "countries.country_code = companies.country_code")
-            ->join('listings', "listings.isin = companies.isin");
+        //call model method to handle search and pagination
+        $result = $companyModel->searchAndPaginate($query, $page);
 
-        $query = trim($query);
-        if ($query != '') {
-            $builder = $builder
-                ->groupStart()
-                ->like('companies.name', $query)
-                ->orLike('companies.isin', $query)
-                ->orLike('listings.ticker', $query)
-                ->groupEnd();
-        }
-
-        $companies = $builder->paginate(10, 'default', $page);
-        $pager = $companyModel->pager;
+        $companies = $result['companies'];
+        $pager = $result['pager'];
 
         return $this->response->setJSON([
             'companies' => $companies,
             'pagination' => [
                 'currentPage' => $pager->getCurrentPage(),
-                'perPage' => $pager->getPerPage(),
-                'total' => $pager->getTotal(),
-                'pageCount' => $pager->getPageCount()
+                'perPage'     => $pager->getPerPage(),
+                'total'       => $pager->getTotal(),
+                'pageCount'   => $pager->getPageCount()
             ]
         ]);
     }
