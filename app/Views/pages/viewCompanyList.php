@@ -1,12 +1,11 @@
 <div id="content-wrapper">
 
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
-        <h5 class="m-0 text-muted">Esplora Mercati</h5>
+        <h5 class="m-0 text-muted"><?= $adminSection ? "Gestione Società" : "Lista Società" ?></h5>
         <div class="d-flex gap-2">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="m-0 fw-bold text-dark">Lista Società</h4>
 
-                <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+                <?php if ($adminSection): ?>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompanyModal">
                         <i class="fas fa-plus"></i> Nuova Società
                     </button>
@@ -71,8 +70,9 @@
             <td data-field="isin"></td>
             <td data-field="sector"></td>
             <td data-field="country"></td>
+            <td></td>
             <td class="text-end">
-                <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+                <?php if ($adminSection): ?>
                     <a href="" data-field="view_btn" class="btn btn-sm btn-light text-primary border shadow-sm"
                         title="Modifica">
                         <i class="fas fa-edit"></i>
@@ -86,7 +86,7 @@
         </tr>
     </template>
 
-    <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+    <?php if ($adminSection): ?>
 
         <script>
             window.isAdminUser = true;

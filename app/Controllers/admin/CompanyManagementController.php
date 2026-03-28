@@ -23,7 +23,8 @@ class CompanyManagementController extends BaseController
         //dictionaries
         $data = [
             'sectors' => model(SectorModel::class)->where('active', 1)->findAll(),
-            'countries' => model(CountryModel::class)->where('active', 1)->findAll()
+            'countries' => model(CountryModel::class)->where('active', 1)->findAll(),
+            'adminSection' => true
         ];
 
         echo view("templates/header");

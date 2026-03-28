@@ -23,7 +23,7 @@ class CompanyController extends BaseController
     public function index()
     {
         echo view("templates/header");
-        echo view("pages/viewCompanyList");
+        echo view("pages/viewCompanyList", ['adminSection' => false]);
         echo view("templates/footer");
     }
 
