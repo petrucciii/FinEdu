@@ -17,47 +17,83 @@ class CompanyModel extends Model
         'country_code',
         'ea_code',
         'active',
-        'main_exchange'
+        'main_exchange',
+        'id_user' // tracciamento admin
     ];
 
     //automatic update and creation timestamp
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'last_update';
 
     //read
     public function getCompanyByISIN($isin)
     {
         return $this->select('companies.*, countries.country, sectors.description as sector, exchanges.short_name as main_exchange, currencies.symbol as currency')
-                    ->join('sectors', 'sectors.ea_code = companies.ea_code')
-                    ->join('exchanges', 'exchanges.mic = companies.main_exchange')
-                    ->join('countries', 'countries.country_code = exchanges.country_code')
-                    ->join('currencies', 'currencies.currency_code = exchanges.currency_code')
-                    ->where('companies.isin', $isin)
-                    ->findAll();
+            ->join('sectors', 'sectors.ea_code = companies.ea_code', 'left')
+            ->join('exchanges', 'exchanges.mic = companies.main_exchange', 'left')
+            ->join('countries', 'countries.country_code = companies.country_code', 'left')
+            ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
+            ->where('companies.isin', $isin)
+            ->first(); // Usa first() perché ISIN è primary key
     }
 
-    //search and paginate logic moved from controller
+    //search and paginate logic
     public function searchAndPaginate(string $searchQuery, int $page)
     {
-        //we join necessary tables to perform the search
-        $builder = $this->join('sectors', "sectors.ea_code = companies.ea_code")
-                        ->join('countries', "countries.country_code = companies.country_code")
-                        ->join('listings', "listings.isin = companies.isin");
+        //we join necessary tables and count active listings per company
+        $builder = $this->select('companies.*, sectors.description, countries.country, COUNT(listings.mic) as num_listings')
+            ->join('sectors', "sectors.ea_code = companies.ea_code", 'left')
+            ->join('countries', "countries.country_code = companies.country_code", 'left')
+            ->join('listings', "listings.isin = companies.isin AND listings.active = 1", 'left')
+            ->where('companies.active', 1)
+            ->groupBy('companies.isin');
 
         $searchQuery = trim($searchQuery);
         if ($searchQuery != '') {
             $builder->groupStart()
-                    ->like('companies.name', $searchQuery)
-                    ->orLike('companies.isin', $searchQuery)
-                    ->orLike('listings.ticker', $searchQuery)
-                    ->groupEnd();
+                ->like('companies.name', $searchQuery)
+                ->orLike('companies.isin', $searchQuery)
+                ->orLike('listings.ticker', $searchQuery)
+                ->groupEnd();
         }
 
         //return paginated results and the pager object
         return [
             'companies' => $builder->paginate(10, 'default', $page),
-            'pager'     => $this->pager
+            'pager' => $this->pager
         ];
+    }
+
+    //admin methods
+
+    public function getListings($isin)
+    {
+        return $this->db->table('listings')
+            ->select('listings.*, exchanges.full_name, exchanges.short_name, currencies.currency_code')
+            ->join('exchanges', 'exchanges.mic = listings.mic')
+            ->join('currencies', 'currencies.currency_code = exchanges.currency_code')
+            ->where('listings.isin', $isin)
+            ->where('listings.active', 1)
+            ->get()->getResultArray();
+    }
+
+    public function getFinancialData($isin)
+    {
+        return $this->db->table('data')
+            ->join('data_type', 'data_type.type_id = data.type_id', 'left')
+            ->where('data.isin', $isin)
+            ->orderBy('data.year', 'DESC')
+            ->get()->getResultArray();
+    }
+
+    public function getBoardMembers($isin)
+    {
+        return $this->db->table('companies_board')
+            ->select('board_members.*, companies_board.role')
+            ->join('board_members', 'board_members.member_id = companies_board.member_id')
+            ->where('companies_board.isin', $isin)
+            ->where('board_members.active', 1)
+            ->get()->getResultArray();
     }
 }
