@@ -20,17 +20,18 @@ class CompanyController extends BaseController
         if (!$this->isAdmin())
             return redirect()->to('/');
 
+        //dictionaries
         $data = [
             'sectors' => model(SectorModel::class)->where('active', 1)->findAll(),
             'countries' => model(CountryModel::class)->where('active', 1)->findAll()
         ];
 
         echo view("templates/header");
-        echo view("pages/admins/viewCompanyManagement", $data);
+        echo view("pages/viewCompanyList", $data);
         echo view("templates/footer");
     }
 
-    // Endpoint per chiamate AJAX della lista
+    //AJAX endpoiny
     public function search($query = '')
     {
         if (!$this->isAdmin())

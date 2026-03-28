@@ -3,7 +3,15 @@
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <h5 class="m-0 text-muted">Esplora Mercati</h5>
         <div class="d-flex gap-2">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="m-0 fw-bold text-dark">Lista Società</h4>
 
+                <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompanyModal">
+                        <i class="fas fa-plus"></i> Nuova Società
+                    </button>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -53,37 +61,45 @@
 
     <template id="companyRowTemplate">
         <tr>
-            <td class="align-middle">
+            <td>
                 <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <img data-field="logo" src="" alt="logo" class="rounded bg-white shadow-sm p-1"
-                            style="width: 40px; height: 40px; object-fit: contain; border-radius: 40px">
-                    </div>
-                    <div class="ms-3">
-                        <span data-field="name" class="fw-bold text-dark d-block lh-sm"></span>
-                    </div>
+                    <img src="" data-field="logo" class="rounded me-2 border" width="40" height="40"
+                        style="object-fit: contain;">
+                    <strong data-field="name"></strong>
                 </div>
             </td>
-            <td><small data-field="country" class="text-muted"></small></td>
-            <td>
-                <span data-field="isin" class="text-muted font-monospace d-block small"></span>
-            </td>
-            <td>
-                <span data-field="sector" class="text-muted"></span>
-            </td>
-
-            <td>
-                <span class="badge bg-info text-dark bg-opacity-25 border border-info" data-field="sector"></span>
-            </td>
-
-
+            <td data-field="isin"></td>
+            <td data-field="sector"></td>
+            <td data-field="country"></td>
             <td class="text-end">
-                <a class="btn btn-sm btn-primary shadow-sm open-order-btn fw-bold" data-field="view_btn">
-                    <i class="fas fa-eye"></i> Dettagli
-                </a>
+                <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+                    <a href="" data-field="view_btn" class="btn btn-sm btn-light text-primary border shadow-sm"
+                        title="Modifica">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                <?php else: ?>
+                    <a href="" data-field="view_btn" class="btn btn-sm btn-primary">
+                        Vedi
+                    </a>
+                <?php endif; ?>
             </td>
         </tr>
     </template>
 
+    <?php if (session()->has('logged') && session()->get('role_id') == 1): ?>
+
+        <script>
+            window.isAdminUser = true;
+        </script>
+
+        <div class="modal fade" id="addCompanyModal" tabindex="-1">
+        </div>
+    <?php else: ?>
+        <script>
+            window.isAdminUser = false;
+        </script>
+    <?php endif; ?>
     <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
-    <script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>
+</div>
+
+<script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>

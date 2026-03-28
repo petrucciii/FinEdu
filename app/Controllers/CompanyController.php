@@ -44,9 +44,9 @@ class CompanyController extends BaseController
             'companies' => $companies,
             'pagination' => [
                 'currentPage' => $pager->getCurrentPage(),
-                'perPage'     => $pager->getPerPage(),
-                'total'       => $pager->getTotal(),
-                'pageCount'   => $pager->getPageCount()
+                'perPage' => $pager->getPerPage(),
+                'total' => $pager->getTotal(),
+                'pageCount' => $pager->getPageCount()
             ]
         ]);
     }
@@ -75,7 +75,7 @@ class CompanyController extends BaseController
 
 
         $data = [
-            'company' => $company[0],
+            'company' => $company,
             'consensus' => $consensus,
             'averageRating' => self::getAverageRating($consensus),
             'averageTargetPrice' => self::getAverageTargetPrice($consensus),
@@ -98,9 +98,12 @@ class CompanyController extends BaseController
 
         foreach ($consensus as $c) {
             //ratings into numbers
-            if ($c['rating'] == "BUY") $rating = 1;
-            else if ($c['rating'] == "HOLD") $rating = 0;
-            else $rating = -1;
+            if ($c['rating'] == "BUY")
+                $rating = 1;
+            else if ($c['rating'] == "HOLD")
+                $rating = 0;
+            else
+                $rating = -1;
 
             array_push($ratings, $rating);
         }
@@ -109,9 +112,12 @@ class CompanyController extends BaseController
             $avgRating = array_sum($ratings) / count($ratings);
 
 
-            if (round($avgRating) == 1) $avgRating = "BUY";
-            else if (round($avgRating) == 0) $avgRating = "HOLD";
-            else $avgRating = "SELL";
+            if (round($avgRating) == 1)
+                $avgRating = "BUY";
+            else if (round($avgRating) == 0)
+                $avgRating = "HOLD";
+            else
+                $avgRating = "SELL";
 
             return $avgRating;
         } catch (Throwable $e) {
@@ -139,19 +145,19 @@ class CompanyController extends BaseController
     private static function buildFinancialArray($result)
     {
         $labels = [
-            'revenues'                    => 'Ricavi',
+            'revenues' => 'Ricavi',
             'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
-            'ebit'                        => 'EBIT (Risultato Operativo)',
-            'interests'                   => 'Interessi',
-            'income_taxes'                => 'Imposte sul Reddito',
-            'net_profit'                  => 'Utile Netto',
-            'net_margin'                  => 'Margine Netto (%)',
-            'tax_rate'                    => 'Tax Rate (%)',
-            'free_cash_flow'              => 'Free Cash Flow',
-            'capex'                       => 'CAPEX',
-            'dividends'                   => 'Dividendi',
-            'net_debt'                    => 'Debito Netto',
-            'share_number'                => 'Numero Azioni'
+            'ebit' => 'EBIT (Risultato Operativo)',
+            'interests' => 'Interessi',
+            'income_taxes' => 'Imposte sul Reddito',
+            'net_profit' => 'Utile Netto',
+            'net_margin' => 'Margine Netto (%)',
+            'tax_rate' => 'Tax Rate (%)',
+            'free_cash_flow' => 'Free Cash Flow',
+            'capex' => 'CAPEX',
+            'dividends' => 'Dividendi',
+            'net_debt' => 'Debito Netto',
+            'share_number' => 'Numero Azioni'
         ];
 
         $years = [];
@@ -160,7 +166,7 @@ class CompanyController extends BaseController
         // base structure for views
         foreach ($labels as $key => $label) {
             $rows[$key] = [
-                'label'  => $label,
+                'label' => $label,
                 'values' => []
             ];
         }
@@ -184,23 +190,23 @@ class CompanyController extends BaseController
                 return false;
             }
 
-            $net_profit   = (float)($row['net_profit'] ?? 0);
-            $income_taxes = (float)($row['income_taxes'] ?? 0);
-            $interests    = (float)($row['interests'] ?? 0);
-            $revenues     = (float)($row['revenues'] ?? 0);
+            $net_profit = (float) ($row['net_profit'] ?? 0);
+            $income_taxes = (float) ($row['income_taxes'] ?? 0);
+            $interests = (float) ($row['interests'] ?? 0);
+            $revenues = (float) ($row['revenues'] ?? 0);
 
             $ebit = $net_profit + $income_taxes + $interests;
 
             // use '-' if the condition isn't met
-            $tax_rate   = $ebit > 0 ? ($income_taxes / $ebit) * 100 : '-';
+            $tax_rate = $ebit > 0 ? ($income_taxes / $ebit) * 100 : '-';
             $net_margin = $revenues != 0 ? ($net_profit / $revenues) * 100 : '-';
 
-            $row['ebit']       = $ebit;
-            $row['tax_rate']   = $tax_rate;
+            $row['ebit'] = $ebit;
+            $row['tax_rate'] = $tax_rate;
             $row['net_margin'] = $net_margin;
 
             $yearKey = $row['year'];
-            $type    = $row['type'];
+            $type = $row['type'];
             $years[$yearKey] = trim($yearKey . " " . $type);
 
             foreach ($labels as $key => $label) {
@@ -209,8 +215,8 @@ class CompanyController extends BaseController
         }
 
         return [
-            'years'         => $years,
-            'rows'          => $rows,
+            'years' => $years,
+            'rows' => $rows,
             'currency_code' => $currencyCode
         ];
     }

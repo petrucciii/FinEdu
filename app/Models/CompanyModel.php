@@ -35,13 +35,13 @@ class CompanyModel extends Model
             ->join('countries', 'countries.country_code = companies.country_code', 'left')
             ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
             ->where('companies.isin', $isin)
-            ->first(); // Usa first() perché ISIN è primary key
+            ->first();
     }
 
     //search and paginate logic
     public function searchAndPaginate(string $searchQuery, int $page)
     {
-        //we join necessary tables and count active listings per company
+        //join necessary tables and count active listings per company
         $builder = $this->select('companies.*, sectors.description, countries.country, COUNT(listings.mic) as num_listings')
             ->join('sectors', "sectors.ea_code = companies.ea_code", 'left')
             ->join('countries', "countries.country_code = companies.country_code", 'left')
