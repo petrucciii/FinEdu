@@ -66,9 +66,6 @@ class CompanyController extends BaseController
     public function viewCompany($isin)
     {
         $companyModel = model(CompanyModel::class);
-        $sectorModel = model(SectorModel::class);
-        $countryModel = model(CountryModel::class);
-        $exchangeModel = model(ExchangeModel::class);
         $consensusModel = model(AnalystConsensusModel::class);
         $consensusModel = model(AnalystConsensusModel::class);
         $financialDataModel = model(FinancialDataModel::class);
@@ -100,10 +97,6 @@ class CompanyController extends BaseController
             'board' => $board,
             'shareholders' => $shareholders,
         ];
-
-        echo "<pre>";
-        print_r($data);
-        echo "</pre>";
 
 
         echo view("templates/header");
