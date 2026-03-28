@@ -29,7 +29,7 @@ class CompanyModel extends Model
     //read
     public function getCompanyByISIN($isin)
     {
-        return $this->select('companies.*, countries.country, sectors.description as sector, exchanges.short_name as main_exchange, currencies.symbol as currency')
+        return $this->select('companies.*, countries.country, sectors.description as sector, exchanges.short_name as main_exchange_label, currencies.symbol as currency')
             ->join('sectors', 'sectors.ea_code = companies.ea_code', 'left')
             ->join('exchanges', 'exchanges.mic = companies.main_exchange', 'left')
             ->join('countries', 'countries.country_code = companies.country_code', 'left')

@@ -4,32 +4,44 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
+/**
+ * Tabella `companies_shareholders`. PK (firm_id, isin).
+ */
 class ShareholderModel extends Model
 {
-    protected $table = 'companies_shareholders'; 
-    
-    protected $primaryKey = 'isin'; 
+    protected $table      = 'companies_shareholders';
+    protected $primaryKey = 'isin';
+    protected $returnType = 'array';
 
-    protected $allowedFields = [
-        'isin', 
-        'firm_id', 
-        'ownership', 
-        'created_at', 
-        'last_update', 
-        'id_user'
-    ];
-
-    protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
-
-   
     public function findShareholdersPerCompany(string $isin): array
     {
-        return $this->select('companies_shareholders.*, firms.firm_name')
-                    ->join('firms', 'firms.firm_id = companies_shareholders.firm_id')
-                    ->where('companies_shareholders.isin', trim($isin))
-                    ->orderBy('ownership', 'DESC')
-                    ->findAll();
+        return $this->db->table($this->table)
+            ->select('companies_shareholders.isin, companies_shareholders.firm_id, companies_shareholders.ownership, firms.firm_name')
+            ->join('firms', 'firms.firm_id = companies_shareholders.firm_id')
+            ->where('companies_shareholders.isin', trim($isin))
+            ->orderBy('companies_shareholders.ownership', 'DESC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function insertRow(array $row): bool
+    {
+        return $this->db->table($this->table)->insert($row);
+    }
+
+    public function updateRow(string $isin, int $firmId, array $row): bool
+    {
+        return (bool) $this->db->table($this->table)
+            ->where('isin', $isin)
+            ->where('firm_id', $firmId)
+            ->update($row);
+    }
+
+    public function deleteRow(string $isin, int $firmId): bool
+    {
+        return (bool) $this->db->table($this->table)
+            ->where('isin', $isin)
+            ->where('firm_id', $firmId)
+            ->delete();
     }
 }

@@ -4,27 +4,58 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
+/**
+ * Tabella `data` (bilanci). PK composita (isin, year): insert/update/delete via Query Builder.
+ */
 class FinancialDataModel extends Model
 {
     protected $table      = 'data';
-    //ci4 doesn't support array as pks so delete and update will be managed "manually"
-    protected $primaryKey = 'isin'; 
+    protected $primaryKey = 'isin';
+    protected $returnType = 'array';
 
-    protected $allowedFields = [
-        'year', 'isin', 'type_id', 'currency_code', 'revenues', 
-        'amortizations_depretiations', 'income_taxes', 'interests', 
-        'net_profit', 'net_debt', 'share_number', 'free_cash_flow', 
-        'capex', 'dividends', 'id_ser'
+    /** Campi numerici opzionali (BIGINT NULL) */
+    public const BIGINT_FIELDS = [
+        'revenues',
+        'amortizations_depretiations',
+        'income_taxes',
+        'interests',
+        'net_profit',
+        'net_debt',
+        'share_number',
+        'free_cash_flow',
+        'capex',
+        'dividends',
     ];
 
     public function findDataPerCompany(string $isin): array
     {
-        $result = $this->select('data.*, data_type.type')
-                        ->where('isin', trim($isin))
-                        ->join('data_type', 'data_type.type_id = data.type_id')
-                        ->orderBy('year', 'DESC')
-                        ->findAll();
-        return $result;
+        return $this->db->table($this->table)
+            ->select('data.*, data_type.type, data_type.name AS type_name')
+            ->join('data_type', 'data_type.type_id = data.type_id', 'left')
+            ->where('data.isin', trim($isin))
+            ->orderBy('data.year', 'DESC')
+            ->get()
+            ->getResultArray();
     }
 
+    public function insertRow(array $row): bool
+    {
+        return $this->db->table($this->table)->insert($row);
+    }
+
+    public function updateRow(string $isin, int $year, array $row): bool
+    {
+        return (bool) $this->db->table($this->table)
+            ->where('isin', $isin)
+            ->where('year', $year)
+            ->update($row);
+    }
+
+    public function deleteRow(string $isin, int $year): bool
+    {
+        return (bool) $this->db->table($this->table)
+            ->where('isin', $isin)
+            ->where('year', $year)
+            ->delete();
+    }
 }
