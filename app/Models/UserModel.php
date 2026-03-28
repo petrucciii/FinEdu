@@ -7,133 +7,135 @@ use Exception;
 
 class UserModel extends Model
 {
-     //necessary for pagination in UserManagementController, otherwise pagination would not workn
-     protected $table = 'users';
-     protected $primaryKey = 'user_id';
-     protected $allowedFields = [
-          'first_name',
-          'last_name',
-          'email',
-          'password',
-          'experience',
-          'level_id',
-          'role_id',
-          'created_at'
-     ];
+    protected $table = 'users';
+    protected $primaryKey = 'user_id';
+    
+    //allowed fields for insert and update operations
+    protected $allowedFields = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'experience',
+        'level_id',
+        'role_id',
+        'active',
+        'id_user_updated'
+    ];
 
-     //automati update and creation timestamp
+    //automatic update and creation timestamp
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-     private $allColumns = ['user_id', 'first_name', 'last_name', 'email', 'password', 'experience', 'level_id', 'role_id', 'created_at'];
+    //create returning boolean
+    public function fcreate(array $data)
+    {
+        try {
+            if (!empty($data['password'])) {
+                $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            }
+            return $this->insert($data) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
-     //create 
-     public function fcreate(array $data)
-     {
-          $db = db_connect();
-          // var_dump($data);
-          // echo "<br>";
+    //read active records optionally filtered
+    public function fread(array $where = [])
+    {
+        try {
+            $builder = $this->select('users.*, roles.role, levels.level')
+                            ->join('levels', 'levels.level_id = users.level_id', 'left')
+                            ->join('roles', 'roles.role_id = users.role_id', 'left')
+                            ->where('users.active', 1);
 
-          //hash password
-          $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-          //insert only given columns: intersect keys of data ["id"=>1, "name"=>"Mario"] with flipped allColumns (key and values swapped)
-          $columns = array_intersect_key($data, array_flip($this->allColumns));
-          $sqlColumns = implode(",", array_keys($columns));
-          $sqlPlaceholders = ":" . implode(":,:", array_keys($columns)) . ":";
+            if (!empty($where)) {
+                $builder->where($where);
+            }
 
-          $sql = "INSERT INTO {$this->table} ($sqlColumns) VALUES ($sqlPlaceholders)";
+            return $builder->findAll();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
-          // var_dump($columns);
-          // die;
+    //update an existing record returning boolean
+    public function fupdate(int $id, array $data)
+    {
+        try {
+            if (!empty($data['password'])) {
+                $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+            }
+            return $this->update($id, $data) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
-          try {
-               return $db->query($sql, $data);
-          } catch (Exception $e) {
-               return false;
-          }
+    //logical delete returning boolean
+    public function fdelete(int $id)
+    {
+        try {
+            return $this->update($id, ['active' => 0]) ? true : false;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
-     }
+    //search, filter, order, paginate or export users
+    public function searchAndPaginate($searchQuery, $roleId, $levelId, $orderColumn, $orderType, $page, $isExport)
+    {
+        $builder = $this->select('users.*, roles.role, levels.level')
+                        ->join('levels', 'users.level_id = levels.level_id', 'left')
+                        ->join('roles', 'users.role_id = roles.role_id', 'left')
+                        ->where('users.active', 1);
 
-     //read
-     public function fread($where = [])
-     {
-          $db = db_connect();
+        //search by text
+        if (!empty(trim($searchQuery))) {
+            $builder->groupStart()
+                    ->like('users.email', trim($searchQuery))
+                    ->orLike('users.first_name', trim($searchQuery))
+                    ->orLike('users.last_name', trim($searchQuery))
+                    ->groupEnd();
+        }
 
-          $sql = 'SELECT user_id, first_name, last_name, email, password, experience, u.level_id, u.role_id, u.created_at, role, level FROM ' . $this->table . " as u JOIN levels USING(level_id) JOIN roles USING(role_id)";
-          $params = [];
+        //filter by role
+        if ($roleId != "all" && is_numeric($roleId)) {
+            $builder->where('users.role_id', (int) $roleId);
+        }
 
-          if (!empty($where)) {
-               $conditions = [];
-               foreach ($this->allColumns as $col) {
-                    if (isset($where[$col])) {
-                         $conditions[] = "$col = :$col:";//placeholders
-                         $params[$col] = $where[$col];
-                    }
-               }
-               if (!empty($conditions)) {
-                    $sql .= ' WHERE ' . implode(' AND ', $conditions);
-               }
-          }
+        //filter by level
+        if ($levelId != "all" && is_numeric($levelId)) {
+            $builder->where('users.level_id', (int) $levelId);
+        }
 
-          $query = $db->query($sql, $params);
+        //ordering
+        if ($orderColumn && $orderType) {
+            $builder->orderBy($orderColumn, $orderType);
+        }
 
-          return $query->getResultArray();
-     }
+        //return all results if export mode is triggered
+        if ($isExport) {
+            return $builder->findAll();
+        }
 
-     //update
-     public function fupdate(array $data)
-     {
-          $db = db_connect();
+        //return paginated results and pager object
+        return [
+            'users' => $builder->paginate(10, 'default', $page),
+            'pager' => $this->pager
+        ];
+    }
 
-          // hash password
-          if (!empty($data['password'])) {
-               $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-          }
-
-
-          $setParts = [];
-          $params = [];
-          foreach ($this->allColumns as $col) {//only allowed columns
-               if ($col === 'user_id')
-                    continue; //primary key cannot be updated
-               if (isset($data[$col])) {//only columns that have to be updated
-                    $setParts[] = "$col = :$col:";//placeholders
-                    $params[$col] = $data[$col];
-               }
-          }
-
-          $params['user_id'] = $data['user_id']; //where
-          $sql = 'UPDATE ' . $this->table . ' SET ' . implode(', ', array: $setParts) . ' WHERE user_id = :user_id:';
-
-          try {
-               return $db->query($sql, $params);
-          } catch (Exception $e) {
-               return false;
-          }
-
-     }
-
-     //delete
-     public function fdelete(array $data)
-     {
-          $db = db_connect();
-          $sql = 'DELETE FROM ' . $this->table . ' WHERE user_id = :user_id:';
-          $params = ['user_id' => $data['user_id']];
-          try {
-               return $db->query($sql, $params);
-          } catch (Exception $e) {
-               return false;
-          }
-
-     }
-
-     public function countUsers()
-     {
-          $db = db_connect();
-          $sql = 'SELECT COUNT(*) as count FROM ' . $this->table . ' GROUP BY role_id HAVING role_id = :role_id:';
-          $query = $db->query($sql);
-          return $query->getRow()->count();
-     }
-
+    //count users by role
+    public function countUsersByRole(int $roleId)
+    {
+        try {
+            return $this->where('role_id', $roleId)
+                        ->where('active', 1)
+                        ->countAllResults();
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
 }
