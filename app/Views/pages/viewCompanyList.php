@@ -86,8 +86,11 @@
         </tr>
     </template>
 
-    <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
-    <?= $this->include("modals/modalCompanyAdd"); ?>
+    <?php if ($adminSection) { ?>
+        <?= $this->include("modals/modalCompanyAdd"); ?>
+    <?php } else { ?>
+        <?= $this->include("modals/modalOrderAdd"); ?>
+    <?php } ?>
 </div>
 
 <script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>

@@ -88,6 +88,11 @@ class CompanyController extends BaseController
             'board' => $board,
             'shareholders' => $shareholders,
             'listings' => $listings,
+            'countries' => model(CountryModel::class)->findAll(),
+            'currencies' => model(CurrencyModel::class)->findAll(),
+            'sectors' => model(SectorModel::class)->findAll(),
+            'exchanges' => model(ExchangeModel::class)->findAll(),
+            'adminSection' => false,
         ];
 
 

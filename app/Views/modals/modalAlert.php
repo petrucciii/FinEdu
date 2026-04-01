@@ -23,7 +23,8 @@ $alert_type = session()->getFlashdata('alert_type'); ?>
                     </p>
                 </div>
                 <div class="modal-footer border-0 justify-content-center">
-                    <button type="button" class="btn btn-warning px-4 rounded-pill" data-bs-dismiss="modal">Chiudi</button>
+                    <button type="button" class="btn btn-<?= $alert_type ?? 'warning' ?> px-4 rounded-pill"
+                        data-bs-dismiss="modal">Chiudi</button>
                 </div>
             </div>
         </div>
