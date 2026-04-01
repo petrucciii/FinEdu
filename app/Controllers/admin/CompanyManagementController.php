@@ -113,7 +113,7 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda non trovata')->with('alert_type', 'danger');
         }
 
-        $db = \Config\Database::connect();
+        $db = \Config\Database::connect();//da cambiare, usare i model
 
         $data = [
             'company' => $company,
@@ -158,7 +158,7 @@ class CompanyManagementController extends BaseController
 
         $file = $this->request->getFile('logo');
         if ($file && $file->isValid() && !$file->hasMoved()) {
-            $newName = $file->getRandomName();
+            $newName = $file->getRandomName();//nome casuale per il file dato che quello presente non viene eliminato
             $file->move(FCPATH . 'images/logos', $newName);//sposta il file nella cartella images/logos
             $data['logo_path'] = '/images/logos/' . $newName;//salva il percorso del file
         }

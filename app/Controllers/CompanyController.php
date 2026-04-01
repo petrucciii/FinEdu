@@ -11,6 +11,7 @@ use App\Models\AnalystConsensusModel;
 use App\Models\FinancialDataModel;
 use App\Models\BoardModel;
 use App\Models\ShareholderModel;
+use App\Models\ListingModel;
 
 
 use App\Controllers\BaseController;
@@ -74,6 +75,8 @@ class CompanyController extends BaseController
         $shareholders = $shareholderModel->findShareholdersPerCompany($isin);
 
 
+        $listings = model(ListingModel::class)->findActiveByIsin($isin);
+
         $data = [
             'company' => $company,
             'consensus' => $consensus,
@@ -84,6 +87,7 @@ class CompanyController extends BaseController
             'financialData' => self::buildFinancialArray($financialData),
             'board' => $board,
             'shareholders' => $shareholders,
+            'listings' => $listings,
         ];
 
 

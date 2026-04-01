@@ -10,7 +10,9 @@ class CompanyModel extends Model
     //ci standard
     protected $table = 'companies';
     protected $primaryKey = 'isin';
+    protected $useAutoIncrement = false; //isin è stringa, non auto-increment
     protected $allowedFields = [
+        'isin',         //pk stringa: va inclusa per insert
         'name',
         'website',
         'logo_path',
@@ -18,7 +20,7 @@ class CompanyModel extends Model
         'ea_code',
         'active',
         'main_exchange',
-        'id_user' // tracciamento admin
+        'id_user', // tracciamento admin
     ];
 
     //automatic update and creation timestamp

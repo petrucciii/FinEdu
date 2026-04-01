@@ -87,6 +87,7 @@
     </template>
 
     <!-- <?/*= $this->include("modals/modalOrderAdd"); */ ?> -->
+    <?= $this->include("modals/modalCompanyAdd"); ?>
 </div>
 
 <script type="module" src="<?= base_url('javascript/ajax/companyList.js') ?>"></script>

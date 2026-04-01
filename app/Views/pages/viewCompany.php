@@ -17,7 +17,7 @@
         <div class="col-md-4 text-end">
             <div class="display-6 fw-bold"><?= $company['currency'] ?> 178.50</div>
             <div class="text-muted">Ultimo aggiornamento: 12/02/2026</div>
-            <button class="btn btn-success btn-lg mt-2" data-bs-toggle="modal" data-bs-target="#buyModal">
+            <button class="btn btn-success btn-lg mt-2" data-bs-toggle="modal" data-bs-target="#addOrderModal">
                 <i class="fas fa-shopping-cart"></i> Negozia
             </button>
         </div>
@@ -95,12 +95,12 @@
                 <div class="tab-pane fade" id="board">
                     <?php if ($board): ?>
                         <div class="row">
-                            <?php foreach ($board as $member) : ?>
+                            <?php foreach ($board as $member): ?>
                                 <div class="col-md-6 mb-3">
 
                                     <div class="d-flex align-items-center border p-2 rounded">
-                                        <img src="<?= base_url($member['picture_path']) ?>" alt="Picture" class="rounded-circle me-3"
-                                            width="50" height="50">
+                                        <img src="<?= base_url($member['picture_path']) ?>" alt="Picture"
+                                            class="rounded-circle me-3" width="50" height="50">
                                         <div>
                                             <h6 class="mb-0"><?= $member['full_name'] ?></h6>
                                             <small class="text-muted"><?= $member['role'] ?></small>
@@ -139,16 +139,22 @@
                 <div class="card-header bg-primary text-white">Consensus Analisti</div>
                 <div class="card-body">
                     <h3 class="card-title text-uppercase <?= $averageRating ?>"><?= $averageRating ?></h3>
-                    <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?> <?= $averageTargetPrice ?></p>
+                    <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?>
+                        <?= $averageTargetPrice ?></p>
                     <p class="card-text small text-muted"></p>
                 </div>
                 <?php if ($consensus): ?>
                     <div class="card-footer p-0">
-                        <button class="btn btn-light w-100 p-3 d-flex justify-content-center align-items-center btn-collapse rounded-0 border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus" aria-expanded="false" aria-controls="collapseConsensus">
+                        <button
+                            class="btn btn-light w-100 p-3 d-flex justify-content-center align-items-center btn-collapse rounded-0 border-0 shadow-none"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseConsensus"
+                            aria-expanded="false" aria-controls="collapseConsensus">
 
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down icon-arrow text-secondary" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-chevron-down icon-arrow text-secondary" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
                             </svg>
                         </button>
 
@@ -231,45 +237,8 @@
         </div>
     </div>
 
-    <!-- Modal Negozia -->
-    <div class="modal fade" id="buyModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Inserisci Ordine: AAPL</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="#" method="post">
-                    <div class="modal-body">
-                        <input type="hidden" name="ticker" value="AAPL">
-                        <input type="hidden" name="mic" value="XNAS">
-                        <div class="mb-3">
-                            <label>Seleziona Portafoglio</label>
-                            <select name="portfolio_id" class="form-select">
-                                <option value="1">Risparmi Long Term (Disp: € 3,250.00)</option>
-                                <option value="2">Trading Attivo (Disp: € 1,500.00)</option>
-                                <option value="3">Tech Growth (Disp: € 5,100.25)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>Quantità</label>
-                            <input type="number" name="quantity" class="form-control" min="1" value="2">
-                        </div>
-                        <div>
-                            <span>Controvalore</span>
-                            <span>€ 357,00 </span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="input-group">
-                            <input type="password" name="password" class="form-control" placeholder="Password">
-                            <button type="submit" class="btn btn-success">Conferma</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <?= $this->include('modals/modalOrderAdd') ?>
+
 
     <!-- Modal Notizia 1 -->
     <div class="modal fade" id="newsModal1" tabindex="-1">

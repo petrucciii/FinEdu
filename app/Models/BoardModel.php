@@ -7,9 +7,14 @@ use CodeIgniter\Model;
 //i Model tabella `companies_board` (CdA): PK (isin, member_id)
 class BoardModel extends Model
 {
-    protected $table      = 'companies_board';
+    protected $table = 'companies_board';
     protected $primaryKey = 'isin';
     protected $returnType = 'array';
+    protected $allowedFields = [
+        'isin',
+        'member_id',
+        'role',
+    ];
 
     public function findBoardPerCompany(string $isin): array
     {
