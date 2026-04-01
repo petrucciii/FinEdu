@@ -96,4 +96,30 @@ class CompanyModel extends Model
             ->where('board_members.active', 1)
             ->get()->getResultArray();
     }
+
+    //eliminazione logica
+    public function deleteCompany($isin, $data)
+    {
+        //transazione per assicurare che tutte le tabelle vengano aggiornate o nessuna
+        $this->db->transStart();
+
+        try {
+            $this->update($isin, $data);
+
+            $whereCondition = ['isin' => $isin];
+
+            $this->db->table('listings')->update($data, $whereCondition);
+            $this->db->table('companies_board')->update($data, $whereCondition);
+            $this->db->table('shareholders')->update($data, $whereCondition);
+            $this->db->table('analyst_consensus')->update($data, $whereCondition);
+
+            $this->db->transComplete();
+
+            return $this->db->transStatus();
+
+        } catch (\Throwable $e) {
+
+            return false;
+        }
+    }
 }

@@ -173,7 +173,7 @@ class CompanyManagementController extends BaseController
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
-        model(CompanyModel::class)->update($isin, ['active' => 0, 'id_user' => $this->session->get('user_id')]);
+        model(CompanyModel::class)->deleteCompany($isin, ['active' => 0, 'id_user' => $this->session->get('user_id')]);
 
         return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda disattivata.');
     }
