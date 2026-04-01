@@ -304,18 +304,14 @@ $finColspan  = 3 + count($finCols) + 1;
                             <div class="col-12 col-md-5">
                                 <label class="form-label small fw-bold mb-1">Membro</label>
                                 <select name="member_id" id="boardMemberSelect" class="form-select form-select-sm" required>
-                                    <option value="" disabled selected>— seleziona —</option>
+                                    <option value="" disabled selected>— Seleziona —</option>
                                     <?php foreach ($all_members as $m): ?>
                                             <?php if (in_array((int) $m['member_id'], array_map('intval', $boardMemberIds), true)) {
                                                 continue;
                                             } ?>
                                             <option value="<?= esc($m['member_id']) ?>"><?= esc($m['full_name']) ?></option>
                                     <?php endforeach; ?>
-                                    <option value="<?= esc(\App\Controllers\Admin\CompanyManagementController::BOARD_MEMBER_NEW_OPTION) ?>">+ Nuovo membro (apre pagina dedicata)…</option>
                                 </select>
-                                <?php if (! empty($boardMemberCreateUrl)): ?>
-                                        <a href="<?= esc($boardMemberCreateUrl) ?>" class="small d-inline-block mt-1">Non trovi il membro? Vai alla creazione</a>
-                                <?php endif; ?>
                             </div>
                             <div class="col-12 col-md-5">
                                 <label class="form-label small fw-bold mb-1">Ruolo</label>
@@ -510,18 +506,3 @@ $finColspan  = 3 + count($finCols) + 1;
         </div>
     </div>
 </div>
-
-<script>
-//i se nella tendina CdA si sceglie “nuovo membro”, reindirizza alla pagina admin dedicata (route placeholder)
-(function () {
-    var sel = document.getElementById('boardMemberSelect');
-    var url = <?= json_encode($boardMemberCreateUrl ?? '') ?>;
-    if (!sel || !url) return;
-    var newVal = <?= json_encode(\App\Controllers\Admin\CompanyManagementController::BOARD_MEMBER_NEW_OPTION) ?>;
-    sel.addEventListener('change', function () {
-        if (this.value === newVal) {
-            window.location.href = url;
-        }
-    });
-})();
-</script>

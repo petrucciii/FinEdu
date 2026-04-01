@@ -16,10 +16,7 @@ use Exception;
 
 class CompanyManagementController extends BaseController
 {
-    //valore option select CdA: apre pagina creazione membro (route placeholder)
-    public const BOARD_MEMBER_NEW_OPTION = '__new__';
 
-    //verifica sessione admin (role_id = 1)
     private function isAdmin(): bool
     {
         return $this->session->has('logged') && (int) $this->session->get('role_id') === 1;
@@ -162,8 +159,8 @@ class CompanyManagementController extends BaseController
         $file = $this->request->getFile('logo');
         if ($file && $file->isValid() && !$file->hasMoved()) {
             $newName = $file->getRandomName();
-            $file->move(FCPATH . 'images/logos', $newName);
-            $data['logo_path'] = '/images/logos/' . $newName;
+            $file->move(FCPATH . 'images/logos', $newName);//sposta il file nella cartella images/logos
+            $data['logo_path'] = '/images/logos/' . $newName;//salva il percorso del file
         }
 
         $companyModel->update($isin, $data);
@@ -341,10 +338,6 @@ class CompanyManagementController extends BaseController
         }
 
         $rawMember = $this->request->getPost('member_id');
-        //blocco invio se l’utente ha lasciato l’option "nuovo membro" senza navigare
-        if ($rawMember === self::BOARD_MEMBER_NEW_OPTION || $rawMember === '' || $rawMember === null) {
-            return redirect()->back()->with('alert', 'Seleziona un membro oppure apri la pagina per crearne uno nuovo dalla voce dedicata nella tendina.')->with('alert_type', 'danger');
-        }
 
         $isin = trim((string) $this->request->getPost('isin'));
         $memberId = (int) $rawMember;
