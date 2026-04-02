@@ -8,8 +8,9 @@ use App\Models\PriceModel;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
 
-/**COMANDO PER TASK SCHEDULER: php(o path di php.exe) spark prices:update 
- * ASSICURARSI DI AVERE extension curl e intl attive nel .ini */
+/**COMANDO PER TASK SCHEDULER: [path php.exe] spark prices:update 
+ * ASSICURARSI DI AVERE extension curl e intl attive nel .ini 
+ * CONFIGURARE task scheduler ogni 15 minuti per tempo indefinito*/
 
 /* */
 

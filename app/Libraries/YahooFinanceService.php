@@ -77,10 +77,11 @@ class YahooFinanceService
         $meta = $result['meta'] ?? [];
 
         $price = $meta['regularMarketPrice'] ?? null;
+        //se non c'è il prezzo, cerca l'ultimo prezzo disponibile
         if ($price === null && !empty($result['indicators']['quote'][0]['close'])) {
             $closes = $result['indicators']['quote'][0]['close'];
             for ($i = count($closes) - 1; $i >= 0; $i--) {
-                if ($closes[$i] !== null) {
+                if ($closes[$i] !== null) {//ultimo prezzo disponibile
                     $price = $closes[$i];
                     break;
                 }

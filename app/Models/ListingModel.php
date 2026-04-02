@@ -38,12 +38,19 @@ class ListingModel extends Model
             ->delete();
     }
 
-    /** Listings attive con MIC per quote Yahoo */
+    /** Listings attive con MIC per quote Yahoo, solo borse attualmente aperte (CET) */
     public function findAllActiveForQuotes(): array
     {
+        //ora corrente nel fuso orario CET (Europe/Rome)
+        $nowCet = (new \DateTime('now', new \DateTimeZone('Europe/Rome')))->format('H:i:s');
+
         return $this->db->table($this->table)
             ->select('listings.ticker, listings.mic')
+            ->join('exchanges', 'exchanges.mic = listings.mic')
             ->where('listings.active', 1)
+            ->where('exchanges.active', 1)
+            ->where('exchanges.opening_hour <=', $nowCet)//controllo borsa aperta
+            ->where('exchanges.closing_hour >=', $nowCet)
             ->get()
             ->getResultArray();
     }
