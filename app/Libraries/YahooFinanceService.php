@@ -52,10 +52,14 @@ class YahooFinanceService
             . rawurlencode($yahooSymbol)
             . '?interval=1d&range=5d';
 
-        $ctx = stream_context_create([//headers per identificarsi come browser
+        $ctx = stream_context_create([
             'http' => [
-                'header' => 'User-Agent: ' . self::UA . "\r\n",
+                'header' => 'User-Agent: ' . self::UA . "\r\n", //headers per identificarsi come browser
                 'timeout' => 12,
+            ],
+            'ssl' => [ //disabilita la verifica del certificato SSL per evitare errori
+                'verify_peer' => false,
+                'verify_peer_name' => false,
             ],
         ]);
         //recupera i dati da Yahoo Finance, @ sopprime gli errori
