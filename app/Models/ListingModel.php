@@ -37,4 +37,14 @@ class ListingModel extends Model
             ->where('mic', $mic)
             ->delete();
     }
+
+    /** Listings attive con MIC per quote Yahoo */
+    public function findAllActiveForQuotes(): array
+    {
+        return $this->db->table($this->table)
+            ->select('listings.ticker, listings.mic')
+            ->where('listings.active', 1)
+            ->get()
+            ->getResultArray();
+    }
 }

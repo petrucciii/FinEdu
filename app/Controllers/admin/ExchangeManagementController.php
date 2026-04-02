@@ -16,36 +16,41 @@ class ExchangeManagementController extends BaseController
 
     public function index()
     {
-        if (!$this->isAdmin())
+        if (!$this->isAdmin()) {
             return redirect()->to('/');
+        }
 
+        $ex = model(ExchangeModel::class)->fread();
         $data = [
-            'exchanges' => model(ExchangeModel::class)->where('active', 1)->findAll(),
+            'exchanges' => is_array($ex) ? $ex : [],
             'countries' => model(CountryModel::class)->where('active', 1)->findAll(),
-            'currencies' => model(CurrencyModel::class)->where('active', 1)->findAll()
+            'currencies' => model(CurrencyModel::class)->where('active', 1)->findAll(),
+            'adminSection' => true,
         ];
 
-        echo view("templates/header");
-        echo view("pages/admins/viewExchangeManagement", $data);
-        echo view("templates/footer");
+        echo view('templates/header');
+        echo view('pages/admins/viewExchangeManagement', $data);
+        echo view('templates/footer');
     }
 
     public function create()
     {
-        if (!$this->isAdmin())
+        if (!$this->isAdmin()) {
             return redirect()->to('/');
+        }
 
         $model = model(ExchangeModel::class);
 
         $data = [
-            'mic' => strtoupper(trim($this->request->getPost('mic'))),
-            'short_name' => trim($this->request->getPost('short_name')),
-            'full_name' => trim($this->request->getPost('full_name')),
+            'mic' => strtoupper(trim((string) $this->request->getPost('mic'))),
+            'short_name' => trim((string) $this->request->getPost('short_name')),
+            'full_name' => trim((string) $this->request->getPost('full_name')),
             'country_code' => $this->request->getPost('country_code'),
             'currency_code' => $this->request->getPost('currency_code'),
-            'opening_hour' => $this->request->getPost('opening_hour'),
-            'closing_hour' => $this->request->getPost('closing_hour'),
-            'id_user' => $this->session->get('user_id')
+            'opening_hour' => $this->request->getPost('opening_hour') ?: null,
+            'closing_hour' => $this->request->getPost('closing_hour') ?: null,
+            'id_user' => $this->session->get('user_id'),
+            'active' => 1,
         ];
 
         if ($model->insert($data)) {
@@ -53,5 +58,51 @@ class ExchangeManagementController extends BaseController
         }
 
         return redirect()->back()->with('alert', 'Errore: controlla i dati e il codice MIC.');
+    }
+
+    public function update()
+    {
+        if (!$this->isAdmin()) {
+            return redirect()->to('/');
+        }
+
+        $mic = strtoupper(trim((string) $this->request->getPost('mic')));
+        if ($mic === '') {
+            return redirect()->back()->with('alert', 'MIC mancante.');
+        }
+
+        $data = [
+            'short_name' => trim((string) $this->request->getPost('short_name')),
+            'full_name' => trim((string) $this->request->getPost('full_name')),
+            'country_code' => $this->request->getPost('country_code'),
+            'currency_code' => $this->request->getPost('currency_code'),
+            'opening_hour' => $this->request->getPost('opening_hour') ?: null,
+            'closing_hour' => $this->request->getPost('closing_hour') ?: null,
+            'id_user' => $this->session->get('user_id'),
+        ];
+
+        if (model(ExchangeModel::class)->fupdate($mic, $data)) {
+            return redirect()->back()->with('alert', 'Borsa aggiornata.');
+        }
+
+        return redirect()->back()->with('alert', 'Aggiornamento non riuscito.');
+    }
+
+    public function delete()
+    {
+        if (!$this->isAdmin()) {
+            return redirect()->to('/');
+        }
+
+        $mic = strtoupper(trim((string) $this->request->getPost('mic')));
+        if ($mic === '') {
+            return redirect()->back()->with('alert', 'MIC mancante.');
+        }
+
+        if (model(ExchangeModel::class)->fdelete($mic)) {
+            return redirect()->back()->with('alert', 'Borsa disattivata.');
+        }
+
+        return redirect()->back()->with('alert', 'Operazione non riuscita.');
     }
 }
