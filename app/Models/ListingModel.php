@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 //i Model tabella `listings` (quotazioni): PK (ticker, mic)
 class ListingModel extends Model
 {
-    protected $table      = 'listings';
+    protected $table = 'listings';
     protected $primaryKey = 'ticker';
     protected $returnType = 'array';
 

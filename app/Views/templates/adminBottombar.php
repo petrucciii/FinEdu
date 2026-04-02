@@ -21,6 +21,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="/admin/ExchangeManagementController/" class="nav-link">
+                            <i class="fas fa-globe"></i>
+                            <span class="d-none d-sm-block">Borse</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/admin/NewsManagementController/" class="nav-link">
                             <i class="far fa-newspaper"></i>
                             <span class="d-none d-sm-block">News</span>
@@ -45,9 +51,15 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/UserManagementController/" class="nav-link">
+                        <a href="/admin/PortfolioManagementController/" class="nav-link">
                             <i class="fas fa-wallet"></i>
                             <span class="d-none d-sm-block">Portafogli</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/admin/OrderManagementController/" class="nav-link">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span class="d-none d-sm-block">Ordini</span>
                         </a>
                     </li>
                     <li class="nav-item">
