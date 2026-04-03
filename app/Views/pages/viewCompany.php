@@ -270,7 +270,7 @@
                         const body = modalEl.querySelector('[data-news-field="body"]');
                         const meta = modalEl.querySelector('[data-news-field="meta"]');
                         if (sub) sub.textContent = d.subtitle || '';
-                        if (body) body.textContent = d.body || '';
+                        if (body) body.innerHTML = d.body || '';
                         const dt = d.date ? new Date(d.date).toLocaleString('it-IT') : '';
                         if (meta) meta.textContent = (d.newspaper ? d.newspaper + ' — ' : '') + dt + (d.author ? ' — ' + d.author : '');
                         modal.show();

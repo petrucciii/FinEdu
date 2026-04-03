@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
                 <h6 class="text-muted" data-news-field="subtitle"></h6>
-                <p class="mt-3 mb-3" style="white-space: pre-wrap;" data-news-field="body"></p>
+                <div class="mt-3 mb-3" data-news-field="body"></div>
                 <small class="text-muted" data-news-field="meta"></small>
             </div>
         </div>

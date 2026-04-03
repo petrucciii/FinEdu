@@ -106,6 +106,11 @@ const bindEditButtons = () => {
                 document.getElementById('edit_author').value = data.news.author || '';
                 document.getElementById('edit_body').value = data.body || '';
 
+                // popola l'editor Quill con il contenuto HTML formattato
+                if (typeof quillEdit !== 'undefined' && quillEdit) {
+                    quillEdit.root.innerHTML = data.body || '';
+                }
+
                 const sel = document.getElementById('edit_newspaper_id');
                 sel.innerHTML = '';
                 (data.newspapers || []).forEach((np) => {

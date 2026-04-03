@@ -81,37 +81,12 @@
         </div>
     </div>
 </div>
+<script src="/javascript/quill.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        initQuillEditor('quillAddContainer', 'newsBody', null);
 
-        // 1. Inizializza Quill
-        var quillAdd = new Quill('#quillAddContainer', {
-            modules: {
-                toolbar: false,
-                clipboard: {
-                    // Questa opzione aiuta a mantenere la formattazione incollata 
-                    // senza aggiungere margini o spazi vuoti eccessivi
-                    matchVisual: false
-                }
-            },
-            theme: 'snow',
-            placeholder: 'Incolla qui il corpo della notizia...'
-        });
-
-        // 2. Sincronizza Quill con l'input nascosto su ogni modifica
-        // In questo modo, quando l'utente preme "Pubblica", il form invia il contenuto HTML esatto
-        quillAdd.on('text-change', function () {
-            var htmlContent = quillAdd.root.innerHTML;
-
-            // Se l'editor è vuoto, Quill lascia un <p><br></p>. Lo svuotiamo per far funzionare il "required"
-            if (quillAdd.getText().trim() === '') {
-                document.getElementById('newsBody').value = '';
-            } else {
-                document.getElementById('newsBody').value = htmlContent;
-            }
-        });
-
-        // Opzionale ma consigliato: assicurati che il form non parta se l'editor è vuoto
+        // validazione form creazione news
         var form = document.querySelector('form[action="/admin/NewsManagementController/create"]');
         if (form) {
             form.addEventListener('submit', function (e) {
@@ -121,6 +96,5 @@
                 }
             });
         }
-
     });
 </script>
