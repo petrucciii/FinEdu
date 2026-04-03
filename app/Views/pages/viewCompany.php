@@ -34,19 +34,21 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <span class="fw-bold">Andamento Prezzo <span id="chartVariation" class="ms-2 small"></span></span>
                     <div class="btn-group btn-group-sm" role="group" id="chartRangeGroup">
-                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="3M">3M</button>
-                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="6M">6M</button>
-                        <button type="button" class="btn btn-outline-primary chart-range-btn active" data-range="1Y">1Y</button>
-                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="MAX">MAX</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn"
+                            data-range="3M">3M</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn"
+                            data-range="6M">6M</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn active"
+                            data-range="1Y">1Y</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn"
+                            data-range="MAX">MAX</button>
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="priceChart" height="100"
-                        data-isin="<?= esc($company['isin']) ?>"
+                    <canvas id="priceChart" height="100" data-isin="<?= esc($company['isin']) ?>"
                         data-currency="<?= esc($company['currency'] ?? '€') ?>"
                         data-labels='<?= json_encode($chartLabels) ?>'
-                        data-values='<?= json_encode($chartValues) ?>'
-                    ></canvas>
+                        data-values='<?= json_encode($chartValues) ?>'></canvas>
                 </div>
             </div>
 
@@ -257,7 +259,7 @@
                 e.preventDefault();
                 const id = el.getAttribute('data-news-id');
                 const isin = encodeURIComponent(el.getAttribute('data-isin'));
-                fetch('/CompanyController/newsBody/' + isin + '/' + id)
+                fetch('/CompanyController/newsBody/' + isin + '/' + id)//ajax 
                     .then((r) => {
                         if (!r.ok) throw new Error();
                         return r.json();

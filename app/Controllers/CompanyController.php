@@ -157,6 +157,13 @@ class CompanyController extends BaseController
         return ['labels' => $labels, 'values' => $values];
     }
 
+    public function newsBody($isin, $id)
+    {
+        $newsModel = model(NewsModel::class);
+        $news = $newsModel->getBodyJson($id, $isin);
+        return $this->response->setJSON($news);
+    }
+
     private static function getAverageRating($consensus)
     {
         $ratings = [];
