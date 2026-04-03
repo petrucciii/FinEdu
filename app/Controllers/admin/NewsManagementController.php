@@ -8,20 +8,22 @@ use App\Models\CompanyNewsModel;
 use App\Models\NewspaperModel;
 use App\Models\NewsModel;
 
+//controller admin per la gestione delle notizie (CRUD).
+//tutte le azioni richiedono ruolo admin (role_id = 1)
 class NewsManagementController extends BaseController
 {
+    //verifica che l'utente loggato sia admin
     private function isAdmin(): bool
     {
         return $this->session->has('logged') && (int) $this->session->get('role_id') === 1;
     }
 
-
+    //pagina principale gestione news: carica le fonti e le aziende per i modal di add/edit
     public function index()
     {
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
-
 
         $data = [
             'newspapers' => model(NewspaperModel::class)->listActive(),
@@ -34,6 +36,8 @@ class NewsManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //endpoint ajax per la ricerca paginata delle news.
+    //restituisce json con array news + dati paginazione
     public function search($query = '')
     {
         if (!$this->isAdmin()) {
@@ -49,6 +53,10 @@ class NewsManagementController extends BaseController
         ]);
     }
 
+    //endpoint ajax per il dettaglio di una singola news.
+    //usato dal modal di modifica per caricare tutti i dati della news.
+    //il body viene estratto separatamente perche e un BLOB e va convertito a stringa.
+    //restituisce anche gli isin collegati e la lista fonti per il select
     public function detail($newsId)
     {
         if (!$this->isAdmin()) {
@@ -63,29 +71,34 @@ class NewsManagementController extends BaseController
         $isins = model(CompanyNewsModel::class)->getIsinsForNews((int) $newsId);
         $newspapers = model(NewspaperModel::class)->listActive();
 
+        //separa il body dal resto dei dati perche il BLOB va gestito a parte.
+        //il model gia converte il blob in stringa tramite convertBlobToString
         $body = $news['body'] ?? '';
         unset($news['body']);
 
         return $this->response->setJSON([
             'news' => $news,
-            'body' => is_string($body) ? $body : (string) $body,
+            'body' => $body,
             'linked_isins' => $isins,
             'newspapers' => $newspapers,
         ]);
     }
 
+    //crea una nuova news. valida i campi obbligatori, inserisce la riga nella tabella news,
+    //poi collega fino a 3 societa tramite la tabella companies_news
     public function create()
     {
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
 
+        //regole di validazione per i campi del form
         $rules = [
             'headline' => 'required|max_length[255]',
             'subtitle' => 'required|max_length[255]',
             'author' => 'required|max_length[50]',
             'newspaper_id' => 'required|is_natural_no_zero',
-            'body' => 'required',
+            'body' => 'required', //il body e HTML da quill, salvato come BLOB
         ];
 
         if (!$this->validate($rules)) {
@@ -98,7 +111,7 @@ class NewsManagementController extends BaseController
                 'newspaper_id' => (int) $this->request->getPost('newspaper_id'),
                 'headline' => trim((string) $this->request->getPost('headline')),
                 'subtitle' => trim((string) $this->request->getPost('subtitle')),
-                'body' => $this->request->getPost('body'),
+                'body' => $this->request->getPost('body'), //HTML formattato da quill
                 'author' => trim((string) $this->request->getPost('author')),
                 'date' => date('Y-m-d H:i:s'),
                 'id_user' => $this->session->get('user_id'),
@@ -113,6 +126,8 @@ class NewsManagementController extends BaseController
             return redirect()->back()->with('alert', 'Errore inserimento news.');
         }
 
+        //raccoglie fino a 3 isin collegati, rimuove vuoti e duplicati,
+        //poi aggiorna la tabella ponte companies_news
         $isins = array_filter([
             trim((string) $this->request->getPost('isin1')),
             trim((string) $this->request->getPost('isin2')),
@@ -125,6 +140,7 @@ class NewsManagementController extends BaseController
         return redirect()->back()->with('alert', 'News pubblicata.');
     }
 
+    //aggiorna una news esistente. stessa logica del create ma con update
     public function update()
     {
         if (!$this->isAdmin()) {
@@ -153,11 +169,12 @@ class NewsManagementController extends BaseController
             'newspaper_id' => (int) $this->request->getPost('newspaper_id'),
             'headline' => trim((string) $this->request->getPost('headline')),
             'subtitle' => trim((string) $this->request->getPost('subtitle')),
-            'body' => $this->request->getPost('body'),
+            'body' => $this->request->getPost('body'), //HTML formattato da quill
             'author' => trim((string) $this->request->getPost('author')),
             'id_user' => $this->session->get('user_id'),
         ]);
 
+        //aggiorna i collegamenti con le societa
         $isins = array_filter([
             trim((string) $this->request->getPost('isin1')),
             trim((string) $this->request->getPost('isin2')),
@@ -170,6 +187,7 @@ class NewsManagementController extends BaseController
         return redirect()->back()->with('alert', 'News aggiornata.');
     }
 
+    //soft delete: disattiva la news impostando active=0
     public function delete()
     {
         if (!$this->isAdmin()) {

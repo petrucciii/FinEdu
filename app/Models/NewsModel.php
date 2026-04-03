@@ -4,6 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
+//model per la tabella `news`, gestisce CRUD e ricerche delle notizie
 class NewsModel extends Model
 {
     protected $table = 'news';
@@ -12,7 +13,7 @@ class NewsModel extends Model
         'newspaper_id',
         'headline',
         'subtitle',
-        'body',
+        'body', //colonna BLOB nel db, contiene HTML formattato da quill
         'author',
         'date',
         'id_user',
@@ -23,8 +24,31 @@ class NewsModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
 
+    //converte il campo body da BLOB (resource stream) a stringa UTF-8.
+    //mysql puo restituire i BLOB come php resource invece che stringa,
+    //quindi serve stream_get_contents per leggere il contenuto effettivo.
+    //senza questa conversione json_encode fallisce silenziosamente
+    private static function convertBlobToString(&$row): void
+    {
+        if (!isset($row['body'])) return;
+
+        //se mysql restituisce il blob come resource stream
+        if (is_resource($row['body'])) {
+            $row['body'] = stream_get_contents($row['body']);
+        }
+
+        //assicura che il risultato sia una stringa valida
+        if (!is_string($row['body'])) {
+            $row['body'] = (string) $row['body'];
+        }
+    }
+
+    //ricerca paginata delle news per la gestione admin.
+    //join con newspapers e companies_news per mostrare fonte e loghi aziende collegate.
+    //usa GROUP_CONCAT per aggregare loghi e nomi in una sola riga per news
     public function searchAndPaginate(string $searchQuery, int $page): array
     {
+        //query base: seleziona i campi principali + loghi e nomi aggregati con separatore |||
         $builder = $this->db->table('news')
             ->select('news.news_id, news.headline, news.subtitle, news.author, news.date, news.active,
                 newspapers.newspaper,
@@ -36,6 +60,7 @@ class NewsModel extends Model
             ->where('news.active', 1)
             ->groupBy('news.news_id');
 
+        //filtro di ricerca su piu campi con OR (headline, subtitle, autore, fonte, azienda)
         $searchQuery = trim($searchQuery);
         if ($searchQuery !== '') {
             $builder->groupStart()
@@ -49,9 +74,13 @@ class NewsModel extends Model
 
         $builder->orderBy('news.date', 'DESC');
 
+        //conta il totale delle righe per la paginazione.
+        //getCompiledSelect(false) compila la query senza eseguirla,
+        //poi la wrappiamo in un COUNT per ottenere il totale
         $countSql = 'SELECT COUNT(*) AS c FROM (' . $builder->getCompiledSelect(false) . ') _news_count';
         $total = (int) ($this->db->query($countSql)->getRow('c') ?? 0);
 
+        //applica limite e offset per la pagina corrente
         $perPage = 10;
         $offset = max(0, ($page - 1) * $perPage);
         $rows = $builder->limit($perPage, $offset)->get()->getResultArray();
@@ -69,6 +98,8 @@ class NewsModel extends Model
         ];
     }
 
+    //recupera tutti i dettagli di una news per il modal di modifica admin.
+    //include il body (BLOB) e il nome del giornale
     public function findDetailForAdmin(int $newsId): ?array
     {
         $row = $this->select('news.*, newspapers.newspaper')
@@ -77,13 +108,16 @@ class NewsModel extends Model
             ->where('news.active', 1)
             ->first();
 
-        if ($row && isset($row['body']) && !is_string($row['body'])) {
-            $row['body'] = (string) $row['body'];
+        if ($row) {
+            //converte il body da BLOB/resource a stringa leggibile
+            self::convertBlobToString($row);
         }
 
         return $row ?: null;
     }
 
+    //recupera le ultime N notizie collegate a una societa (per il box laterale viewCompany).
+    //non include il body per performance (serve solo titolo/data/fonte)
     public function findLatestForCompany(string $isin, int $limit = 3): array
     {
         return $this->db->table('news')
@@ -98,6 +132,8 @@ class NewsModel extends Model
             ->getResultArray();
     }
 
+    //recupera headline + body di una news per il modal di lettura lato utente (viewCompany).
+    //verifica che la news sia effettivamente collegata all'isin richiesto
     public function getBodyJson(int $newsId, string $isin): ?array
     {
         $row = $this->db->table('news')
@@ -109,6 +145,11 @@ class NewsModel extends Model
             ->where('news.active', 1)
             ->get()
             ->getRowArray();
+
+        if ($row) {
+            //converte il body da BLOB/resource a stringa leggibile
+            self::convertBlobToString($row);
+        }
 
         return $row ?: null;
     }
