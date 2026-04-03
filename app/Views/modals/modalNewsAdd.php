@@ -1,3 +1,4 @@
+<!-- modal per la creazione di una nuova news. usa quill come editor rich-text per il body -->
 <div class="modal fade" id="modalAggiungiNews" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 bg-transparent">
@@ -33,11 +34,12 @@
                             <label class="form-label">Autore</label>
                             <input type="text" name="author" class="form-control" required placeholder="Nome autore">
                         </div>
+                        <!-- corpo della notizia: l'input hidden riceve l'html da quill,
+                             il div quillAddContainer e il container dove quill renderizza l'editor.
+                             il body viene salvato come BLOB nel db mantenendo la formattazione -->
                         <div class="mb-3">
                             <label class="form-label">Contenuto</label>
-
                             <input type="hidden" name="body" id="newsBody" required>
-
                             <div id="quillAddContainer" class="form-control bg-white"></div>
                         </div>
                         <div class="mb-3">
@@ -81,12 +83,14 @@
         </div>
     </div>
 </div>
+<!-- carica quill.js che espone la funzione globale initQuillEditor -->
 <script src="/javascript/quill.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        //inizializza quill sul container di aggiunta, sincronizzato con l'input hidden 'newsBody'
         initQuillEditor('quillAddContainer', 'newsBody', null);
 
-        // validazione form creazione news
+        //validazione extra: blocca il submit se l'editor e vuoto
         var form = document.querySelector('form[action="/admin/NewsManagementController/create"]');
         if (form) {
             form.addEventListener('submit', function (e) {

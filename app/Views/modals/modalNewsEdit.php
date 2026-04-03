@@ -1,3 +1,5 @@
+<!-- modal di modifica news. i campi vengono popolati via ajax da newsManagement.js
+     quando l'utente clicca "modifica" su una riga della tabella -->
 <div class="modal fade" id="modalModificaNews" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 bg-transparent">
@@ -26,11 +28,13 @@
                             <label class="form-label">Autore</label>
                             <input type="text" name="author" id="edit_author" class="form-control" required>
                         </div>
+                        <!-- corpo della notizia: l'input hidden edit_body contiene l'html
+                             che verra inviato al server. quillEditContainer mostra l'editor.
+                             il contenuto viene caricato da newsManagement.js tramite
+                             quillEdit.root.innerHTML quando si apre il modal -->
                         <div class="mb-3">
                             <label class="form-label">Contenuto</label>
-
                             <input type="hidden" name="body" id="edit_body" required>
-
                             <div id="quillEditContainer" class="form-control bg-white"></div>
                         </div>
                         <div class="mb-3">
@@ -68,12 +72,15 @@
         </div>
     </div>
 </div>
+<!-- carica quill.js che espone la funzione globale initQuillEditor -->
 <script src="/javascript/quill.js"></script>
 <script>
-    // variabile globale accessibile da newsManagement.js per popolare l'editor in modifica
+    //quillEdit deve essere globale (var, non const) perche newsManagement.js
+    //ci accede per iniettare il body html quando l'utente apre il modal di modifica
     var quillEdit;
 
     document.addEventListener('DOMContentLoaded', function () {
+        //inizializza quill con validazione sul form 'formEditNews'
         quillEdit = initQuillEditor('quillEditContainer', 'edit_body', 'formEditNews');
     });
 </script>

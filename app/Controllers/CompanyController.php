@@ -21,8 +21,12 @@ use App\Controllers\BaseController;
 use Exception;
 use Throwable;
 
+//controller lato utente per la visualizzazione delle societa quotate.
+//gestisce la lista societa, la ricerca ajax e la pagina dettaglio company
 class CompanyController extends BaseController
 {
+    //pagina lista societa: renderizza la view con il flag adminSection=false
+    //per distinguerla dalla versione admin
     public function index()
     {
         echo view("templates/header");
@@ -30,14 +34,17 @@ class CompanyController extends BaseController
         echo view("templates/footer");
     }
 
+    //endpoint ajax per la ricerca paginata delle societa.
+    //riceve la query dalla barra di ricerca e il numero pagina via GET.
+    //restituisce json con array companies + dati paginazione
     public function search($query = '')
     {
         $companyModel = model(CompanyModel::class);
 
-        //get page number by get method, if not present set it to 1
+        //recupera il numero di pagina dal parametro GET, default 1
         $page = $this->request->getGet('page') ?? 1;
 
-        //call model method to handle search and pagination
+        //delega al model la logica di ricerca e paginazione
         $result = $companyModel->searchAndPaginate($query, $page);
 
         $companies = $result['companies'];
@@ -54,6 +61,8 @@ class CompanyController extends BaseController
         ]);
     }
 
+    //pagina dettaglio societa: carica tutti i dati necessari per la viewCompany.
+    //include prezzo corrente, grafico, consensus analisti, bilanci, cda, azionariato e news
     public function viewCompany($isin)
     {
         $companyModel = model(CompanyModel::class);
@@ -62,7 +71,7 @@ class CompanyController extends BaseController
         $boardModel = model(BoardModel::class);
         $shareholderModel = model(ShareholderModel::class);
 
-
+        //recupera i dati base della societa tramite isin
         try {
             $isin = trim($isin);
             $company = $companyModel->getCompanyByISIN($isin);
@@ -70,34 +79,39 @@ class CompanyController extends BaseController
             return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
         }
 
+        //carica dati correlati dalla rispettive tabelle
         $consensus = $consensusModel->findConsensusPerCompany($isin);
         $financialData = $financialDataModel->findDataPerCompany($isin);
         $board = $boardModel->findBoardPerCompany($isin);
         $shareholders = $shareholderModel->findShareholdersPerCompany($isin);
 
+        //recupera l'ultimo prezzo dal primo listing attivo della societa.
+        //il listing[0] e il principale (ordinato per mic asc)
         $listings = model(ListingModel::class)->findActiveByIsin($isin);
         $latestPriceLine = null;
         if (!empty($listings)) {
             $latestPriceLine = model(PriceModel::class)->getLatestForListing($listings[0]['ticker'], $listings[0]['mic']);
         }
 
+        //prepara prezzo e data ultimo aggiornamento per la view
         $displayPrice = $latestPriceLine['price'] ?? '-';
         $displayPriceUpdate = $latestPriceLine['date'] ?? '-';
         if ($displayPriceUpdate !== '-') {
             $displayPriceUpdate = date('d/m/Y H:i', strtotime($displayPriceUpdate));
         }
 
+        //ultime 5 notizie collegate alla societa
         $latestNews = model(NewsModel::class)->findLatestForCompany($isin, 5);
 
-        // Chart data - Default 1M
+        //dati per il grafico prezzi, default 1Y
         $chartData = $this->getChartData($isin, '1Y');
 
+        //assembla tutti i dati per la view
         $data = [
             'company' => $company,
             'consensus' => $consensus,
             'averageRating' => self::getAverageRating($consensus),
             'averageTargetPrice' => self::getAverageTargetPrice($consensus),
-            // 'prices' => [], // Non più necessario se usiamo displayPrice
             'displayPrice' => $displayPrice,
             'displayPriceUpdate' => $displayPriceUpdate,
             'latestNews' => $latestNews,
@@ -114,17 +128,21 @@ class CompanyController extends BaseController
             'adminSection' => false,
         ];
 
-
         echo view("templates/header");
         echo view("pages/viewCompany", $data);
         echo view("templates/footer");
     }
 
+    //endpoint ajax per aggiornare il grafico quando l'utente cambia il range (3M, 6M, 1Y, MAX).
+    //chiamato da priceChart.js tramite fetch
     public function getChartDataJSON($isin, $range = '1Y')
     {
         return $this->response->setJSON($this->getChartData($isin, $range));
     }
 
+    //costruisce labels e values per chart.js a partire dai prezzi giornalieri.
+    //le date vengono formattate in italiano con mese abbreviato (es. "03 Mar 25").
+    //per il range MAX usa solo "mese anno" (es. "Mar 2024") per leggibilita
     private function getChartData($isin, $range)
     {
         $listings = model(ListingModel::class)->findActiveByIsin($isin);
@@ -132,23 +150,25 @@ class CompanyController extends BaseController
             return ['labels' => [], 'values' => []];
         }
 
+        //usa il primo listing come riferimento per i prezzi
         $mainListing = $listings[0];
         $prices = model(PriceModel::class)->getDailySeriesForChart($mainListing['ticker'], $mainListing['mic'], $range);
 
         $labels = [];
         $values = [];
 
-        //mesi abbreviati in italiano
+        //mesi abbreviati in italiano per formattare le ascisse del grafico
         $mesiIt = [1 => 'Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
         foreach ($prices as $p) {
             $dt = new \DateTime($p['d']);
             $month = $mesiIt[(int) $dt->format('n')];
 
+            //per MAX mostra solo mese+anno, per gli altri range giorno+mese+anno corto
             if ($range === 'MAX') {
-                $labels[] = $month . ' ' . $dt->format('Y'); // "Mar 2024"
+                $labels[] = $month . ' ' . $dt->format('Y');
             } else {
-                $labels[] = $dt->format('d') . ' ' . $month . ' ' . $dt->format('y'); // "03 Mar 25"
+                $labels[] = $dt->format('d') . ' ' . $month . ' ' . $dt->format('y');
             }
 
             $values[] = (float) $p['price'];
@@ -157,6 +177,8 @@ class CompanyController extends BaseController
         return ['labels' => $labels, 'values' => $values];
     }
 
+    //endpoint ajax per caricare il body di una news nel modal di lettura (viewCompany).
+    //verifica che la news sia collegata all'isin richiesto
     public function newsBody($isin, $id)
     {
         $newsModel = model(NewsModel::class);
@@ -164,12 +186,15 @@ class CompanyController extends BaseController
         return $this->response->setJSON($news);
     }
 
+    //calcola il rating medio degli analisti per la societa.
+    //converte BUY=1, HOLD=0, SELL=-1, fa la media e riconverte in stringa.
+    //se non ci sono consensus restituisce "N/A"
     private static function getAverageRating($consensus)
     {
         $ratings = [];
 
         foreach ($consensus as $c) {
-            //ratings into numbers
+            //converte il rating testuale in valore numerico
             if ($c['rating'] == "BUY")
                 $rating = 1;
             else if ($c['rating'] == "HOLD")
@@ -183,7 +208,7 @@ class CompanyController extends BaseController
         try {
             $avgRating = array_sum($ratings) / count($ratings);
 
-
+            //riconverte il valore numerico arrotondato in stringa leggibile
             if (round($avgRating) == 1)
                 $avgRating = "BUY";
             else if (round($avgRating) == 0)
@@ -197,6 +222,8 @@ class CompanyController extends BaseController
         }
     }
 
+    //calcola la media dei target price degli analisti.
+    //restituisce il valore numerico o "N/A" se non ci sono consensus
     private static function getAverageTargetPrice($consensus)
     {
         $targetPrices = [];
@@ -213,9 +240,15 @@ class CompanyController extends BaseController
         }
     }
 
-
+    //trasforma i dati finanziari grezzi dal db in una struttura pivot per la tabella bilancio.
+    //la struttura risultante ha:
+    // - 'years': array [anno => "anno tipo"] per le colonne della tabella
+    // - 'rows': array [campo => ['label' => ..., 'values' => [anno => valore]]] per le righe
+    // - 'currency_code': valuta dei dati
+    //calcola anche campi derivati: ebit, tax_rate e net_margin che non sono nel db
     private static function buildFinancialArray($result)
     {
+        //etichette italiane per ogni voce del bilancio
         $labels = [
             'revenues' => 'Ricavi',
             'amortizations_depretiations' => 'Ammortamenti e Svalutazioni',
@@ -235,7 +268,7 @@ class CompanyController extends BaseController
         $years = [];
         $rows = [];
 
-        // base structure for views
+        //inizializza la struttura base con tutte le voci e valori vuoti
         foreach ($labels as $key => $label) {
             $rows[$key] = [
                 'label' => $label,
@@ -247,11 +280,12 @@ class CompanyController extends BaseController
             return false;
         }
 
+        //prende la valuta dal primo record
         $firstRow = reset($result);
         $currencyCode = $firstRow['currency_code'] ?? 'N/A';
 
         foreach ($result as $row) {
-            //if null -> -
+            //sostituisce null con '-' per la visualizzazione
             foreach ($row as $key => $value) {
                 if ($value === null) {
                     $row[$key] = '-';
@@ -262,14 +296,16 @@ class CompanyController extends BaseController
                 return false;
             }
 
+            //calcola i campi derivati non presenti nel db
             $net_profit = (float) ($row['net_profit'] ?? 0);
             $income_taxes = (float) ($row['income_taxes'] ?? 0);
             $interests = (float) ($row['interests'] ?? 0);
             $revenues = (float) ($row['revenues'] ?? 0);
 
+            //ebit = utile netto + imposte + interessi (formula semplificata bottom-up)
             $ebit = $net_profit + $income_taxes + $interests;
 
-            // use '-' if the condition isn't met
+            //tax rate e net margin calcolati solo se il denominatore e valido
             $tax_rate = $ebit > 0 ? ($income_taxes / $ebit) * 100 : '-';
             $net_margin = $revenues != 0 ? ($net_profit / $revenues) * 100 : '-';
 
@@ -277,10 +313,12 @@ class CompanyController extends BaseController
             $row['tax_rate'] = $tax_rate;
             $row['net_margin'] = $net_margin;
 
+            //costruisce la label della colonna anno combinando anno e tipo (A, S, T)
             $yearKey = $row['year'];
             $type = $row['type'];
             $years[$yearKey] = trim($yearKey . " " . $type);
 
+            //popola i valori per ogni voce del bilancio
             foreach ($labels as $key => $label) {
                 $rows[$key]['values'][$yearKey] = $row[$key] ?? '-';
             }
