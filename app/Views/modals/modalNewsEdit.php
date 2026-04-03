@@ -28,7 +28,10 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Contenuto</label>
-                            <textarea name="body" id="edit_body" class="form-control" rows="6" required></textarea>
+
+                            <input type="hidden" name="body" id="edit_body" required>
+
+                            <div id="quillEditContainer" class="form-control bg-white"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Società collegata (opzionale)</label>
@@ -65,3 +68,45 @@
         </div>
     </div>
 </div>
+<script>
+    // Definisci la variabile fuori dal DOMContentLoaded se ti serve accessibile 
+    // da altre funzioni (es. quando clicchi "Modifica" su una tabella)
+    var quillEdit;
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // 1. Inizializza Quill per la Modifica (Senza toolbar, mantiene formattazione incollata)
+        quillEdit = new Quill('#quillEditContainer', {
+            modules: {
+                toolbar: false,
+                clipboard: {
+                    matchVisual: false // Previene l'aggiunta di spazi vuoti eccessivi copiando da Word/Web
+                }
+            },
+            theme: 'snow'
+        });
+
+        // 2. Sincronizza Quill con l'input nascosto su ogni modifica testuale
+        quillEdit.on('text-change', function () {
+            var htmlContent = quillEdit.root.innerHTML;
+
+            // Svuota l'input se l'editor è vuoto (ignora il <p><br></p> di default di Quill)
+            if (quillEdit.getText().trim() === '') {
+                document.getElementById('edit_body').value = '';
+            } else {
+                document.getElementById('edit_body').value = htmlContent;
+            }
+        });
+
+        // 3. Validazione prima dell'invio del form di modifica
+        var formEdit = document.getElementById('formEditNews');
+        if (formEdit) {
+            formEdit.addEventListener('submit', function (e) {
+                if (document.getElementById('edit_body').value.trim() === '') {
+                    e.preventDefault();
+                    alert('Il campo contenuto è obbligatorio.');
+                }
+            });
+        }
+    });
+</script>

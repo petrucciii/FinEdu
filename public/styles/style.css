@@ -85,7 +85,7 @@
      position: relative;
  }
 
- 
+
 
  #content-wrapper {
      flex-grow: 1;
@@ -234,62 +234,64 @@
      font-weight: 500;
  }
 
-#layout {
-    min-height: 100vh;
-    background-color: #f4f6f9;
-    padding-bottom: 70px; /* Cruciale per non coprire il contenuto */
-}
+ #layout {
+     min-height: 100vh;
+     background-color: #f4f6f9;
+     padding-bottom: 70px;
+     /* Cruciale per non coprire il contenuto */
+ }
 
-#bottombar {
-    width: 100%;
-    height: 70px;
-    background: #212529;
-    z-index: 1050;
-    display: flex;
-    align-items: center;
-}
+ #bottombar {
+     width: 100%;
+     height: 70px;
+     background: #212529;
+     z-index: 1050;
+     display: flex;
+     align-items: center;
+ }
 
-#bottombar .nav-link {
-    color: rgba(255, 255, 255, .7);
-    padding: 8px 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease-in-out;
-    border-radius: 8px; /* Un tocco di modernità */
-}
+ #bottombar .nav-link {
+     color: rgba(255, 255, 255, .7);
+     padding: 8px 12px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.2s ease-in-out;
+     border-radius: 8px;
+     /* Un tocco di modernità */
+ }
 
-#bottombar .nav-link i {
-    font-size: 1.25rem;
-    margin-bottom: 2px;
-}
+ #bottombar .nav-link i {
+     font-size: 1.25rem;
+     margin-bottom: 2px;
+ }
 
-#bottombar .nav-link span {
-    font-size: 0.75rem;
-    font-weight: 500;
-}
+ #bottombar .nav-link span {
+     font-size: 0.75rem;
+     font-weight: 500;
+ }
 
-/* Effetto Hover e Active */
-#bottombar .nav-link:hover,
-#bottombar .nav-link.active {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-}
+ /* Effetto Hover e Active */
+ #bottombar .nav-link:hover,
+ #bottombar .nav-link.active {
+     color: #fff;
+     background: rgba(255, 255, 255, 0.1);
+ }
 
-/* Colore blu sotto solo se vuoi l'indicatore a linea */
-#bottombar .nav-link.active {
-    box-shadow: inset 0 -3px 0 #0d6efd;
-    border-radius: 8px 8px 0 0;
-}
+ /* Colore blu sotto solo se vuoi l'indicatore a linea */
+ #bottombar .nav-link.active {
+     box-shadow: inset 0 -3px 0 #0d6efd;
+     border-radius: 8px 8px 0 0;
+ }
 
-/* Rimuoviamo gap eccessivi su mobile */
-@media (max-width: 576px) {
-    #bottombar .nav-link {
-        padding: 8px 5px;
-        min-width: 60px;
-    }
-}
+ /* Rimuoviamo gap eccessivi su mobile */
+ @media (max-width: 576px) {
+     #bottombar .nav-link {
+         padding: 8px 5px;
+         min-width: 60px;
+     }
+ }
 
 
 
@@ -342,35 +344,54 @@
      opacity: 0.5;
  }
 
-.btn-collapse[aria-expanded="true"] .icon-arrow {
-    transform: rotate(180deg);
-}
-    
-.btn-collapse .icon-arrow {
-    transition: transform 0.3s ease;
-}
+ .btn-collapse[aria-expanded="true"] .icon-arrow {
+     transform: rotate(180deg);
+ }
 
-.BUY {
-    color: green !important;
-}
+ .btn-collapse .icon-arrow {
+     transition: transform 0.3s ease;
+ }
 
-.SELL {
-    color: red !important;
-}
+ .BUY {
+     color: green !important;
+ }
 
-.HOLD {
-    color: black !important;
-}
+ .SELL {
+     color: red !important;
+ }
 
-.BUY_BADGE {
-    background-color: green !important;
-}
+ .HOLD {
+     color: black !important;
+ }
 
-.SELL_BADGE {
-    background-color: red !important;
-}
+ .BUY_BADGE {
+     background-color: green !important;
+ }
+
+ .SELL_BADGE {
+     background-color: red !important;
+ }
 
 
-.HOLD_BADGE {
-    background-color: #000;
-}
+ .HOLD_BADGE {
+     background-color: #000;
+ }
+
+ /* Stile per far sembrare l'editor identico a una textarea di Bootstrap */
+ #quillAddContainer {
+     min-height: 150px;
+     font-family: inherit;
+     /* Prende il font del tuo sito */
+     font-size: 1rem;
+ }
+
+ /* Rimuove il doppio bordo che Quill aggiunge di default */
+ .ql-container.ql-snow {
+     border: none !important;
+ }
+
+ /* Sistema il padding interno */
+ .ql-editor {
+     padding: 0.75rem !important;
+     min-height: 150px;
+ }

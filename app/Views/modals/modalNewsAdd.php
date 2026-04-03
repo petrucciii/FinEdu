@@ -23,7 +23,9 @@
                             <label class="form-label">Fonte</label>
                             <select name="newspaper_id" class="form-select" required>
                                 <?php foreach ($newspapers as $np): ?>
-                                    <option value="<?= (int) $np['newspaper_id'] ?>"><?= esc($np['newspaper']) ?></option>
+                                    <option value="<?= (int) $np['newspaper_id'] ?>">
+                                        <?= esc($np['newspaper']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -33,15 +35,19 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Contenuto</label>
-                            <textarea name="body" class="form-control" rows="6" required
-                                placeholder="Corpo della notizia..."></textarea>
+
+                            <input type="hidden" name="body" id="newsBody" required>
+
+                            <div id="quillAddContainer" class="form-control bg-white"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Società collegata (opzionale)</label>
                             <select name="isin1" class="form-select">
                                 <option value="">— Nessuna —</option>
                                 <?php foreach ($companies as $c): ?>
-                                    <option value="<?= esc($c['isin']) ?>"><?= esc($c['name']) ?></option>
+                                    <option value="<?= esc($c['isin']) ?>">
+                                        <?= esc($c['name']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -50,7 +56,9 @@
                             <select name="isin2" class="form-select">
                                 <option value="">— Nessuna —</option>
                                 <?php foreach ($companies as $c): ?>
-                                    <option value="<?= esc($c['isin']) ?>"><?= esc($c['name']) ?></option>
+                                    <option value="<?= esc($c['isin']) ?>">
+                                        <?= esc($c['name']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -59,7 +67,9 @@
                             <select name="isin3" class="form-select">
                                 <option value="">— Nessuna —</option>
                                 <?php foreach ($companies as $c): ?>
-                                    <option value="<?= esc($c['isin']) ?>"><?= esc($c['name']) ?></option>
+                                    <option value="<?= esc($c['isin']) ?>">
+                                        <?= esc($c['name']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -71,3 +81,46 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // 1. Inizializza Quill
+        var quillAdd = new Quill('#quillAddContainer', {
+            modules: {
+                toolbar: false,
+                clipboard: {
+                    // Questa opzione aiuta a mantenere la formattazione incollata 
+                    // senza aggiungere margini o spazi vuoti eccessivi
+                    matchVisual: false
+                }
+            },
+            theme: 'snow',
+            placeholder: 'Incolla qui il corpo della notizia...'
+        });
+
+        // 2. Sincronizza Quill con l'input nascosto su ogni modifica
+        // In questo modo, quando l'utente preme "Pubblica", il form invia il contenuto HTML esatto
+        quillAdd.on('text-change', function () {
+            var htmlContent = quillAdd.root.innerHTML;
+
+            // Se l'editor è vuoto, Quill lascia un <p><br></p>. Lo svuotiamo per far funzionare il "required"
+            if (quillAdd.getText().trim() === '') {
+                document.getElementById('newsBody').value = '';
+            } else {
+                document.getElementById('newsBody').value = htmlContent;
+            }
+        });
+
+        // Opzionale ma consigliato: assicurati che il form non parta se l'editor è vuoto
+        var form = document.querySelector('form[action="/admin/NewsManagementController/create"]');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (document.getElementById('newsBody').value.trim() === '') {
+                    e.preventDefault();
+                    alert('Il campo contenuto è obbligatorio.');
+                }
+            });
+        }
+
+    });
+</script>
