@@ -42,6 +42,37 @@ class PriceModel extends Model
     }
 
     /**
+     * Serie giornaliera per il grafico: raggruppa per giorno, restituisce il prezzo massimo per ogni giornata.
+     * @param string $range  3M|6M|1Y|MAX
+     */
+    public function getDailySeriesForChart(string $ticker, string $mic, string $range = '1Y'): array
+    {
+        $builder = $this->builder()
+            ->where('ticker', $ticker)
+            ->where('mic', $mic);
+
+        switch ($range) {
+            case '3M':
+                $builder->where('date >=', date('Y-m-d H:i:s', strtotime('-3 months')));
+                break;
+            case '6M':
+                $builder->where('date >=', date('Y-m-d H:i:s', strtotime('-6 months')));
+                break;
+            case '1Y':
+                $builder->where('date >=', date('Y-m-d H:i:s', strtotime('-1 year')));
+                break;
+            case 'MAX':
+                break;
+            default:
+                $builder->where('date >=', date('Y-m-d H:i:s', strtotime('-1 year')));
+        }
+
+        $builder->select('DATE(date) as d, MAX(price) as price')->groupBy('DATE(date)');
+
+        return $builder->orderBy('d', 'ASC')->get()->getResultArray();
+    }
+
+    /**
      * Mappa "ticker|mic" => prezzo ultimo
      * @return array<string, float>
      */

@@ -54,7 +54,7 @@ class UpdatePrices extends BaseCommand
                 $fail++;
             }
 
-            usleep(150000);//pausa di 15 minuti tra una chiamata e l'altra
+            usleep(150000);
         }
 
         CLI::write("Completato: {$ok} aggiornati, {$fail} saltati/errati.", 'white');

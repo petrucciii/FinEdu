@@ -15,8 +15,13 @@
             </a>
         </div>
         <div class="col-md-4 text-end">
-            <div class="display-6 fw-bold"><?= $company['currency'] ?> 178.50</div>
-            <div class="text-muted">Ultimo aggiornamento: 12/02/2026</div>
+            <div class="display-6 fw-bold">
+                <?= esc($company['currency'] ?? '€') ?>
+                <?= esc($displayPrice) ?>
+            </div>
+            <div class="text-muted">Ultimo aggiornamento:
+                <?= esc($displayPriceUpdate) ?>
+            </div>
             <button class="btn btn-success btn-lg mt-2" data-bs-toggle="modal" data-bs-target="#addOrderModal">
                 <i class="fas fa-shopping-cart"></i> Negozia
             </button>
@@ -26,9 +31,22 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="card mb-4">
-                <div class="card-header bg-white fw-bold">Andamento Prezzo</div>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Andamento Prezzo</span>
+                    <div class="btn-group btn-group-sm" role="group" id="chartRangeGroup">
+                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="3M">3M</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="6M">6M</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn active" data-range="1Y">1Y</button>
+                        <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="MAX">MAX</button>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <canvas id="priceChart" height="100"></canvas>
+                    <canvas id="priceChart" height="100"
+                        data-isin="<?= esc($company['isin']) ?>"
+                        data-currency="<?= esc($company['currency'] ?? '€') ?>"
+                        data-labels='<?= json_encode($chartLabels) ?>'
+                        data-values='<?= json_encode($chartValues) ?>'
+                    ></canvas>
                 </div>
             </div>
 
@@ -140,7 +158,8 @@
                 <div class="card-body">
                     <h3 class="card-title text-uppercase <?= $averageRating ?>"><?= $averageRating ?></h3>
                     <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?>
-                        <?= $averageTargetPrice ?></p>
+                        <?= $averageTargetPrice ?>
+                    </p>
                     <p class="card-text small text-muted"></p>
                 </div>
                 <?php if ($consensus): ?>
@@ -204,138 +223,60 @@
 
             <h5 class="border-bottom pb-2">Ultime Notizie</h5>
             <div class="list-group list-group-flush">
-                <!-- Notizia 1 -->
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                    data-bs-target="#newsModal1">
-                    <div class="d-flex w-100 justify-content-between">
-                        <small class="text-muted">Bloomberg</small>
-                        <small>10/02/2026</small>
-                    </div>
-                    <p class="mb-1 fw-bold">Apple supera le aspettative con nuovi iPhone</p>
-                </a>
-
-                <!-- Notizia 2 -->
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                    data-bs-target="#newsModal2">
-                    <div class="d-flex w-100 justify-content-between">
-                        <small class="text-muted">Reuters</small>
-                        <small>08/02/2026</small>
-                    </div>
-                    <p class="mb-1 fw-bold">Vision Pro 2: in arrivo la seconda generazione</p>
-                </a>
-
-                <!-- Notizia 3 -->
-                <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal"
-                    data-bs-target="#newsModal3">
-                    <div class="d-flex w-100 justify-content-between">
-                        <small class="text-muted">CNBC</small>
-                        <small>05/02/2026</small>
-                    </div>
-                    <p class="mb-1 fw-bold">Apple investe 10 miliardi in AI e machine learning</p>
-                </a>
+                <?php if (!empty($latestNews)): ?>
+                    <?php foreach ($latestNews as $nw): ?>
+                        <a href="#" class="list-group-item list-group-item-action open-company-news"
+                            data-news-id="<?= (int) $nw['news_id'] ?>" data-isin="<?= esc($company['isin']) ?>">
+                            <div class="d-flex w-100 justify-content-between">
+                                <small class="text-muted"><?= esc($nw['newspaper'] ?? '') ?></small>
+                                <small><?= esc(date('d/m/Y', strtotime($nw['date']))) ?></small>
+                            </div>
+                            <p class="mb-1 fw-bold"><?= esc($nw['headline']) ?></p>
+                        </a>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="list-group-item text-muted small">Nessuna notizia collegata.</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
     <?= $this->include('modals/modalOrderAdd') ?>
-
-
-    <!-- Modal Notizia 1 -->
-    <div class="modal fade" id="newsModal1" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Apple supera le aspettative con nuovi iPhone</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>La nuova linea di iPhone registra vendite record nel primo trimestre</h6>
-                    <p class="mt-3">Apple Inc. ha annunciato risultati superiori alle aspettative per il primo
-                        trimestre fiscale, grazie principalmente al successo della nuova linea di iPhone. Le
-                        vendite hanno superato i 95 miliardi di dollari, segnando un incremento del 12% rispetto
-                        all'anno precedente. Gli analisti sottolineano la forte domanda nei mercati emergenti e
-                        l'entusiasmo per le nuove funzionalità AI integrate nei dispositivi.</p>
-                    <small class="text-muted">Autore: Sarah Chen - Bloomberg Technology</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Notizia 2 -->
-    <div class="modal fade" id="newsModal2" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Vision Pro 2: in arrivo la seconda generazione</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>Apple prepara il lancio della nuova versione del suo visore per realtà mista</h6>
-                    <p class="mt-3">Secondo fonti vicine all'azienda, Apple starebbe per lanciare la seconda
-                        generazione del Vision Pro entro l'estate 2026. Il nuovo dispositivo dovrebbe essere più
-                        leggero, con batteria migliorata e un prezzo più accessibile. Tim Cook ha definito la
-                        realtà spaziale "il futuro del computing".</p>
-                    <small class="text-muted">Autore: Mark Thompson - Reuters</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Notizia 3 -->
-    <div class="modal fade" id="newsModal3" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Apple investe 10 miliardi in AI e machine learning</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>L'azienda di Cupertino annuncia massicci investimenti in intelligenza artificiale</h6>
-                    <p class="mt-3">Apple ha confermato un piano di investimenti da 10 miliardi di dollari in
-                        ricerca e sviluppo nel campo dell'intelligenza artificiale e del machine learning. Il CEO
-                        Tim Cook ha sottolineato l'importanza strategica dell'AI per il futuro dell'azienda,
-                        promettendo nuove funzionalità rivoluzionarie per tutti i prodotti Apple nei prossimi 18
-                        mesi.</p>
-                    <small class="text-muted">Autore: Jennifer Lee - CNBC</small>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?= $this->include('modals/modalCompanyNews') ?>
 
 </div>
 
-
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Grafico Chart.js con dati di esempio
-    const ctx = document.getElementById('priceChart').getContext('2d');
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
-            datasets: [{
-                label: 'Prezzo (€)',
-                data: [165, 168, 172, 170, 175, 178, 182, 180, 185, 183, 179, 178.50],
-                borderColor: '#0d6efd',
-                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: false
-                }
-            }
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        const modalEl = document.getElementById('companyNewsModal');
+        if (!modalEl) return;
+        const modal = new bootstrap.Modal(modalEl);
+        document.querySelectorAll('.open-company-news').forEach((el) => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                const id = el.getAttribute('data-news-id');
+                const isin = encodeURIComponent(el.getAttribute('data-isin'));
+                fetch('/CompanyController/newsBody/' + isin + '/' + id)
+                    .then((r) => {
+                        if (!r.ok) throw new Error();
+                        return r.json();
+                    })
+                    .then((d) => {
+                        modalEl.querySelector('.modal-title').textContent = d.headline || '';
+                        const sub = modalEl.querySelector('[data-news-field="subtitle"]');
+                        const body = modalEl.querySelector('[data-news-field="body"]');
+                        const meta = modalEl.querySelector('[data-news-field="meta"]');
+                        if (sub) sub.textContent = d.subtitle || '';
+                        if (body) body.textContent = d.body || '';
+                        const dt = d.date ? new Date(d.date).toLocaleString('it-IT') : '';
+                        if (meta) meta.textContent = (d.newspaper ? d.newspaper + ' — ' : '') + dt + (d.author ? ' — ' + d.author : '');
+                        modal.show();
+                    })
+                    .catch(() => alert('Impossibile caricare la notizia'));
+            });
+        });
     });
 </script>
+
+<script src="/javascript/priceChart.js"></script>
