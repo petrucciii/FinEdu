@@ -32,7 +32,7 @@
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">Andamento Prezzo</span>
+                    <span class="fw-bold">Andamento Prezzo <span id="chartVariation" class="ms-2 small"></span></span>
                     <div class="btn-group btn-group-sm" role="group" id="chartRangeGroup">
                         <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="3M">3M</button>
                         <button type="button" class="btn btn-outline-primary chart-range-btn" data-range="6M">6M</button>

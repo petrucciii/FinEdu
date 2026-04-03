@@ -28,18 +28,6 @@ class PriceModel extends Model
             ->first();
     }
 
-    //ultimi punti per il grafico (più recenti, ordinati cronologicamente)
-    public function getSeriesForChart(string $ticker, string $mic, int $maxPoints = 120): array
-    {
-        $rows = $this->select('date, price')
-            ->where('ticker', $ticker)
-            ->where('mic', $mic)
-            ->orderBy('date', 'DESC')
-            ->limit($maxPoints)
-            ->findAll();
-
-        return array_reverse($rows);
-    }
 
     /**
      * Serie giornaliera per il grafico: raggruppa per giorno, restituisce il prezzo massimo per ogni giornata.
