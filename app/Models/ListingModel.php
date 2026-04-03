@@ -39,19 +39,25 @@ class ListingModel extends Model
     }
 
     /** Listings attive con MIC per quote Yahoo, solo borse attualmente aperte (CET) */
-    public function findAllActiveForQuotes(): array
+    public function findAllActiveForQuotes(): array|bool
     {
+
         //ora corrente nel fuso orario CET (Europe/Rome)
         $nowCet = (new \DateTime('now', new \DateTimeZone('Europe/Rome')))->format('H:i:s');
-
-        return $this->db->table($this->table)
-            ->select('listings.ticker, listings.mic')
-            ->join('exchanges', 'exchanges.mic = listings.mic')
-            ->where('listings.active', 1)
-            ->where('exchanges.active', 1)
-            ->where('exchanges.opening_hour <=', $nowCet)//controllo borsa aperta
-            ->where('exchanges.closing_hour >=', $nowCet)
-            ->get()
-            ->getResultArray();
+        //  \ prima di DateTime serve per indicare che stiamo usando la classe DateTime del namespace globale
+        $dayOfWeek = (new \DateTime('now', new \DateTimeZone('Europe/Rome')))->format('l');
+        if ($dayOfWeek != 'Saturday' && $dayOfWeek != 'Sunday') {
+            return $this->db->table($this->table)
+                ->select('listings.ticker, listings.mic')
+                ->join('exchanges', 'exchanges.mic = listings.mic')
+                ->where('listings.active', 1)
+                ->where('exchanges.active', 1)
+                ->where('exchanges.opening_hour <=', $nowCet)//controllo borsa aperta
+                ->where('exchanges.closing_hour >=', $nowCet)
+                ->get()
+                ->getResultArray();
+        } else {
+            return false;
+        }
     }
 }

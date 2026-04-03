@@ -32,6 +32,10 @@ class UpdatePrices extends BaseCommand
         $fail = 0;
 
         //per ogni listing
+        if (!$listings) {
+            CLI::write("Market closed", 'yellow');
+            return;
+        }
         foreach ($listings as $row) {
             $sym = YahooFinanceService::listingToYahooSymbol($row['ticker'], $row['mic']);//trasforma il listing in simbolo yahoo
             $q = $yahoo->getQuoteData($sym);//recupera i dati da yahoo finance
