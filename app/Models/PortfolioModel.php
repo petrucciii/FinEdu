@@ -42,6 +42,16 @@ class PortfolioModel extends Model
             return false;
         }
     }
+
+    //aggiorna il nome del portafoglio
+    public function updateName(int $portfolioId, string $name): bool
+    {
+        try {
+            return $this->update($portfolioId, ['name' => $name]);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
     public function adminSearchPaginate(string $searchQuery, int $page): array
     {
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')

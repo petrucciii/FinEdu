@@ -249,4 +249,27 @@ class PortfolioController extends BaseController
         $pfModel->deletePortfolio($portfolioId);
         return redirect()->back()->with('alert', 'Portafoglio eliminato.');
     }
+
+    public function updatePortfolioName()
+    {
+        if ($r = $this->loginRedirect()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Non autenticato']);
+        }
+
+        $portfolioId = (int) $this->request->getPost('portfolio_id');
+        $name = trim((string) $this->request->getPost('name'));
+        if ($portfolioId < 1 || $name === '') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Dati non validi']);
+        }
+
+        $pfModel = model(PortfolioModel::class);
+        $portfolio = $pfModel->findOwnedByUser($portfolioId, (int) $this->session->get('user_id'));
+        if (empty($portfolio) || !$portfolio) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Portafoglio non trovato']);
+        }
+
+        $pfModel->updateName($portfolioId, $name);
+
+        return $this->response->setJSON(['success' => true, 'message' => 'Nome aggiornato']);
+    }
 }

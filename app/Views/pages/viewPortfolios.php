@@ -18,8 +18,13 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title d-flex justify-content-between">
-                                <?= esc($pf['name']) ?>
-
+                                <div class="d-flex gap-2 align-items-center portfolio-name-container"
+                                    data-portfolio-id="<?= (int) $pf['portfolio_id'] ?>">
+                                    <span class="portfolio-name"><?= esc($pf['name']) ?></span>
+                                    <button type="button" class="btn btn-link p-0 text-info border-0 shadow-none edit-name-btn">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                </div>
                                 <span class="badge bg-secondary">ID: <?= (int) $pf['portfolio_id'] ?></span>
 
                             </h5>
@@ -77,3 +82,5 @@
         </div>
     </div>
 </div>
+
+<script type="module" src="/javascript/ajax/portfolioEdit.js"></script>
