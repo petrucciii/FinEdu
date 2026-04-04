@@ -250,6 +250,7 @@ class PortfolioController extends BaseController
         return redirect()->back()->with('alert', 'Portafoglio eliminato.');
     }
 
+    //ritrna json per ajax
     public function updatePortfolioName()
     {
         if ($r = $this->loginRedirect()) {
