@@ -31,11 +31,11 @@ class PortfolioController extends BaseController
         $pfModel = model(PortfolioModel::class);
         $enriched = [];
         foreach ($portfolios as $pf) {
-            $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+            //  $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap); ritorna un array con i dati del portafoglio arricchiti con i dati di mercato
         }
 
         echo view('templates/header');
-        echo view('pages/viewPortfolios', ['portfolios' => $enriched, 'adminSection' => false]);
+        echo view('pages/viewPortfolios', ['portfolios' => /*$enriched*/ $portfolios, 'adminSection' => false]);
         echo view('templates/footer');
     }
 

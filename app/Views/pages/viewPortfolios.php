@@ -21,7 +21,7 @@
                                 <?= esc($pf['name']) ?>
                                 <span class="badge bg-secondary">ID: <?= (int) $pf['portfolio_id'] ?></span>
                             </h5>
-                            <h2 class="my-3">€ <?= number_format((float) $pf['total_value'], 2, ',', '.') ?></h2>
+                            <h2 class="my-3">€ <?/* = number_format((float) $pf['total_value'], 2, ',', '.')*/ ?></h2>
                             <p class="small text-muted mb-2">Valore totale (liquidità + titoli a prezzo di mercato)</p>
                             <div class="row text-center mb-3">
                                 <div class="col-6 border-end">
@@ -35,8 +35,8 @@
                             </div>
                             <div class="mb-2 small">
                                 <span class="text-muted">P&amp;L non realizzato:</span>
-                                <span class="fw-bold <?= $pf['unrealized_pnl'] >= 0 ? 'text-success' : 'text-danger' ?>">€
-                                    <?= number_format((float) $pf['unrealized_pnl'], 2, ',', '.') ?>
+                                <span class="fw-bold <?/*= $pf['unrealized_pnl'] >= 0 ? 'text-success' : 'text-danger' */ ?>">€
+                                    <?/*= number_format((float) $pf['unrealized_pnl'], 2, ',', '.') */ ?>
                                 </span>
                             </div>
                             <a href="/PortfolioController/orders" class="btn btn-outline-primary w-100">Storico ordini</a>

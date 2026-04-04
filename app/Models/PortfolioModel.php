@@ -59,7 +59,7 @@ class PortfolioModel extends Model
     /**
      * @param array<string, float> $priceMap ticker|mic => prezzo
      */
-    public function attachMarketMetrics(array $pf, array $priceMap): array
+    /*public function attachMarketMetrics(array $pf, array $priceMap): array
     {
         $open = model(OrderModel::class)->findOpenByPortfolio((int) $pf['portfolio_id']);
         $mv = 0;
@@ -82,5 +82,5 @@ class PortfolioModel extends Model
         $pf['unrealized_pct'] = $inv > 0 ? round(($unreal / $inv) * 100, 2) : null;
 
         return $pf;
-    }
+    }*/
 }
