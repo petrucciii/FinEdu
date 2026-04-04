@@ -27,11 +27,21 @@ class PortfolioModel extends Model
         return $this->where('user_id', $userId)->where('active', 1)->orderBy('name', 'ASC')->findAll();
     }
 
+    //controlla se portfolio è di proprietà dell'utente
     public function findOwnedByUser(int $portfolioId, int $userId): ?array
     {
         return $this->where('portfolio_id', $portfolioId)->where('user_id', $userId)->where('active', 1)->first();
     }
 
+    //soft delete
+    public function deletePortfolio(int $portfolioId): bool
+    {
+        try {
+            return $this->update($portfolioId, ['active' => 0]);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
     public function adminSearchPaginate(string $searchQuery, int $page): array
     {
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')

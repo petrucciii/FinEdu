@@ -19,7 +19,9 @@
                         <div class="card-body">
                             <h5 class="card-title d-flex justify-content-between">
                                 <?= esc($pf['name']) ?>
+
                                 <span class="badge bg-secondary">ID: <?= (int) $pf['portfolio_id'] ?></span>
+
                             </h5>
                             <h2 class="my-3">€ <?/* = number_format((float) $pf['total_value'], 2, ',', '.')*/ ?></h2>
                             <p class="small text-muted mb-2">Valore totale (liquidità + titoli a prezzo di mercato)</p>
@@ -29,7 +31,7 @@
                                     <strong>€ <?= number_format((int) $pf['liquidity'], 2, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-6">
-                                    <small class="text-muted">Investito (costo)</small><br>
+                                    <small class="text-muted">Investito</small><br>
                                     <strong>€ <?= number_format((int) $pf['invested'], 2, ',', '.') ?></strong>
                                 </div>
                             </div>
@@ -39,7 +41,12 @@
                                     <?/*= number_format((float) $pf['unrealized_pnl'], 2, ',', '.') */ ?>
                                 </span>
                             </div>
-                            <a href="/PortfolioController/orders" class="btn btn-outline-primary w-100">Storico ordini</a>
+                            <div class="d-flex justify-content-inline gap-2">
+                                <a href="/PortfolioController/orders" class="btn btn-outline-primary w-75">Storico ordini</a>
+                                <a href="/PortfolioController/deletePortfolio?portfolio_id=<?= (int) $pf['portfolio_id'] ?>"
+                                    class="btn btn-danger w-25">
+                                    <i class="fas fa-trash"></i> Elimina</a>
+                            </div>
                         </div>
                     </div>
                 </div>

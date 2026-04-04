@@ -228,4 +228,25 @@ class PortfolioController extends BaseController
 
         return redirect()->back()->with('alert', $msg);
     }
+
+    public function deletePortfolio()
+    {
+        if ($r = $this->loginRedirect()) {
+            return $r;
+        }
+
+
+        $portfolioId = (int) $this->request->getGet('portfolio_id');
+        if ($portfolioId < 1) {
+            return redirect()->back()->with('alert', 'Portafoglio non valido.');
+        }
+        //controlla se portfolio è di proprietà dell'utente
+        $pfModel = model(PortfolioModel::class);
+        $portfolio = $pfModel->findOwnedByUser($portfolioId, $this->session->get('user_id'));
+        if (empty($portfolio) || !$portfolio) {
+            return redirect()->back()->with('alert', 'Portafoglio non trovato.');
+        }
+        $pfModel->deletePortfolio($portfolioId);
+        return redirect()->back()->with('alert', 'Portafoglio eliminato.');
+    }
 }
