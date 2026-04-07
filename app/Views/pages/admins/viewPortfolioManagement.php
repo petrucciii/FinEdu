@@ -1,7 +1,7 @@
 <div id="content-wrapper" class="container-fluid container-xl mt-4 mb-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="m-0 fw-bold text-dark"><i class="fas fa-wallet text-primary me-2"></i>Gestione Portafogli</h4>
+        <h4 class="m-0 fw-bold text-dark">Gestione Portafogli</h4>
     </div>
 
     <div class="card card-dashboard bg-white border-0 shadow-sm">
@@ -17,15 +17,15 @@
                 <table class="table align-middle table-hover w-100">
                     <thead class="table-light">
                         <tr>
-                            <th>ID</th>
-                            <th>Utente</th>
-                            <th>Nome</th>
-                            <th>Liq. iniziale</th>
-                            <th>Liq. attuale</th>
-                            <th>Investito</th>
-                            <th>Valore titoli</th>
-                            <th>Totale</th>
-                            <th>P&amp;L non real.</th>
+                            <th><a data-order="portfolios.portfolio_id">ID <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="users.email">Utente <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="portfolios.name">Nome <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="portfolios.inital_liquidity">Liq. iniziale <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="portfolios.liquidity">Liq. attuale <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="portfolios.invested">Investito <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="calculated_mv">Valore titoli <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="calculated_total">Totale <i class="fas fa-sort-amount-up ms-1"></i></a></th>
+                            <th><a data-order="calculated_pnl">P&amp;L non real. <i class="fas fa-sort-amount-up ms-1"></i></a></th>
                             <th class="text-end">Ordini</th>
                         </tr>
                     </thead>

@@ -47,6 +47,9 @@
                             <li><a class="dropdown-item" href="/PortfolioController/orders">Storico Ordini</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ListingController/index">Quotazioni</a>
+                    </li>
                 </ul>
                 <?php
                 if (session()->has('logged')):

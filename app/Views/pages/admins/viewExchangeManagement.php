@@ -1,7 +1,7 @@
 <div id="content-wrapper">
 
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
-        <h4 class="m-0 fw-bold text-dark"><i class="fas fa-globe text-primary me-2"></i>Borse Valori (Exchanges)</h4>
+        <h4 class="m-0 fw-bold text-dark">Gestione Borse</h4>
     </div>
 
     <div class="main-content pt-0">

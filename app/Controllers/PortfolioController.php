@@ -31,14 +31,16 @@ class PortfolioController extends BaseController
         $pfModel = model(PortfolioModel::class);
         $enriched = [];
         foreach ($portfolios as $pf) {
-            //  $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap); ritorna un array con i dati del portafoglio arricchiti con i dati di mercato
+            $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
         }
 
         echo view('templates/header');
-        echo view('pages/viewPortfolios', ['portfolios' => /*$enriched*/ $portfolios, 'adminSection' => false]);
+        echo view('pages/viewPortfolios', ['portfolios' => $enriched, 'adminSection' => false]);
         echo view('templates/footer');
     }
 
+    //storico ordini utente. se portfolio_id in query string filtra per quel portafoglio,
+    //altrimenti mostra tutti. supporta ordinamento e passa i portafogli per il dropdown filtro
     public function orders()
     {
         if ($r = $this->loginRedirect()) {
@@ -46,7 +48,21 @@ class PortfolioController extends BaseController
         }
 
         $uid = (int) $this->session->get('user_id');
-        $orders = model(OrderModel::class)->findHistoryByUser($uid);
+        $portfolioId = (int) ($this->request->getGet('portfolio_id') ?? 0);
+
+        //ordinamento: default per data apertura DESC
+        $sortField = $this->request->getGet('sort') ?? 'orders.date';
+        $sortDir = strtoupper($this->request->getGet('dir') ?? 'DESC');
+        //whitelist campi consentiti per evitare sql injection
+        $allowedSort = ['orders.date', 'orders.order_id'];
+        if (!in_array($sortField, $allowedSort)) {
+            $sortField = 'orders.date';
+        }
+        if (!in_array($sortDir, ['ASC', 'DESC'])) {
+            $sortDir = 'DESC';
+        }
+
+        $orders = model(OrderModel::class)->findHistoryByUser($uid, $portfolioId, $sortField, $sortDir);
         $priceMap = model(PriceModel::class)->getLatestPriceMap();
 
         foreach ($orders as &$o) {
@@ -65,8 +81,18 @@ class PortfolioController extends BaseController
         }
         unset($o);
 
+        //portafogli utente per il dropdown di filtro (visibile solo se non filtrato)
+        $portfolios = model(PortfolioModel::class)->findActiveByUser($uid);
+
         echo view('templates/header');
-        echo view('pages/viewPortfolioOrders', ['orders' => $orders, 'adminSection' => false]);
+        echo view('pages/viewPortfolioOrders', [
+            'orders' => $orders,
+            'portfolios' => $portfolios,
+            'filterPortfolioId' => $portfolioId,
+            'currentSort' => $sortField,
+            'currentDir' => $sortDir,
+            'adminSection' => false,
+        ]);
         echo view('templates/footer');
     }
 
@@ -78,7 +104,7 @@ class PortfolioController extends BaseController
 
         $name = trim((string) $this->request->getPost('name'));
         if ($name === '') {
-            return redirect()->back()->with('alert', 'Nome portafoglio obbligatorio.');
+            return redirect()->back()->with('alert', 'Nome portafoglio obbligatorio.')->with('alert_type', 'danger');
         }
 
         $uid = (int) $this->session->get('user_id');
@@ -92,7 +118,7 @@ class PortfolioController extends BaseController
             'id_user' => $uid,
         ]);
 
-        return redirect()->back()->with('alert', 'Portafoglio creato.');
+        return redirect()->back()->with('alert', 'Portafoglio creato.')->with('alert_type', 'success');
     }
 
     public function buy()
@@ -108,33 +134,33 @@ class PortfolioController extends BaseController
         $qty = (int) $this->request->getPost('quantity');
 
         if ($portfolioId < 1 || $ticker === '' || $mic === '' || $qty < 1) {
-            return redirect()->back()->with('alert', 'Dati ordine non validi.');
+            return redirect()->back()->with('alert', 'Dati ordine non validi.')->with('alert_type', 'danger');
         }
 
         $pfModel = model(PortfolioModel::class);
         $portfolio = $pfModel->findOwnedByUser($portfolioId, $uid);
         if (!$portfolio) {
-            return redirect()->back()->with('alert', 'Portafoglio non valido.');
+            return redirect()->back()->with('alert', 'Portafoglio non valido.')->with('alert_type', 'danger');
         }
 
         $listing = model(ListingModel::class)->where('ticker', $ticker)->where('mic', $mic)->where('active', 1)->first();
         if (!$listing) {
-            return redirect()->back()->with('alert', 'Titolo non disponibile.');
+            return redirect()->back()->with('alert', 'Titolo non disponibile.')->with('alert_type', 'danger');
         }
 
         $latest = model(PriceModel::class)->getLatestForListing($ticker, $mic);
         if (!$latest || $latest['price'] === null) {
-            return redirect()->back()->with('alert', 'Prezzo non disponibile: riprova dopo l\'aggiornamento quotazioni.');
+            return redirect()->back()->with('alert', 'Prezzo non disponibile: riprova dopo l\'aggiornamento quotazioni.')->with('alert_type', 'danger');
         }
 
         $unit = (float) $latest['price'];
         $cost = (int) round($qty * $unit);
         if ($cost < 1) {
-            return redirect()->back()->with('alert', 'Importo troppo basso.');
+            return redirect()->back()->with('alert', 'Importo troppo basso.')->with('alert_type', 'danger');
         }
 
         if ((int) $portfolio['liquidity'] < $cost) {
-            return redirect()->back()->with('alert', 'Liquidità insufficiente.');
+            return redirect()->back()->with('alert', 'Liquidità insufficiente.')->with('alert_type', 'danger');
         }
 
         $db = db_connect();
@@ -159,10 +185,10 @@ class PortfolioController extends BaseController
 
         $db->transComplete();
         if (!$db->transStatus()) {
-            return redirect()->back()->with('alert', 'Errore durante l\'acquisto.');
+            return redirect()->back()->with('alert', 'Errore durante l\'acquisto.')->with('alert_type', 'danger');
         }
 
-        return redirect()->back()->with('alert', 'Ordine eseguito al prezzo di € ' . number_format($unit, 2, ',', '.'));
+        return redirect()->back()->with('alert', 'Ordine eseguito al prezzo di € ' . number_format($unit, 2, ',', '.'))->with('alert_type', 'success');
     }
 
     public function close()
@@ -221,12 +247,12 @@ class PortfolioController extends BaseController
 
         $db->transComplete();
         if (!$db->transStatus()) {
-            return redirect()->back()->with('alert', 'Errore in chiusura.');
+            return redirect()->back()->with('alert', 'Errore in chiusura.')->with('alert_type', 'danger');
         }
 
         $msg = 'Posizione chiusa. P&L netto (dopo tasse su plusvalenza): € ' . number_format($gross - $tax, 2, ',', '.');
 
-        return redirect()->back()->with('alert', $msg);
+        return redirect()->back()->with('alert', $msg)->with('alert_type', 'success');
     }
 
     public function deletePortfolio()
@@ -247,10 +273,10 @@ class PortfolioController extends BaseController
             return redirect()->back()->with('alert', 'Portafoglio non trovato.');
         }
         $pfModel->deletePortfolio($portfolioId);
-        return redirect()->back()->with('alert', 'Portafoglio eliminato.');
+        return redirect()->back()->with('alert', 'Portafoglio eliminato.')->with('alert_type', 'success');
     }
 
-    //ritrna json per ajax
+    //ritorna json per ajax
     public function updatePortfolioName()
     {
         if ($r = $this->loginRedirect()) {
@@ -272,5 +298,55 @@ class PortfolioController extends BaseController
         $pfModel->updateName($portfolioId, $name);
 
         return $this->response->setJSON(['success' => true, 'message' => 'Nome aggiornato']);
+    }
+
+    //endpoint json per refresh ajax dei portafogli utente con metriche calcolate
+    public function refreshPortfolios()
+    {
+        if (!$this->session->has('logged')) {
+            return $this->response->setJSON(['success' => false]);
+        }
+
+        $uid = (int) $this->session->get('user_id');
+        $portfolios = model(PortfolioModel::class)->findActiveByUser($uid);
+        $priceMap = model(PriceModel::class)->getLatestPriceMap();
+        $pfModel = model(PortfolioModel::class);
+
+        $enriched = [];
+        foreach ($portfolios as $pf) {
+            $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+        }
+
+        return $this->response->setJSON(['success' => true, 'portfolios' => $enriched]);
+    }
+
+    //endpoint json per refresh ajax degli ordini utente con prezzi aggiornati
+    public function refreshOrders()
+    {
+        if (!$this->session->has('logged')) {
+            return $this->response->setJSON(['success' => false]);
+        }
+
+        $uid = (int) $this->session->get('user_id');
+        $orders = model(OrderModel::class)->findHistoryByUser($uid);
+        $priceMap = model(PriceModel::class)->getLatestPriceMap();
+
+        foreach ($orders as &$o) {
+            $k = $o['ticker'] . '|' . $o['mic'];
+            $o['last_price'] = $priceMap[$k] ?? null;
+            $o['unrealized'] = null;
+            if ((int) $o['status'] === OrderModel::STATUS_OPEN && $o['last_price'] !== null) {
+                $o['unrealized'] = round(((float) $o['last_price'] - (float) $o['buyPrice']) * (int) $o['quantity'], 2);
+            }
+            $o['realized'] = null;
+            if ((int) $o['status'] === OrderModel::STATUS_CLOSED && $o['sellPrice'] !== null) {
+                $gross = ((float) $o['sellPrice'] - (float) $o['buyPrice']) * (int) $o['quantity'];
+                $tax = $gross > 0 ? round($gross * 0.16, 2) : 0;
+                $o['realized'] = round($gross - $tax, 2);
+            }
+        }
+        unset($o);
+
+        return $this->response->setJSON(['success' => true, 'orders' => $orders]);
     }
 }

@@ -60,4 +60,39 @@ class ListingModel extends Model
             return false;
         }
     }
+
+    //ricerca paginata dei listings con join exchange e ultimo prezzo per la pagina listings utente.
+    //supporta ricerca per ticker/isin/nome societa e filtro per mic (borsa).
+    //il prezzo viene recuperato con una subquery che prende il piu recente per ogni ticker+mic
+    public function searchPaginate(string $searchQuery, int $page, string $mic = ''): array
+    {
+        $builder = $this->select('listings.ticker, listings.mic, listings.isin, listings.active,
+                exchanges.full_name as exchange_name, exchanges.short_name,
+                companies.name as company_name,
+                (SELECT p.price FROM prices p WHERE p.ticker = listings.ticker AND p.mic = listings.mic ORDER BY p.date DESC LIMIT 1) as last_price')
+            ->join('exchanges', 'exchanges.mic = listings.mic', 'left')
+            ->join('companies', 'companies.isin = listings.isin', 'left')
+            ->where('listings.active', 1);
+
+        $searchQuery = trim($searchQuery);
+        if ($searchQuery !== '') {
+            $builder->groupStart()
+                ->like('listings.ticker', $searchQuery)
+                ->orLike('listings.isin', $searchQuery)
+                ->orLike('companies.name', $searchQuery)
+                ->groupEnd();
+        }
+
+        //filtro per borsa (mic)
+        if ($mic !== '') {
+            $builder->where('listings.mic', $mic);
+        }
+
+        $builder->orderBy('listings.ticker', 'ASC');
+
+        return [
+            'listings' => $builder->paginate(15, 'default', $page),
+            'pager' => $this->pager,
+        ];
+    }
 }

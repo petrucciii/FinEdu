@@ -52,7 +52,7 @@ class PortfolioModel extends Model
             return false;
         }
     }
-    public function adminSearchPaginate(string $searchQuery, int $page): array
+    public function adminSearchPaginate(string $searchQuery, int $page, ?string $order = null, ?string $orderType = 'ASC'): array
     {
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
             ->join('users', 'users.user_id = portfolios.user_id', 'left')
@@ -68,7 +68,11 @@ class PortfolioModel extends Model
                 ->groupEnd();
         }
 
-        $builder->orderBy('portfolios.portfolio_id', 'DESC');
+        if ($order) {
+            $builder->orderBy($order, $orderType);
+        } else {
+            $builder->orderBy('portfolios.portfolio_id', 'DESC');
+        }
 
         return [
             'portfolios' => $builder->paginate(12, 'default', $page),
@@ -79,7 +83,7 @@ class PortfolioModel extends Model
     /**
      * @param array<string, float> $priceMap ticker|mic => prezzo
      */
-    /*public function attachMarketMetrics(array $pf, array $priceMap): array
+    public function attachMarketMetrics(array $pf, array $priceMap): array
     {
         $open = model(OrderModel::class)->findOpenByPortfolio((int) $pf['portfolio_id']);
         $mv = 0;
@@ -102,5 +106,5 @@ class PortfolioModel extends Model
         $pf['unrealized_pct'] = $inv > 0 ? round(($unreal / $inv) * 100, 2) : null;
 
         return $pf;
-    }*/
+    }
 }

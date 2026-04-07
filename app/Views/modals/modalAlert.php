@@ -1,40 +1,37 @@
-<?php $alert = session()->getFlashdata('alert');
-$alert_type = session()->getFlashdata('alert_type'); ?>
+<?php
+//toast bootstrap per notifiche invece del modal alert.
+//il colore cambia in base al tipo: success = verde, danger = rosso, warning = giallo
+$alert = session()->getFlashdata('alert');
+$alert_type = session()->getFlashdata('alert_type') ?? 'warning';
+?>
 <?php if ($alert): ?>
-
-    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-<?= $alert_type ?> text-white border-0">
-                    <h5 class="modal-title fw-bold" id="alertModalLabel">
-                        <i class="fas fa-exclamation text-<?= $alert_type ?? 'warning' ?> me-2"></i>Attenzione!
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+    <!--contenitore fisso in alto a destra per i toast-->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="alertToast" class="toast align-items-center text-bg-<?= $alert_type ?> border-0 shadow-lg"
+            role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-semibold">
+                    <!--icona dinamica in base al tipo di alert-->
+                    <?php if ($alert_type === 'success'): ?>
+                        <i class="fas fa-check-circle me-2"></i>
+                    <?php elseif ($alert_type === 'danger'): ?>
+                        <i class="fas fa-times-circle me-2"></i>
+                    <?php else: ?>
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                    <?php endif; ?>
+                    <?= $alert ?>
                 </div>
-                <div class="modal-body text-center py-4">
-                    <div class="mb-3">
-                        <i class="fas fa-exclamation-circle text-<?= $alert_type ?? 'warning' ?>"
-                            style="font-size: 3.5rem;"></i>
-                    </div>
-                    <p class="fs-5 text-dark mb-0">
-                        <?= $alert ?>
-
-                    </p>
-                </div>
-                <div class="modal-footer border-0 justify-content-center">
-                    <button type="button" class="btn btn-<?= $alert_type ?? 'warning' ?> px-4 rounded-pill"
-                        data-bs-dismiss="modal">Chiudi</button>
-                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
 
     <script>
-        //executed just in case there is an alert inside the session
+        //mostra il toast automaticamente al caricamento della pagina
         document.addEventListener('DOMContentLoaded', function () {
-            var myModal = new bootstrap.Modal(document.getElementById('alertModal'));
-            myModal.show();
+            var toast = new bootstrap.Toast(document.getElementById('alertToast'), { delay: 4000 });
+            toast.show();
         });
     </script>
 <?php endif; ?>
