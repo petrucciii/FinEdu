@@ -9,15 +9,15 @@ class RoleModel extends Model
     protected $table = 'roles';
     protected $primaryKey = 'role_id';
     
-    //allowed fields for insert and update operations
     protected $allowedFields = ['role', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-    //read only active records
+    protected $returnType = 'array';
+
+    //read 
     public function fread()
     {
         try {
@@ -27,7 +27,7 @@ class RoleModel extends Model
         }
     }
 
-    //create a new record returning boolean
+    //insert
     public function fcreate(array $data)
     {
         try {
@@ -37,7 +37,7 @@ class RoleModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(int $id, array $data)
     {
         try {
@@ -47,7 +47,7 @@ class RoleModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(int $id)
     {
         try {

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-//model per la tabella `news`, gestisce CRUD e ricerche delle notizie
+
 class NewsModel extends Model
 {
     protected $table = 'news';
@@ -23,14 +23,16 @@ class NewsModel extends Model
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
+    protected $returnType = 'array';
 
     //converte il campo body da BLOB (resource stream) a stringa UTF-8.
     //mysql puo restituire i BLOB come php resource invece che stringa,
     //quindi serve stream_get_contents per leggere il contenuto effettivo.
-    //senza questa conversione json_encode fallisce silenziosamente
+/*NON FUNZIONANTE */
     private static function convertBlobToString(&$row): void
     {
-        if (!isset($row['body'])) return;
+        if (!isset($row['body']))
+            return;
 
         //se mysql restituisce il blob come resource stream
         if (is_resource($row['body'])) {
@@ -73,16 +75,15 @@ class NewsModel extends Model
         }
 
         $builder->orderBy('news.date', 'DESC');
-
-        //conta il totale delle righe per la paginazione.
-        //getCompiledSelect(false) compila la query senza eseguirla,
-        //poi la wrappiamo in un COUNT per ottenere il totale
-        $countSql = 'SELECT COUNT(*) AS c FROM (' . $builder->getCompiledSelect(false) . ') _news_count';
+        /**IMPAGINAZIONE MANUALE (SENZA paginate()) */
+        //conta il totale delle righe per la paginazione, necessario per la presenza di GROUP_CONCAT
+        //paginate non supporta, infatti, query cosi complesse
+        $countSql = 'SELECT COUNT(*) AS c FROM (' . $builder->getCompiledSelect(false) . ') _news_count';//subquery che conta tabella con notizie ritornate
         $total = (int) ($this->db->query($countSql)->getRow('c') ?? 0);
 
         //applica limite e offset per la pagina corrente
         $perPage = 10;
-        $offset = max(0, ($page - 1) * $perPage);
+        $offset = max(0, ($page - 1) * $perPage);//indica il record da saltare, e quindi da quale partire per pagina corrente
         $rows = $builder->limit($perPage, $offset)->get()->getResultArray();
 
         $pageCount = max(1, (int) ceil($total / $perPage));
@@ -120,31 +121,27 @@ class NewsModel extends Model
     //non include il body per performance (serve solo titolo/data/fonte)
     public function findLatestForCompany(string $isin, int $limit = 3): array
     {
-        return $this->db->table('news')
-            ->select('news.news_id, news.headline, news.subtitle, news.author, news.date, newspapers.newspaper')
+        return $this->select('news.news_id, news.headline, news.subtitle, news.author, news.date, newspapers.newspaper')
             ->join('companies_news', 'companies_news.news_id = news.news_id')
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
             ->where('companies_news.isin', $isin)
             ->where('news.active', 1)
             ->orderBy('news.date', 'DESC')
             ->limit($limit)
-            ->get()
-            ->getResultArray();
+            ->findAll();
     }
 
     //recupera headline + body di una news per il modal di lettura lato utente (viewCompany).
     //verifica che la news sia effettivamente collegata all'isin richiesto
     public function getBodyJson(int $newsId, string $isin): ?array
     {
-        $row = $this->db->table('news')
-            ->select('news.news_id, news.headline, news.subtitle, news.body, news.author, news.date, newspapers.newspaper')
+        $row = $this->select(' news.body')
             ->join('companies_news', 'companies_news.news_id = news.news_id')
-            ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
+            ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')//left join cosi anche se non ha news collegate ritorna qualcosa
             ->where('news.news_id', $newsId)
             ->where('companies_news.isin', $isin)
             ->where('news.active', 1)
-            ->get()
-            ->getRowArray();
+            ->first();
 
         if ($row) {
             //converte il body da BLOB/resource a stringa leggibile

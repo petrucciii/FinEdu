@@ -1,3 +1,5 @@
+<!-- barra di navigazione amministrativa  -->
+
 <div id="layout">
     <div id="bottombar" class="fixed-bottom border-top border-secondary">
         <div class="container-fluid h-100">

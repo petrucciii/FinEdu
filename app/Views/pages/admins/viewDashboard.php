@@ -1,3 +1,7 @@
+<!-- DASHBOARD AMMINISTRATIVA NON ANCORA FUNZIONANTE
+ 
+-->
+
 <div id="content-wrapper">
     <div class="top-bar d-flex justify-content-between align-items-center">
         <h5 class="m-0 text-muted">Panoramica</h5>

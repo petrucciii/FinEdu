@@ -9,15 +9,15 @@ class SectorModel extends Model
     protected $table = 'sectors';
     protected $primaryKey = 'ea_code';
     
-    //allowed fields for insert and update operations
+    //campi abilitati
     protected $allowedFields = ['ea_code', 'description', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
+    //timestamp automatici
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-    //read only active records
+    //read
     public function fread()
     {
         try {
@@ -27,7 +27,7 @@ class SectorModel extends Model
         }
     }
 
-    //create a new record returning boolean
+    //insert
     public function fcreate(array $data)
     {
         try {
@@ -37,7 +37,7 @@ class SectorModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(int $id, array $data)
     {
         try {
@@ -47,7 +47,7 @@ class SectorModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(int $id)
     {
         try {

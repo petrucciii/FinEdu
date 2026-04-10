@@ -1,3 +1,4 @@
+<!-- Modal inserimento dati essenziali per la creazione di una società -->
 <div class="modal fade" id="addCompanyModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow">
@@ -22,7 +23,8 @@
                             <select name="sector" class="form-select" required>
                                 <option value="" disabled selected>Seleziona settore...</option>
                                 <?php foreach ($sectors as $sector): ?>
-                                    <option value="<?= esc($sector['ea_code']) ?>"><?= esc($sector['description']) ?></option>
+                                    <option value="<?= esc($sector['ea_code']) ?>"><?= esc($sector['description']) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

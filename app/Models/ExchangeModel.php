@@ -8,30 +8,33 @@ class ExchangeModel extends Model
 {
     protected $table = 'exchanges';
     protected $primaryKey = 'mic';
-    
-    //allowed fields for insert and update operations
+
+    //campi abilitati per insert e update
     protected $allowedFields = ['mic', 'full_name', 'short_name', 'country_code', 'opening_hour', 'closing_hour', 'currency_code', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
+    //timestamp automatici
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'last_update';
 
-    //read active records joining countries and currencies
+    //serve a findAll() per restiture array associativi e non oggetti
+    protected $returnType = 'array';
+
+    //legge i record con join su tabelle dizionario
     public function fread()
     {
         try {
             return $this->select('exchanges.*, countries.country, currencies.description as currency_desc, currencies.symbol')
-                        ->join('countries', 'countries.country_code = exchanges.country_code', 'left')
-                        ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
-                        ->where('exchanges.active', 1)
-                        ->findAll();
+                ->join('countries', 'countries.country_code = exchanges.country_code', 'left')
+                ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
+                ->where('exchanges.active', 1)
+                ->findAll();
         } catch (Exception $e) {
             return false;
         }
     }
 
-    //create a new record returning boolean
+    //insert
     public function fcreate(array $data)
     {
         try {
@@ -41,7 +44,7 @@ class ExchangeModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(string $id, array $data)
     {
         try {
@@ -51,11 +54,11 @@ class ExchangeModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(string $id)
     {
         try {
-            return $this->update($id, ['active' => 0]) ? true : false;
+            return $this->update($id, ['active' => 0]);
         } catch (Exception $e) {
             return false;
         }

@@ -37,7 +37,6 @@ class PortfolioManagementController extends BaseController
 
         $pfModel = model(PortfolioModel::class);
         $priceModel = model(PriceModel::class);
-        $priceMap = $priceModel->getLatestPriceMap();
 
         // Check if sorting is by calculated field
         if (str_starts_with($orderField, 'calculated_')) {
@@ -59,7 +58,7 @@ class PortfolioManagementController extends BaseController
             $results = $allPortfolios->findAll();
             $enriched = [];
             foreach ($results as $pf) {
-                $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+                $enriched[] = $pfModel->attachMarketMetrics($pf);
             }
 
             // Map field names
@@ -102,7 +101,7 @@ class PortfolioManagementController extends BaseController
             $result = $pfModel->adminSearchPaginate((string) $query, $page, $orderField, $orderType);
             $rows = [];
             foreach ($result['portfolios'] as $pf) {
-                $rows[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+                $rows[] = $pfModel->attachMarketMetrics($pf);
             }
 
             $pager = $result['pager'];

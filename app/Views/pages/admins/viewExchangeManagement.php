@@ -5,6 +5,7 @@
     </div>
 
     <div class="main-content pt-0">
+        <!-- aggiunnta exchange -->
         <div class="card border-0 shadow-sm rounded-4 mb-4">
             <div class="card-header bg-white py-3 border-bottom">
                 <h5 class="mb-0 fw-bold">Aggiungi nuova borsa</h5>
@@ -25,6 +26,7 @@
                         <input type="text" name="full_name" class="form-control" required placeholder="Borsa Italiana">
                     </div>
                     <div class="col-md-6 col-lg-2">
+                        <!-- paesi -->
                         <label class="form-label small fw-bold text-muted">Paese</label>
                         <select name="country_code" class="form-select" required>
                             <?php foreach ($countries as $c): ?>
@@ -33,6 +35,7 @@
                         </select>
                     </div>
                     <div class="col-md-6 col-lg-2">
+                        <!-- valute -->
                         <label class="form-label small fw-bold text-muted">Valuta</label>
                         <select name="currency_code" class="form-select" required>
                             <?php foreach ($currencies as $cur): ?>
@@ -41,6 +44,7 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <!-- orari -->
                     <div class="col-md-6 col-lg-1">
                         <label class="form-label small fw-bold text-muted">Apertura</label>
                         <input type="time" name="opening_hour" class="form-control">
@@ -58,6 +62,7 @@
         </div>
 
         <div class="card border-0 shadow-sm rounded-4">
+            <!-- filri -->
             <div
                 class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="mb-0 fw-bold">Elenco Borse Supportate</h5>
@@ -68,6 +73,7 @@
             </div>
             <div class="card-body pt-0">
                 <div class="table-responsive">
+                    <!-- lista exchange -->
                     <table class="table align-middle table-hover w-100" id="exchangesTable">
                         <thead class="table-light">
                             <tr>
@@ -82,8 +88,9 @@
                         </thead>
                         <tbody>
                             <?php foreach ($exchanges as $ex): ?>
-                                <!-- rimpiazz -->
+                                <!-- form per ogni exchange -->
                                 <?php $fid = 'ex-form-' . $ex['mic']; ?>
+                                <!-- campi per la ricerca data-search -->
                                 <tr class="exchange-row"
                                     data-search="<?= esc(strtolower($ex['mic'] . ' ' . $ex['full_name'] . ' ' . $ex['short_name'] . ' ' . ($ex['country'] ?? ''))) ?>">
                                     <td>
@@ -91,6 +98,7 @@
                                         <input type="hidden" name="mic" value="<?= esc($ex['mic']) ?>"
                                             form="<?= esc($fid) ?>">
                                     </td>
+                                    <!-- campi da modificare -->
                                     <td>
                                         <input type="text" name="full_name" class="form-control form-control-sm"
                                             value="<?= esc($ex['full_name']) ?>" form="<?= esc($fid) ?>" required>
@@ -131,12 +139,18 @@
                                                 form="<?= esc($fid) ?>">
                                         </div>
                                     </td>
+
+                                    <!-- form esterno migliorando ordine e leggibilità, 
+                                     input hanno attributi form="" con id corrispondente ad un from
+                                     (questo sotto) -->
                                     <td class="text-end text-nowrap">
                                         <form id="<?= esc($fid) ?>" action="/admin/ExchangeManagementController/update"
                                             method="post" class="d-inline"></form>
                                         <button type="submit"
                                             class="btn btn-sm btn-light text-primary border shadow-sm me-1"
                                             form="<?= esc($fid) ?>"><i class="fas fa-save"></i></button>
+
+                                        <!-- elimina  -->
                                         <form action="/admin/ExchangeManagementController/delete" method="post"
                                             class="d-inline" onsubmit="return confirm('Disattivare questa borsa?');">
                                             <input type="hidden" name="mic" value="<?= esc($ex['mic']) ?>">
@@ -155,10 +169,16 @@
     </div>
 
     <script>
-        //senza ajax dato che non c'è paginazione e la ricerca viene effettuata solo su campi stampati in tabella
+        /* senza AJAX ma usando dataset passato da un attributo
+        VANTAGGI: non va fatta una richiesta asincrona al database ogni volta
+        SVANTAGGI: se i dati sono molti il client potrebbe non supportare il carico di dati
+                    inoltre se la ricerca va effettuata anche per altri campi è questo metodo non basta
+        */
         document.addEventListener('DOMContentLoaded', () => {
+            //nel campo data-search ci sono tutti i dati necessari alla ricerca
             const inp = document.getElementById('customSearch');
             if (!inp) return;
+            //al variatre dell'input di ricerca le righe vengono filtrate
             inp.addEventListener('input', () => {
                 const q = inp.value.trim().toLowerCase();
                 document.querySelectorAll('.exchange-row').forEach((tr) => {

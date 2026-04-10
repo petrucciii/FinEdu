@@ -26,12 +26,11 @@ class PortfolioController extends BaseController
 
         $uid = (int) $this->session->get('user_id');
         $portfolios = model(PortfolioModel::class)->findActiveByUser($uid);
-        $priceMap = model(PriceModel::class)->getLatestPriceMap();
 
         $pfModel = model(PortfolioModel::class);
         $enriched = [];
         foreach ($portfolios as $pf) {
-            $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+            $enriched[] = $pfModel->attachMarketMetrics($pf);
         }
 
         echo view('templates/header');
@@ -309,12 +308,11 @@ class PortfolioController extends BaseController
 
         $uid = (int) $this->session->get('user_id');
         $portfolios = model(PortfolioModel::class)->findActiveByUser($uid);
-        $priceMap = model(PriceModel::class)->getLatestPriceMap();
         $pfModel = model(PortfolioModel::class);
 
         $enriched = [];
         foreach ($portfolios as $pf) {
-            $enriched[] = $pfModel->attachMarketMetrics($pf, $priceMap);
+            $enriched[] = $pfModel->attachMarketMetrics($pf);
         }
 
         return $this->response->setJSON(['success' => true, 'portfolios' => $enriched]);

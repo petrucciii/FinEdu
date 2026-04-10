@@ -6,7 +6,7 @@
                 <h5 class="modal-title">Accedi a FinEdu</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/AuthController/login" method="post">
+            <form action="<?= base_url('AuthController/login') ?>" method="post">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Email</label>
@@ -26,6 +26,7 @@
                 <div class="modal-footer">
                     <a href="#" class="text-decoration-none me-auto">Password dimenticata?</a>
                     <p class="text-danger">
+                        <!-- mostra errori se ce ne sono -->
                         <?= (isset($login_error)) ? $login_error : "" ?>
                     </p>
                     <button type="submit" class="btn btn-primary">Login</button>
@@ -74,6 +75,7 @@
                 </div>
                 <div class="modal-footer">
                     <p class="text-danger">
+                        <!-- mostra errori se ce ne sono -->
                         <?= (isset($signup_error)) ? $signup_error : "" ?>
                     </p>
                     <button type="submit" class="btn btn-success w-100">Registrati</button>

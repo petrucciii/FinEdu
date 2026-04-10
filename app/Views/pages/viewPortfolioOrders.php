@@ -1,4 +1,8 @@
 <?php
+/**SI é SCELTO DI SVOLGERE UN ORDINAMENTO SENZA AJAX dato che la 
+ * potenziale grande  quantità di ordini potrebbe causare problemi di performance  */
+
+
 //parametri passati dal controller per gestire filtro portfolio e ordinamento
 $filterPfId = $filterPortfolioId ?? 0;
 $sort = $currentSort ?? 'orders.date';
@@ -20,13 +24,14 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
         <a href="/PortfolioController/index" class="btn btn-outline-primary">I miei portafogli</a>
     </div>
 
-    <!--barra filtri: ricerca ticker/borsa + filtro portafoglio (solo se vista generale)-->
+    <!--barra filtri: ricerca ticker/borsa + filtro portafoglio (solo se view generale)-->
     <div class="card border-0 shadow-sm mb-3">
         <div class="card-body py-2">
             <div class="d-flex gap-2 align-items-center flex-wrap">
                 <!--ricerca locale per ticker e borsa-->
                 <div class="input-group input-group-sm" style="max-width: 260px;">
-                    <input type="text" id="ordersSearchInput" class="form-control" placeholder="Cerca ticker o borsa...">
+                    <input type="text" id="ordersSearchInput" class="form-control"
+                        placeholder="Cerca ticker o borsa...">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                 </div>
                 <!--filtro per portafoglio: visibile solo se non filtrato da link specifico-->
@@ -54,6 +59,7 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                     <th>#</th>
                     <!--data apertura ordinabile-->
                     <th>
+                        <!-- ordinamento per data -->
                         <a href="<?= $baseUrl ?>?<?= $pfParam ?>sort=orders.date&dir=<?= $nextDir ?>"
                             class="text-decoration-none text-dark">
                             Data apertura <i class="fas <?= $dateIcon ?> ms-1"></i>
@@ -101,25 +107,31 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                             <td class="fw-bold text-primary"><?= (int) $o['quantity'] ?></td>
                             <td>€ <?= number_format((float) $o['buyPrice'], 2, ',', '.') ?></td>
                             <td data-field="last_price">
+                                <!-- se aperto last_price -->
                                 <?php if ((int) $o['status'] === 1): ?>
                                     <?php if ($o['last_price'] !== null): ?>
                                         € <?= number_format((float) $o['last_price'], 2, ',', '.') ?>
                                     <?php else: ?>
                                         <span class="text-muted">—</span>
                                     <?php endif; ?>
+                                    <!-- altrimenti sellPrice -->
                                 <?php else: ?>
                                     € <?= number_format((float) $o['sellPrice'], 2, ',', '.') ?>
                                 <?php endif; ?>
                             </td>
                             <td>
+                                <!-- badge verde se aperto, grigio se chiuso -->
                                 <?php if ((int) $o['status'] === 1): ?>
                                     <span class="badge bg-success bg-opacity-10 text-success border border-success"><i
                                             class="fas fa-circle-notch me-1"></i>Aperto</span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Chiuso</span>
+                                    <span
+                                        class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Chiuso</span>
                                 <?php endif; ?>
                             </td>
+                            <!-- profit and loss -->
                             <td data-field="pnl">
+
                                 <?php if ((int) $o['status'] === 1 && $o['unrealized'] !== null): ?>
                                     <span class="<?= $o['unrealized'] >= 0 ? 'text-success' : 'text-danger' ?> fw-semibold">€
                                         <?= number_format((float) $o['unrealized'], 2, ',', '.') ?>
@@ -135,6 +147,7 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                                 <?php endif; ?>
                             </td>
                             <td class="text-end">
+                                <!-- chiusura ordine -->
                                 <?php if ((int) $o['status'] === 1): ?>
                                     <form action="/PortfolioController/close" method="post" class="d-inline"
                                         onsubmit="return confirm('Chiudere la posizione al prezzo di mercato corrente?');">
@@ -153,7 +166,7 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
     </div>
 </div>
 
-<!--ricerca client-side per ticker e borsa (come in exchangeManagement)-->
+<!--ricerca client-side per ticker e borsa (si veda exchangeManagement oer spiegazioni)-->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const inp = document.getElementById('ordersSearchInput');

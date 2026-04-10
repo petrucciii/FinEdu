@@ -88,13 +88,16 @@
     <?= $this->include('modals/modalAlert') ?>
 
     <?php if (session()->get('role_id') == 1 && session()->has('logged')):
+        //carico barra di navigaione visibile ad admin.
+        //anche se viene caricata in header la position è fixed bottom e non da problemi alle view
         echo view("templates/adminBottombar");
     endif; ?>
 
 
+    <!-- gestione errori: se vengono ritonati errori di login o registrazione vengono
+      aperti forzatamente i Modal e vengono inseirti gli errori -->
     <?php if (isset($login_error) && $login_error != "" || isset($signup_success)): ?>
         <script>
-            //after the DOM is ready modal opens
             document.addEventListener("DOMContentLoaded", function () {
                 var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
                 loginModal.show();
@@ -112,7 +115,8 @@
         </script>
         <?php
     endif; ?>
-    <!-- remove error after modal gets closed -->
+    <!-- quando il modal viene chiuso gli errori vengono rimossi in modo da evitare
+     ripetizioni di essi -->
     <script>
         document.getElementById('loginModal').addEventListener('hidden.bs.modal', function () {
             let error = this.querySelector('.text-danger');

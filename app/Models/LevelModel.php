@@ -8,16 +8,18 @@ class LevelModel extends Model
 {
     protected $table = 'levels';
     protected $primaryKey = 'level_id';
-    
-    //allowed fields for insert and update operations
+
+    //campi abilitati
     protected $allowedFields = ['level', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
+    //automatici timesstamps
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'last_update';
 
-    //read only active records
+    //serve a findAll() per restiture array associativi e non oggetti
+    protected $returnType = 'array';
+    //read
     public function fread()
     {
         try {
@@ -27,7 +29,7 @@ class LevelModel extends Model
         }
     }
 
-    //create a new record returning boolean
+    //insert
     public function fcreate(array $data)
     {
         try {
@@ -37,7 +39,7 @@ class LevelModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(int $id, array $data)
     {
         try {
@@ -47,7 +49,7 @@ class LevelModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(int $id)
     {
         try {

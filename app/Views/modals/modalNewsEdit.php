@@ -10,7 +10,8 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="card-body bg-white">
-                    <form action="/admin/NewsManagementController/update" method="post" id="formEditNews">
+                    <form action="<?= base_url('/admin/NewsManagementController/update') ?>" method="post"
+                        id="formEditNews">
                         <input type="hidden" name="news_id" id="edit_news_id" value="">
                         <div class="mb-3">
                             <label class="form-label">Titolo</label>
@@ -28,7 +29,7 @@
                             <label class="form-label">Autore</label>
                             <input type="text" name="author" id="edit_author" class="form-control" required>
                         </div>
-                        <!-- corpo della notizia: l'input hidden edit_body contiene l'html
+                        <!-- corpo della notizia: l'input hidden edit_body contiene l'html 
                              che verra inviato al server. quillEditContainer mostra l'editor.
                              il contenuto viene caricato da newsManagement.js tramite
                              quillEdit.root.innerHTML quando si apre il modal -->
@@ -72,11 +73,8 @@
         </div>
     </div>
 </div>
-<!-- carica quill.js che espone la funzione globale initQuillEditor -->
-<script src="/javascript/quill.js"></script>
 <script>
-    //quillEdit deve essere globale (var, non const) perche newsManagement.js
-    //ci accede per iniettare il body html quando l'utente apre il modal di modifica
+    /*  newsManagement.js inserisce body dentro quillEd*/
     var quillEdit;
 
     document.addEventListener('DOMContentLoaded', function () {

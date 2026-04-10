@@ -20,7 +20,7 @@ class CompanyModel extends Model
         'ea_code',
         'active',
         'main_exchange',
-        'id_user', // tracciamento admin
+        'id_user', 
     ];
 
     //automatic update and creation timestamp
@@ -28,7 +28,7 @@ class CompanyModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
 
-    //read
+    //compagnia da isin con join per dati necessari alla view (non gli id o i codici ma descrizioni)
     public function getCompanyByISIN($isin)
     {
         return $this->select('companies.*, countries.country, sectors.description as sector, exchanges.short_name as main_exchange_label, currencies.symbol as currency')
@@ -37,13 +37,14 @@ class CompanyModel extends Model
             ->join('countries', 'countries.country_code = companies.country_code', 'left')
             ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
             ->where('companies.isin', $isin)
-            ->first();
+            ->where('companies.active', 1)
+            ->first();//prende solo la prima (l'unica), cosi da non avere un array dentro un altro array come in findAll()
     }
 
-    //search and paginate logic
+    //ricerca e impagina risultato per la view di elenco società
     public function searchAndPaginate(string $searchQuery, int $page)
     {
-        //join necessary tables and count active listings per company
+        //join 
         $builder = $this->select('companies.*, sectors.description, countries.country, COUNT(listings.mic) as num_listings')
             ->join('sectors', "sectors.ea_code = companies.ea_code", 'left')
             ->join('countries', "countries.country_code = companies.country_code", 'left')
@@ -51,24 +52,24 @@ class CompanyModel extends Model
             ->where('companies.active', 1)
             ->groupBy('companies.isin');
 
+        //filtra in base alla query di ricerca ricevuta su nome isin e ticker
         $searchQuery = trim($searchQuery);
         if ($searchQuery != '') {
-            $builder->groupStart()
+            $builder->groupStart()//raggruppamento condizioni
                 ->like('companies.name', $searchQuery)
                 ->orLike('companies.isin', $searchQuery)
                 ->orLike('listings.ticker', $searchQuery)
                 ->groupEnd();
         }
 
-        //return paginated results and the pager object
+        //ritorna le companie in varie pagine
         return [
-            'companies' => $builder->paginate(10, 'default', $page),
+            'companies' => $builder->paginate(10, 'default', $page),//10 per pagina e pagina correte (senno 1)
             'pager' => $this->pager
         ];
     }
 
-    //admin methods
-
+    //elenco quotazioni con join necessarrie
     public function getListings($isin)
     {
         return $this->db->table('listings')
@@ -80,24 +81,7 @@ class CompanyModel extends Model
             ->get()->getResultArray();
     }
 
-    public function getFinancialData($isin)
-    {
-        return $this->db->table('data')
-            ->join('data_type', 'data_type.type_id = data.type_id', 'left')
-            ->where('data.isin', $isin)
-            ->orderBy('data.year', 'DESC')
-            ->get()->getResultArray();
-    }
 
-    public function getBoardMembers($isin)
-    {
-        return $this->db->table('companies_board')
-            ->select('board_members.*, companies_board.role')
-            ->join('board_members', 'board_members.member_id = companies_board.member_id')
-            ->where('companies_board.isin', $isin)
-            ->where('board_members.active', 1)
-            ->get()->getResultArray();
-    }
 
     //eliminazione logica
     public function deleteCompany($isin, $data)
@@ -106,6 +90,8 @@ class CompanyModel extends Model
         $this->db->transStart();
 
         try {
+            $data = array_push($data, 'active', 0); //aggiunge active=0 ai dati ricevuti (es. id_user) per tenere traccia di chi ha fatto l'operazione
+            $data = ['active' => 0];
             $this->update($isin, $data);
 
             $whereCondition = ['isin' => $isin];

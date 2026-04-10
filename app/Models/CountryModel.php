@@ -9,15 +9,14 @@ class CountryModel extends Model
     protected $table = 'countries';
     protected $primaryKey = 'country_code';
     
-    //allowed fields for insert and update operations
+    
     protected $allowedFields = ['country_code', 'country', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-    //read only active records
+    //prende solo record attivi
     public function fread()
     {
         try {
@@ -27,7 +26,7 @@ class CountryModel extends Model
         }
     }
 
-    //create a new record returning boolean
+    //crea nuovo paese
     public function fcreate(array $data)
     {
         try {
@@ -37,7 +36,7 @@ class CountryModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update paese
     public function fupdate(string $id, array $data)
     {
         try {
@@ -47,7 +46,7 @@ class CountryModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //elimina logicamente
     public function fdelete(string $id)
     {
         try {

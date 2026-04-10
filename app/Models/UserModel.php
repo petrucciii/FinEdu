@@ -10,8 +10,9 @@ class UserModel extends Model
     protected $table = 'users';
     protected $primaryKey = 'user_id';
     
-    //allowed fields for insert and update operations
+    //colonne abilitate insert update
     protected $allowedFields = [
+        'user_id',
         'first_name',
         'last_name',
         'email',
@@ -23,12 +24,12 @@ class UserModel extends Model
         'id_user_updated'
     ];
 
-    //automatic update and creation timestamp
+    //timestamp automatici
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-    //create returning boolean
+    //create
     public function fcreate(array $data)
     {
         try {
@@ -41,7 +42,7 @@ class UserModel extends Model
         }
     }
 
-    //read active records optionally filtered
+    //read e filtri
     public function fread(array $where = [])
     {
         try {
@@ -60,7 +61,7 @@ class UserModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(int $id, array $data)
     {
         try {
@@ -73,7 +74,7 @@ class UserModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(int $id)
     {
         try {
@@ -83,7 +84,7 @@ class UserModel extends Model
         }
     }
 
-    //search, filter, order, paginate or export users
+    //cerca e impagina
     public function searchAndPaginate($searchQuery, $roleId, $levelId, $orderColumn, $orderType, $page, $isExport)
     {
         $builder = $this->select('users.*, roles.role, levels.level')
@@ -91,7 +92,7 @@ class UserModel extends Model
                         ->join('roles', 'users.role_id = roles.role_id', 'left')
                         ->where('users.active', 1);
 
-        //search by text
+        //cerca per email, nome o cognome
         if (!empty(trim($searchQuery))) {
             $builder->groupStart()
                     ->like('users.email', trim($searchQuery))
@@ -100,27 +101,27 @@ class UserModel extends Model
                     ->groupEnd();
         }
 
-        //filter by role
+        //fltra per ruolo
         if ($roleId != "all" && is_numeric($roleId)) {
             $builder->where('users.role_id', (int) $roleId);
         }
 
-        //filter by level
+        //filtra per lievello
         if ($levelId != "all" && is_numeric($levelId)) {
             $builder->where('users.level_id', (int) $levelId);
         }
 
-        //ordering
+        //ordina
         if ($orderColumn && $orderType) {
             $builder->orderBy($orderColumn, $orderType);
         }
-
-        //return all results if export mode is triggered
+        
+        //se da esportare in csv ritorna array unico
         if ($isExport) {
             return $builder->findAll();
         }
 
-        //return paginated results and pager object
+        //altrimenti ritonna impaginato
         return [
             'users' => $builder->paginate(10, 'default', $page),
             'pager' => $this->pager

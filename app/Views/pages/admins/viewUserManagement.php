@@ -19,17 +19,21 @@
 
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Database Utenti</h5>
+                    <!-- filtri -->
                     <div class="d-flex gap-2 filter-container">
+                        <!-- ricerca -->
                         <div class="input-group" style="width: 300px;">
                             <input type="text" class="form-control" id="searchInput"
                                 placeholder="Cerca email o nome...">
                         </div>
                         <div class="dropdown">
+                            <!-- per livello -->
                             <button class="btn btn-outline-primary dropdown-toggle " type="button"
                                 data-bs-toggle="dropdown">
                                 <i class="fas fa-filter"></i> Filtra per Livello
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+
                                 <li><button class="dropdown-item" data-level_id="all">Tutti gli
                                         utenti</button>
                                 </li>
@@ -45,6 +49,7 @@
                             </ul>
                         </div>
                         <div class="dropdown">
+                            <!--per  ruolo -->
                             <button class="btn btn-outline-primary dropdown-toggle " type="button"
                                 data-bs-toggle="dropdown">
                                 <i class="fas fa-filter"></i> Filtra per Ruolo
@@ -100,7 +105,9 @@
     </div>
 
 
-    <!--special tag, the DOM doesn't render it. used to clone rows in JS. later will be inserted into tbody -->
+    <!--tag speciale , il DOM non lo renderizza. usato per clonare righe in javascriptt.
+     alla fine tutte le righe (copia di template) vengono inserite tutte in una volta in tbody
+     aumentando velocità-->
     <template id="userRowTemplate">
         <tr>
             <td class="text-muted" data-field="user_id"></td>

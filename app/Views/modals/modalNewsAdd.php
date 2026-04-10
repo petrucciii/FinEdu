@@ -1,4 +1,4 @@
-<!-- modal per la creazione di una nuova news. usa quill come editor rich-text per il body -->
+<!-- modal per la creazione di una nuova news. usa quill per matenere formattazione corretta del body -->
 <div class="modal fade" id="modalAggiungiNews" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 bg-transparent">
@@ -9,7 +9,7 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="card-body bg-white">
-                    <form action="/admin/NewsManagementController/create" method="post">
+                    <form action="<?= base_url('admin/NewsManagementController/create') ?>" method="post">
                         <div class="mb-3">
                             <label class="form-label">Titolo</label>
                             <input type="text" name="headline" class="form-control" required
@@ -83,19 +83,18 @@
         </div>
     </div>
 </div>
-<!-- carica quill.js che espone la funzione globale initQuillEditor -->
-<script src="/javascript/quill.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         //inizializza quill sul container di aggiunta, sincronizzato con l'input hidden 'newsBody'
+        //la sincronizzazione avviene ad ogni modifica su quill container cosi l'input avrail blob pronto da inviare
         initQuillEditor('quillAddContainer', 'newsBody', null);
 
-        //validazione extra: blocca il submit se l'editor e vuoto
-        var form = document.querySelector('form[action="/admin/NewsManagementController/create"]');
+        //validazione extra
+        var form = document.querySelector('form[action="<?= base_url('admin/NewsManagementController/create') ?>"]');
         if (form) {
             form.addEventListener('submit', function (e) {
                 if (document.getElementById('newsBody').value.trim() === '') {
-                    e.preventDefault();
+                    e.preventDefault();//blocca submit se campo vuoto 
                     alert('Il campo contenuto è obbligatorio.');
                 }
             });

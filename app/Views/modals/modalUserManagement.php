@@ -1,3 +1,4 @@
+<!-- Modal per gestione utente (admin) riempito con AJAX: userManagement.js -->
 <div class="modal fade" id="userModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -11,6 +12,7 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
+                    <!-- possibilità di modificare i campi uno ad uno -->
                     <form action="" name="modalEditForm" method="post" class="mb-1">
                         <div class="input-group">
                             <div class="form-floating flex-grow-1">
@@ -54,7 +56,7 @@
                     </form>
 
 
-
+                    <!-- campi readonly -->
                     <div class="d-flex align-items-center mb-1">
                         <strong class="me-1">Registrato il: </strong>
                         <p class="mb-0 text-muted" id="modalCreatedAt"></p>
@@ -72,7 +74,7 @@
                 </div>
 
                 <hr>
-
+                <!-- altre azioni non ancora funzionanri (opzionali) -->
                 <h6 class="mb-3">Azioni Amministrative</h6>
 
                 <div class="d-grid gap-2">
@@ -86,11 +88,12 @@
 
                 <hr>
 
+                <!-- eliminazione soft utente -->
                 <p class="text-danger mb-2"><strong>Azioni Irreversibili</strong></p>
                 <div class="d-grid gap-2">
                     <button class="btn btn-outline-danger"><i class="fas fa-ban me-2"></i> Disattiva
                         Utente</button>
-                    
+
                 </div>
 
 
@@ -102,6 +105,7 @@
     </div>
 </div>
 
+<!-- ulteriore sicurezza: password dell'amministratore richiesta per l'eliminazione dell'utente -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">

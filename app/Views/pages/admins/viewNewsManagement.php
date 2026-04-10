@@ -1,3 +1,4 @@
+<!-- sezione amministrativa news -->
 <div id="content-wrapper">
 
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
@@ -20,6 +21,7 @@
                 </div>
             </div>
 
+            <!-- scheletro tabella -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
@@ -31,6 +33,7 @@
                             <th style="width:10%" class="text-end">Azioni</th>
                         </tr>
                     </thead>
+                    <!-- contenuto tabella caricato con ajax -->
                     <tbody id="newsTableBody"></tbody>
                 </table>
             </div>
@@ -41,6 +44,7 @@
         </div>
     </div>
 
+    <!-- elemento speciale non letto dal DOM così da caricare tutto in una volta (da js) e non riga per riga -->
     <template id="newsRowTemplate">
         <tr>
             <td class="small text-muted" data-field="date_cell"></td>

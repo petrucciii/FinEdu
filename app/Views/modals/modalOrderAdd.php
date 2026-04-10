@@ -1,7 +1,7 @@
 <?php
 //modal per effettuare un ordine dalla pagina company.
-//mostra il costo stimato (prezzo x qtà) calcolato dinamicamente
-$canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userPortfolios);
+//mostra il costo stimato (prezzo * qtà) calcolato dinamicamente
+$canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userPortfolios);//conrollo che titolo quotato e portafoglio siano disponibili
 ?>
 <div class="modal fade" id="addOrderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -41,7 +41,8 @@ $canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userP
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Quantità</label>
-                            <input type="number" name="quantity" id="orderQty" class="form-control" min="1" value="1" required>
+                            <input type="number" name="quantity" id="orderQty" class="form-control" min="1" value="1"
+                                required>
                         </div>
                         <!--stima costo calcolata dinamicamente con il prezzo corrente-->
                         <div class="alert alert-info py-2 mb-0" id="orderCostEstimate">
@@ -59,33 +60,34 @@ $canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userP
 </div>
 
 <?php if ($canTrade): ?>
-<script>
-    //calcola il costo stimato quando si apre il modal o si cambia la quantita
-    document.addEventListener('DOMContentLoaded', function () {
-        //prezzo passato dal controller come displayPrice (testo del prezzo corrente)
-        const priceText = '<?= $displayPrice ?? '0' ?>';
-        const unitPrice = parseFloat(priceText.replace(',', '.')) || 0;
-        const qtyInput = document.getElementById('orderQty');
-        const costEl = document.getElementById('orderCostValue');
+    <script>
+        //calcola il costo stimato quando si apre il modal o si cambia la quantita
+        document.addEventListener('DOMContentLoaded', function () {
+            //prezzo passato dal controller come displayPrice (testo del prezzo corrente)
+            const priceText = '<?= $displayPrice ?? '0' ?>';
+            const unitPrice = parseFloat(priceText.replace(',', '.')) || 0;
+            const qtyInput = document.getElementById('orderQty');
+            const costEl = document.getElementById('orderCostValue');
 
-        const updateCost = () => {
-            const qty = parseInt(qtyInput.value) || 1;
-            const total = unitPrice * qty;
-            costEl.textContent = '€ ' + total.toLocaleString('it-IT', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            });
-        };
+            const updateCost = () => {
+                //calcola costo stimato prezzo*quantita con 2 cifre decimali
+                const qty = parseInt(qtyInput.value) || 1;
+                const total = unitPrice * qty;
+                costEl.textContent = '€ ' + total.toLocaleString('it-IT', {
+                    minimumFractionDigits: 2,//2 cifre decimali anhce se int
+                    maximumFractionDigits: 2,//se di più sempre 2
+                });
+            };
 
-        if (qtyInput) {
-            qtyInput.addEventListener('input', updateCost);
-        }
+            if (qtyInput) {//aggiorna costo quando cambia quantita
+                qtyInput.addEventListener('input', updateCost);
+            }
 
-        //aggiorna il costo anche quando il modal si apre
-        const modal = document.getElementById('addOrderModal');
-        if (modal) {
-            modal.addEventListener('shown.bs.modal', updateCost);
-        }
-    });
-</script>
+            //aggiorna il costo anche quando il modal si apre
+            const modal = document.getElementById('addOrderModal');
+            if (modal) {
+                modal.addEventListener('shown.bs.modal', updateCost);
+            }
+        });
+    </script>
 <?php endif; ?>

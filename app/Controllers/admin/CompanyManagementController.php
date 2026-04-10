@@ -39,6 +39,7 @@ class CompanyManagementController extends BaseController
         ];
     }
 
+    //
     public function index()
     {
         if (!$this->isAdmin()) {
@@ -59,11 +60,13 @@ class CompanyManagementController extends BaseController
     public function search($query = '')
     {
         if (!$this->isAdmin()) {
+            //403 Forbidden se richiesta non è autorizzata (non è admin)
             return $this->response->setStatusCode(403);
         }
 
         $page = $this->request->getGet('page') ?? 1;
         $companyModel = model(CompanyModel::class);
+        //impaginazione e ricerca aziende con query recuperata da 
         $result = $companyModel->searchAndPaginate(urldecode($query), $page);
 
         return $this->response->setJSON([
@@ -173,7 +176,7 @@ class CompanyManagementController extends BaseController
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
-        model(CompanyModel::class)->deleteCompany($isin, ['active' => 0, 'id_user' => $this->session->get('user_id')]);
+        model(CompanyModel::class)->deleteCompany($isin, ['id_user' => $this->session->get('user_id')]);
 
         return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda disattivata.');
     }
@@ -528,9 +531,10 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/');
         }
 
-        model(AnalystConsensusModel::class)->deleteRow((int) $analysis_id);
-
-        return redirect()->back()->with('alert', 'Consensus eliminato.');
+        if (model(AnalystConsensusModel::class)->deleteRow((int) $analysis_id))
+            return redirect()->back()->with('alert', 'Consensus eliminato.');
+        else
+            return redirect()->back()->with('alert', 'Impossibile eliminare il consensus.')->with('alert_type', 'danger');
     }
 
     /**
@@ -557,6 +561,7 @@ class CompanyManagementController extends BaseController
     }
 
     //parser XML bilanci (percorsi XPath come da specifica progetto)
+    /*NON FUNZIONANTE */
     private function parseFinancialStatementsFromFile(string $xmlFilePath): array
     {
         $xml = simplexml_load_file($xmlFilePath);

@@ -13,7 +13,9 @@ class NewspaperModel extends Model
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
+    protected $returnType = 'array';
 
+    //read
     public function listActive(): array
     {
         return $this->where('active', 1)->orderBy('newspaper', 'ASC')->findAll();

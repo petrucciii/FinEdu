@@ -1,7 +1,8 @@
 <?= view("modals/modalAlert"); ?>
 
 <?php if (session()->get('role_id') === 1 && session()->has('logged')): ?>
-    </div> <!-- close div #layout that was open in adminSideBar.php in order to adjust the sidebar visibility -->
+
+    </div> <!-- chiude div di bottombar che ingloba tutte le view così da evitare problemi di formattazione-->
 <?php else: ?>
     <footer class="bg-dark text-white pt-5 pb-4 mt-auto">
         <div class="container">
@@ -43,6 +44,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= base_url("javascript/validation.js") ?>"></script>
+<script src="<?= base_url("javascript/quill.js") ?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

@@ -9,15 +9,15 @@ class CurrencyModel extends Model
     protected $table = 'currencies';
     protected $primaryKey = 'currency_code';
     
-    //allowed fields for insert and update operations
+    //campi consentiti per insete e update
     protected $allowedFields = ['currency_code', 'description', 'symbol', 'id_user', 'active'];
 
-    //automatic update and creation timestamp
+    //timestamp automatici per inserte  update
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'last_update';
 
-    //read only active records
+    //read
     public function fread()
     {
         try {
@@ -27,7 +27,7 @@ class CurrencyModel extends Model
         }
     }
 
-    //create a new record returning boolean
+    //create
     public function fcreate(array $data)
     {
         try {
@@ -37,7 +37,7 @@ class CurrencyModel extends Model
         }
     }
 
-    //update an existing record returning boolean
+    //update
     public function fupdate(string $id, array $data)
     {
         try {
@@ -47,7 +47,7 @@ class CurrencyModel extends Model
         }
     }
 
-    //logical delete returning boolean
+    //soft delete
     public function fdelete(string $id)
     {
         try {

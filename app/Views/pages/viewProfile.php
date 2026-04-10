@@ -7,6 +7,7 @@
 
                 <div class="profile-info-overlay">
 
+                    <!-- stampa dati salvati in sessione -->
                     <div class="user-details-text">
                         <h3 class="fw-bold text-dark">
                             <?= session()->get('first_name') . " " . session()->get('last_name') ?>
@@ -33,6 +34,7 @@
 
             <div class="tab-content" id="profileTabContent">
 
+                <!-- NON ANCORA DINAMICA -->
                 <div class="tab-pane fade" id="overview">
                     <div class="row">
                         <div class="col-md-4 mb-4">
@@ -112,10 +114,11 @@
                     </div>
                 </div>
 
+                <!-- modifica dei dati personali: FUNZIONANTE -->
                 <div class="tab-pane fade show active" id="settings">
                     <div class="row justify-content-center">
                         <div class="col-md-10">
-
+                            <!-- possibilità di modificare i dati uno per volta -->
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Dati Personali</h5>
@@ -148,7 +151,7 @@
                                     </form>
                                 </div>
                             </div>
-
+                            <!-- per cambiare la password va inserita quella attuale e poi la nuova, confermandola -->
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Cambia Password</h5>
@@ -158,6 +161,7 @@
                                             <input type="password" name="password" class="form-control" required>
                                         </div>
                                         <div class="row">
+                                            <!-- valdazione in tempo reale con js, se le due password non corrispono: secondo input sarà rosso -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Nuova Password</label>
                                                 <input type="password" name="new_password" class="form-control"
@@ -199,7 +203,7 @@
         </div>
     </div>
 </div>
-
+<!-- modal per conferma di eliminazione: inserimento password persoanle -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">

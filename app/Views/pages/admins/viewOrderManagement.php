@@ -4,12 +4,16 @@
         <h4 class="m-0 fw-bold text-dark">Gestione Ordini</h4>
     </div>
 
+    <!-- DASHBOARD CON STATS -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
+
             <div class="card card-dashboard border-0 shadow-sm h-100">
-                <div class="card-header bg-white py-2"><small class="text-muted fw-bold">Titoli più acquistati (posizioni
+                <div class="card-header bg-white py-2"><small class="text-muted fw-bold">Titoli più acquistati
+                        (posizioni
                         aperte)</small></div>
                 <ul class="list-group list-group-flush small">
+                    <!-- lista delle società più acquistate -->
                     <?php foreach ($topCompanies as $tc): ?>
                         <li class="list-group-item d-flex justify-content-between">
                             <span><?= esc($tc['name'] ?? $tc['isin']) ?></span>
@@ -22,16 +26,18 @@
                 </ul>
             </div>
         </div>
+
         <div class="col-md-4">
             <div class="card card-dashboard border-0 shadow-sm h-100">
                 <div class="card-header bg-white py-2"><small class="text-muted fw-bold">Utenti per P&amp;L realizzato
                         (netto)</small></div>
                 <ul class="list-group list-group-flush small">
+                    <!-- utenti piu profittevoli -->
                     <?php foreach ($topUsers as $tu): ?>
                         <li class="list-group-item d-flex justify-content-between">
                             <span><?= esc($tu['first_name'] . ' ' . $tu['last_name']) ?></span>
-                            <span
-                                class="fw-bold <?= $tu['total_pnl'] >= 0 ? 'text-success' : 'text-danger' ?>">€ <?= number_format((float) $tu['total_pnl'], 2, ',', '.') ?></span>
+                            <span class="fw-bold <?= $tu['total_pnl'] >= 0 ? 'text-success' : 'text-danger' ?>">€
+                                <?= number_format((float) $tu['total_pnl'], 2, ',', '.') ?></span>
                         </li>
                     <?php endforeach; ?>
                     <?php if (empty($topUsers)): ?>
@@ -45,11 +51,13 @@
                 <div class="card-header bg-white py-2"><small class="text-muted fw-bold">Migliori trade chiusi
                         (netto)</small></div>
                 <ul class="list-group list-group-flush small">
+                    <!-- migliori ordini chiusi -->
                     <?php foreach ($bestTrades as $bt): ?>
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
-                                <span>#<?= (int) $bt['order_id'] ?> <?= esc($bt['ticker']) ?></span>
-                                <span class="text-success fw-bold">€ <?= number_format((float) ($bt['trade_pnl'] ?? 0), 2, ',', '.') ?></span>
+                                <span>#<?= (int) $bt['order_id'] ?>     <?= esc($bt['ticker']) ?></span>
+                                <span class="text-success fw-bold">€
+                                    <?= number_format((float) ($bt['trade_pnl'] ?? 0), 2, ',', '.') ?></span>
                             </div>
                             <div class="text-muted"><?= esc($bt['first_name'] . ' ' . $bt['last_name']) ?></div>
                         </li>
@@ -62,10 +70,13 @@
         </div>
     </div>
 
+    <!-- LISTA ORDINI -->
     <div class="card card-dashboard bg-white border-0 shadow-sm">
+        <!-- filtri -->
         <div class="card-header bg-white py-3 border-bottom-0">
             <div class="row g-2 align-items-center">
                 <div class="col-lg-3">
+                    <!-- ricerca -->
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                         <input type="text" id="searchInput" class="form-control" placeholder="Cerca ticker, utente...">
@@ -73,33 +84,44 @@
                 </div>
                 <div class="col-lg-9">
                     <div class="d-flex flex-wrap justify-content-lg-end gap-2">
-                        <select id="filterUser" class="form-select form-select-sm" style="width: auto; min-width: 160px;">
+                        <select id="filterUser" class="form-select form-select-sm"
+                            style="width: auto; min-width: 160px;">
+                            <!-- per utente -->
                             <option value="all">Tutti gli utenti</option>
                             <?php foreach ($users as $u): ?>
-                                <option value="<?= (int) $u['user_id'] ?>"><?= esc($u['first_name'] . ' ' . $u['last_name']) ?>
+                                <option value="<?= (int) $u['user_id'] ?>">
+                                    <?= esc($u['first_name'] . ' ' . $u['last_name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <select id="filterPortfolio" class="form-select form-select-sm" style="width: auto; min-width: 160px;">
+                        <!-- per portafoglio -->
+                        <select id="filterPortfolio" class="form-select form-select-sm"
+                            style="width: auto; min-width: 160px;">
                             <option value="all">Tutti i portafogli</option>
                             <?php foreach ($portfolios as $p): ?>
-                                <option value="<?= (int) $p['portfolio_id'] ?>"><?= esc($p['name']) ?> (#<?= (int) $p['portfolio_id'] ?>)
+                                <option value="<?= (int) $p['portfolio_id'] ?>"><?= esc($p['name']) ?>
+                                    (#<?= (int) $p['portfolio_id'] ?>)
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <select id="filterMic" class="form-select form-select-sm" style="width: auto; min-width: 140px;">
+                        <!-- per borsa -->
+                        <select id="filterMic" class="form-select form-select-sm"
+                            style="width: auto; min-width: 140px;">
                             <option value="">Tutti i MIC</option>
                             <?php foreach ($exchanges as $ex): ?>
                                 <option value="<?= esc($ex['mic']) ?>"><?= esc($ex['mic']) ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <!-- per ticker -->
                         <input type="text" id="filterTicker" class="form-control form-control-sm" placeholder="Ticker"
                             style="width: 100px;">
+                        <!-- per stato -->
                         <select id="filterStatus" class="form-select form-select-sm" style="width: auto;">
                             <option value="all">Tutti gli stati</option>
                             <option value="1">Aperti</option>
                             <option value="0">Chiusi</option>
                         </select>
+                        <!-- per data e P&L -->
                         <input type="date" id="filterDate" class="form-control form-control-sm" title="Da data">
                         <input type="number" step="0.01" id="filterPnlMin" class="form-control form-control-sm"
                             placeholder="P&amp;L min" style="width: 110px;">
@@ -110,6 +132,7 @@
             </div>
         </div>
 
+        <!-- tabella fillata da ajax come in viewUserManagement, viewNewsManagement, viewCompanyList -->
         <div class="card-body pt-0">
             <div class="table-responsive">
                 <table class="table align-middle table-hover w-100">
@@ -138,6 +161,7 @@
         </div>
     </div>
 
+    <!-- non letto da DOM -->
     <template id="orderRowTemplate">
         <tr>
             <td class="text-muted fw-bold" data-field="order_id"></td>

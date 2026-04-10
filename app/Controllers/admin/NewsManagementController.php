@@ -135,8 +135,7 @@ class NewsManagementController extends BaseController
         ]);
         $isins = array_values(array_unique($isins));
 
-        model(CompanyNewsModel::class)->replaceLinks((int) $newsId, $isins, $this->session->get('user_id'));
-
+        
         return redirect()->back()->with('alert', 'News pubblicata.');
     }
 
@@ -182,7 +181,6 @@ class NewsManagementController extends BaseController
         ]);
         $isins = array_values(array_unique($isins));
 
-        model(CompanyNewsModel::class)->replaceLinks($newsId, $isins, $this->session->get('user_id'));
 
         return redirect()->back()->with('alert', 'News aggiornata.');
     }

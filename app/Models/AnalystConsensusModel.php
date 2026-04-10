@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-//i Model tabella `analysts_consensus` (consensus analisti per ISIN)
+//model della tabella 'analysts_consensus' 
 class AnalystConsensusModel extends Model
 {
-    protected $table      = 'analysts_consensus';
+    protected $table = 'analysts_consensus';
     protected $primaryKey = 'analysis_id';
     protected $returnType = 'array';
 
@@ -21,12 +21,12 @@ class AnalystConsensusModel extends Model
         'active',
     ];
 
-    //i timestamp automatici su insert/update tramite Model (se usati)
+    //timestamp automatici su insert/update
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'last_update';
 
-    //i elenco consensus per scheda società (vista pubblica/management)
+    //elenco consensus per società
     public function findConsensusPerCompany($isin)
     {
         return $this->select('analysts_consensus.analysis_id, analysts_consensus.isin, analysts_consensus.date, analysts_consensus.firm_id, analysts_consensus.rating_id, analysts_consensus.target_price, firms.firm_name, ratings.rating')
@@ -38,25 +38,35 @@ class AnalystConsensusModel extends Model
             ->findAll();
     }
 
-    //i inserimento riga consensus via Query Builder (campi espliciti)
+    //insert con querybuilder
     public function insertRow(array $row): bool
     {
-        return $this->db->table($this->table)->insert($row);
+        try {
+            return $this->insert($row);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
-    //i aggiornamento per chiave primaria analysis_id
+    //aggiornamento per chiave primaria analysis_id
     public function updateRow(int $analysisId, array $row): bool
     {
-        return (bool) $this->db->table($this->table)
-            ->where('analysis_id', $analysisId)
-            ->update($row);
+        try {
+            return $this->update($analysisId, $row);
+        } catch (\Throwable $th) {
+            return false;
+        }
+
     }
 
-    //i eliminazione fisica (admin)
+    //soft delete
     public function deleteRow(int $analysisId): bool
     {
-        return (bool) $this->db->table($this->table)
-            ->where('analysis_id', $analysisId)
-            ->delete();
+        try {
+            return $this->update($analysisId, ['active' => 0]);
+
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 }

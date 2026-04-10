@@ -9,9 +9,10 @@ class FinancialDataModel extends Model
 {
     protected $table = 'data';
     protected $primaryKey = 'isin';
+    //serve a findAll() per restiture array associativi e non oggetti
     protected $returnType = 'array';
 
-    /** Campi numerici opzionali (BIGINT NULL) */
+    //colonne per conversione a label e formattazione dati in controller
     public const BIGINT_FIELDS = [
         'revenues',
         'amortizations_depretiations',
@@ -25,44 +26,64 @@ class FinancialDataModel extends Model
         'dividends',
     ];
 
+
+    //bilanci di una specifica società con join su tabelle dizionario
     public function findDataPerCompany(string $isin): array
     {
-        return $this->db->table($this->table)
-            ->select('data.*, data_type.type, data_type.name AS type_name')
+        return $this->select('data.*, data_type.type, data_type.name AS type_name')
             ->join('data_type', 'data_type.type_id = data.type_id', 'left')
             ->where('data.isin', trim($isin))
             ->orderBy('data.year', 'DESC')
-            ->get()
-            ->getResultArray();
+            ->findAll();
     }
 
+
+    //insert
     public function insertRow(array $row): bool
     {
-        return $this->db->table($this->table)->insert($row);
+        try {
+            return $this->db->table($this->table)->insert($row);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
+    //update
     public function updateRow(string $isin, int $year, array $row): bool
     {
-        return (bool) $this->db->table($this->table)
-            ->where('isin', $isin)
-            ->where('year', $year)
-            ->update($row);
+        try {
+            return (bool) $this->db->table($this->table)
+                ->where('isin', $isin)
+                ->where('year', $year)
+                ->update($row);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
+    //delete
     public function deleteRow(string $isin, int $year): bool
     {
-        return (bool) $this->db->table($this->table)
-            ->where('isin', $isin)
-            ->where('year', $year)
-            ->delete();
+        try {
+            return (bool) $this->db->table($this->table)
+                ->where('isin', $isin)
+                ->where('year', $year)
+                ->delete();
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
-    //verifica se esiste già un bilancio per ISIN + anno (import XML / upsert)
+    //verifica se esiste già un bilancio per ISIN+anno (import XML)
     public function hasYear(string $isin, int $year): bool
     {
-        return $this->db->table($this->table)
-            ->where('isin', $isin)
-            ->where('year', $year)
-            ->countAllResults() > 0;
+        try {
+            return $this->db->table($this->table)
+                ->where('isin', $isin)
+                ->where('year', $year)
+                ->countAllResults() > 0;
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 }

@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\PriceModel;
 
 class PortfolioModel extends Model
 {
     protected $table = 'portfolios';
     protected $primaryKey = 'portfolio_id';
     protected $allowedFields = [
+        'portfolio_id',
         'user_id',
         'inital_liquidity',
         'liquidity',
@@ -22,15 +24,27 @@ class PortfolioModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
 
-    public function findActiveByUser(int $userId): array
+
+    //trova portafoglii di ogni utente
+    public function findActiveByUser(int $userId)
     {
-        return $this->where('user_id', $userId)->where('active', 1)->orderBy('name', 'ASC')->findAll();
+        try {
+            return $this->where('user_id', $userId)->where('active', 1)->orderBy('name', 'ASC')->findAll();
+        } catch (\Throwable $th) {
+            return false;
+        }
+
     }
 
     //controlla se portfolio è di proprietà dell'utente
-    public function findOwnedByUser(int $portfolioId, int $userId): ?array
+    public function findOwnedByUser(int $portfolioId, int $userId)
     {
-        return $this->where('portfolio_id', $portfolioId)->where('user_id', $userId)->where('active', 1)->first();
+        try {
+            return $this->where('portfolio_id', $portfolioId)->where('user_id', $userId)->where('active', 1)->first();
+        } catch (\Throwable $th) {
+            return false;
+        }
+
     }
 
     //soft delete
@@ -52,12 +66,16 @@ class PortfolioModel extends Model
             return false;
         }
     }
+
+    //ricerca e paginazione per admin
     public function adminSearchPaginate(string $searchQuery, int $page, ?string $order = null, ?string $orderType = 'ASC'): array
     {
+        //seleziona portfogli e dati utenti con left join così da mostrare anche utenti senza portafogli
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
             ->join('users', 'users.user_id = portfolios.user_id', 'left')
             ->where('portfolios.active', 1);
 
+        //filtro ricerca 
         $searchQuery = trim($searchQuery);
         if ($searchQuery !== '') {
             $builder->groupStart()
@@ -68,6 +86,7 @@ class PortfolioModel extends Model
                 ->groupEnd();
         }
 
+        //ordinamento
         if ($order) {
             $builder->orderBy($order, $orderType);
         } else {
@@ -81,30 +100,39 @@ class PortfolioModel extends Model
     }
 
     /**
-     * @param array<string, float> $priceMap ticker|mic => prezzo
+     * calcola metriche (controvalore, liquidità, profitto/perdita non realizzati) per un portafoglio
      */
-    public function attachMarketMetrics(array $pf, array $priceMap): array
+    public function attachMarketMetrics(array $portfolioId): array
     {
-        $open = model(OrderModel::class)->findOpenByPortfolio((int) $pf['portfolio_id']);
+        $open = model(OrderModel::class)->findOpenByPortfolio((int) $portfolioId['portfolio_id']);//ordini aperti del portafoglio
+
         $mv = 0;
         $unreal = 0.0;
+
         foreach ($open as $o) {
-            $k = $o['ticker'] . '|' . $o['mic'];
-            $p = $priceMap[$k] ?? null;
-            if ($p === null) {
-                $p = (float) $o['buyPrice'];
+            $currentPrice = model(PriceModel::class)->getLatestForListing($o['ticker'], $o['mic']) ?? null;
+
+            //se ultimo prezzo non disoponibile usa buyprice
+            if ($currentPrice === null) {
+                $currentPrice = (float) $o['buyPrice'];
             }
-            $mv += (int) $o['quantity'] * (float) $p;
-            $unreal += ((float) $p - (float) $o['buyPrice']) * (int) $o['quantity'];
+
+            $mv += (int) $o['quantity'] * (float) $currentPrice;//controvalore attuale
+
+            $unreal += ((float) $currentPrice - (float) $o['buyPrice']) * (int) $o['quantity'];//profitto/perdita non realizzato per ordine
         }
 
-        $liq = (int) $pf['liquidity'];
-        $pf['market_value_open'] = (int) round($mv);
-        $pf['unrealized_pnl'] = round($unreal, 2);
-        $pf['total_value'] = $liq + $pf['market_value_open'];
-        $inv = (int) $pf['invested'];
-        $pf['unrealized_pct'] = $inv > 0 ? round(($unreal / $inv) * 100, 2) : null;
+        $liq = (int) $portfolioId['liquidity'];//cash disponibile
 
-        return $pf;
+        $portfolioId['market_value_open'] = (int) round($mv);//aggiunge campo market value a portafoglio
+        $portfolioId['unrealized_pnl'] = round($unreal, 2);//aggiunge unrealized profit and loss
+        //calcola il valore totale del portafoglio: liquidità disponibile + valore attuale dei titoli posseduti
+        $portfolioId['total_value'] = $liq + $portfolioId['market_value_open'];
+        $inv = (int) $portfolioId['invested'];//capitale investito
+
+        //calcola la performance percentuale: se non ci sono investimenti evita la divisione per zero restituendo null
+        $portfolioId['unrealized_pct'] = $inv > 0 ? round(($unreal / $inv) * 100, 2) : null;
+
+        return $portfolioId;//ritorna array con nuovi campi calcolati
     }
 }
