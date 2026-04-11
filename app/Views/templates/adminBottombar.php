@@ -35,7 +35,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/admin/EducationManagementController/" class="nav-link">
+                        <a href="/admin/ModuleManagementController/" class="nav-link">
                             <i class="fas fa-graduation-cap"></i>
                             <span class="d-none d-sm-block">Moduli</span>
                         </a>
