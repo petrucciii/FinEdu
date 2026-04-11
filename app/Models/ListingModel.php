@@ -13,7 +13,7 @@ class ListingModel extends Model
 
     protected $allowedFields = ['ticker', 'mic', 'isin', 'active'];
 
-    //
+    //trova listing di una società
     public function findActiveByIsin(string $isin): array
     {
         return $this

@@ -24,6 +24,17 @@ class PortfolioModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
 
+    //trova tutti portafogli attivi
+    public function findActive()
+    {
+        try {
+            return $this->select('portfolios.*, users.first_name, users.last_name, users.email')
+                ->join('users', 'users.user_id = portfolios.user_id', 'left')
+                ->where('portfolios.active', 1);
+        } catch (\Throwable $th) {
+            return false;
+        }
+    }
 
     //trova portafoglii di ogni utente
     public function findActiveByUser(int $userId)

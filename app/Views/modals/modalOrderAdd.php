@@ -1,20 +1,22 @@
 <?php
 //modal per effettuare un ordine dalla pagina company.
 //mostra il costo stimato (prezzo * qtà) calcolato dinamicamente
-$canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userPortfolios);//conrollo che titolo quotato e portafoglio siano disponibili
+$canTrade = session()->has('logged') && !empty($mainListing) && !empty($userPortfolios);//conrollo che titolo quotato e portafoglio siano disponibili
 ?>
 <div class="modal fade" id="addOrderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Negozia — <?= esc($company['name'] ?? '') ?></h5>
+                <h5 class="modal-title"> <?= esc($company['name'] ?? '') ?> su
+                    <?= esc($company['main_exchange'] ?? '') ?>
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <?php if (!$canTrade): ?>
                 <div class="modal-body">
                     <?php if (!session()->has('logged')): ?>
                         <p class="mb-0">Accedi per operare sul portafoglio.</p>
-                    <?php elseif (empty($primaryListing)): ?>
+                    <?php elseif (empty($mainListing)): ?>
                         <p class="mb-0">Nessun titolo quotato disponibile per questa società.</p>
                     <?php else: ?>
                         <p class="mb-0">Crea prima un portafoglio dalla sezione Portafoglio.</p>
@@ -26,8 +28,8 @@ $canTrade = session()->has('logged') && !empty($primaryListing) && !empty($userP
             <?php else: ?>
                 <form action="/PortfolioController/buy" method="post">
                     <div class="modal-body">
-                        <input type="hidden" name="ticker" value="<?= esc($primaryListing['ticker']) ?>">
-                        <input type="hidden" name="mic" value="<?= esc($primaryListing['mic']) ?>">
+                        <input type="hidden" name="ticker" value="<?= esc($mainListing['ticker']) ?>">
+                        <input type="hidden" name="mic" value="<?= esc($mainListing['mic']) ?>">
                         <div class="mb-3">
                             <label class="form-label">Portafoglio</label>
                             <select name="portfolio_id" class="form-select" required>

@@ -7,6 +7,7 @@ let currentMic = '';
 document.addEventListener('DOMContentLoaded', () => {
     loadListings();
 
+    //filtro ricerca
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
         loadListings(1);
@@ -18,8 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadListings(1);
     });
 
-    //apertura modal con dati del listing selezionato (event delegation)
+    //non sarebbe cambiato niente se invece di fare document.addEventListener avessi messo gli eventi sui singoli bottononi, ma così è più efficiente perche c'è un solo eventlistner
+    //apertura modal con dati del listing selezionato
     document.addEventListener('click', (e) => {
+        //al click del bottone
         const btn = e.target.closest('.buy-listing-btn');
         if (!btn) return;
 
@@ -34,16 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (qtyInput) qtyInput.value = 1;
         updateCostEstimate();
 
-        //apri il modal bootstrap
+        //apre il modal bootstrap
         const modal = new bootstrap.Modal(document.getElementById('buyListingModal'));
         modal.show();
     });
 
-    //aggiorna stima costo quando si cambia la quantita
+    //aggiorna stima costo quando si cambia la quantita, il ? evita errori se elemento non esiste
     document.getElementById('buyQuantity')?.addEventListener('input', updateCostEstimate);
 
     //auto-refresh ogni 2 minuti per aggiornare i prezzi
-    setInterval(() => loadListings(), 10000);
+    setInterval(() => loadListings(), 120000);
 });
 
 //calcola e mostra il costo stimato nel modal (prezzo × quantita)
@@ -67,6 +70,7 @@ const buildListingsUrl = (page = 1) => {
 //tiene traccia della pagina corrente per il refresh automatico
 let lastPage = 1;
 
+//carica listings aggiorna tabella e paginazione.
 const loadListings = (page) => {
     if (page !== undefined) lastPage = page;
     fetch(buildListingsUrl(lastPage))
@@ -78,6 +82,7 @@ const loadListings = (page) => {
         .catch(err => console.error(err));
 };
 
+//formattazione per prezzo in euro
 const eur = (n) =>
     '€ ' +
     Number(n).toLocaleString('it-IT', {
@@ -85,6 +90,7 @@ const eur = (n) =>
         maximumFractionDigits: 2,
     });
 
+    ///mette nel DOM le righe
 const renderRows = (listings) => {
     const tbody = document.getElementById('listingsTableBody');
     if (!tbody) return;
@@ -94,28 +100,29 @@ const renderRows = (listings) => {
     tbody.appendChild(frag);
 };
 
-const row = (l) => {
-    const t = document.getElementById('listingRowTemplate');
-    const tr = t.content.cloneNode(true).querySelector('tr');
+//valorizzazione riga
+const row = (listing) => {
+    const template = document.getElementById('listingRowTemplate');
+    const tr = template.content.cloneNode(true).querySelector('tr');
 
-    tr.querySelector('[data-field="ticker"]').textContent = l.ticker || '';
-    tr.querySelector('[data-field="isin"]').textContent = l.isin || '';
-    tr.querySelector('[data-field="company_name"]').textContent = l.company_name || '—';
-    tr.querySelector('[data-field="exchange_name"]').textContent = l.exchange_name || l.mic || '';
+    tr.querySelector('[data-field="ticker"]').textContent = listing.ticker || '';
+    tr.querySelector('[data-field="isin"]').textContent = listing.isin || '';
+    tr.querySelector('[data-field="company_name"]').textContent = listing.company_name || '—';
+    tr.querySelector('[data-field="exchange_name"]').textContent = listing.exchange_name || listing.mic || '';
 
     //ultimo prezzo con colore
     const priceCell = tr.querySelector('[data-field="last_price"]');
-    if (l.last_price != null) {
-        priceCell.innerHTML = `<span class="fw-semibold text-primary">${eur(l.last_price)}</span>`;
+    if (listing.last_price != null) {
+        priceCell.innerHTML = `<span class="fw-semibold text-primary">${eur(listing.last_price)}</span>`;
     } else {
         priceCell.innerHTML = '<span class="text-muted">—</span>';
     }
 
     //pulsante compra con dati del listing (incluso prezzo per il calcolo del costo)
     const buyBtn = tr.querySelector('[data-field="buy_btn"]');
-    buyBtn.dataset.ticker = l.ticker;
-    buyBtn.dataset.mic = l.mic;
-    buyBtn.dataset.price = l.last_price || 0;
+    buyBtn.dataset.ticker = listing.ticker;
+    buyBtn.dataset.mic = listing.mic;
+    buyBtn.dataset.price = listing.last_price || 0;
 
     return tr;
 };

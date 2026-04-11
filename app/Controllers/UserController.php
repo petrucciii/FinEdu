@@ -21,14 +21,14 @@ class UserController extends BaseController
         $allowedColumns = ['first_name', 'last_name', 'email'];
 
         $model = model(UserModel::class);
-        //if is logged and fields have been inserted
+        //controllo se campi inseriti e se loggato
         if ($this->session->has('logged') && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
                 $data = [
                     trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value'))
                 ];
 
-                if ($model->fupdate($this->session->get('user_id'),$data)) {
+                if ($model->fupdate($this->session->get('user_id'), $data)) {
                     $this->session->set(trim($this->request->getPost('edit')), trim($this->request->getPost('new_value')));
                     return redirect()->back()->with('alert', "Modifica Riuscita");
                 } else {
@@ -52,12 +52,12 @@ class UserController extends BaseController
             $this->request->getPost('repeat_password') &&
             $this->session->has('logged')
         ) {
-            //new password and repeat match
+            //nuova password, controllando anche lato server se matchano
             if ($this->request->getPost('new_password') == $this->request->getPost('repeat_password')) {
                 if ($this->request->getPost('new_password') != $this->request->getPost('password')) {
                     $user = $model->fread(['user_id' => $this->session->get('user_id')]);
                     $hashPassword = $user[0]['password'];
-                    //password validation
+                    //validazione passweord
                     if (password_verify($this->request->getPost('password'), $hashPassword)) {
                         $data = [
                             'password' => $this->request->getPost('new_password')
@@ -88,9 +88,9 @@ class UserController extends BaseController
         if ($this->request->getPost('password') && $this->session->has('logged')) {
             $user = $model->fread(['user_id' => $this->session->get('user_id')]);
             $hashPassword = $user[0]['password'];
-            //password validation
+            //validazione password
             if (password_verify($this->request->getPost('password'), $hashPassword)) {
-                if ($model->fdelete((int)$this->session->get('user_id'))) {//delete user
+                if ($model->fdelete((int) $this->session->get('user_id'))) {//delete user
                     $this->session->remove([
                         'user_id',
                         'first_name',

@@ -38,13 +38,12 @@ class PortfolioManagementController extends BaseController
         $pfModel = model(PortfolioModel::class);
         $priceModel = model(PriceModel::class);
 
-        // Check if sorting is by calculated field
-        if (str_starts_with($orderField, 'calculated_')) {
-            // Calculated fields sorting (requires fetching all matches, attaching metrics, then sorting)
-            $allPortfolios = $pfModel->select('portfolios.*, users.first_name, users.last_name, users.email')
-                ->join('users', 'users.user_id = portfolios.user_id', 'left')
-                ->where('portfolios.active', 1);
 
+        //ordina campi calcolati (metriche)
+        if (str_starts_with($orderField, 'calculated_')) {
+
+            $allPortfolios = $pfModel->findActive();
+            //filtri ricerca
             $query = trim((string) $query);
             if ($query !== '') {
                 $allPortfolios->groupStart()
@@ -58,10 +57,10 @@ class PortfolioManagementController extends BaseController
             $results = $allPortfolios->findAll();
             $enriched = [];
             foreach ($results as $pf) {
-                $enriched[] = $pfModel->attachMarketMetrics($pf);
+                $enriched[] = $pfModel->attachMarketMetrics($pf);//portafoglio con metriche (p&l, controvalore ecc)
             }
 
-            // Map field names
+            //nomi colonne convertiti in metriche
             $map = [
                 'calculated_mv' => 'market_value_open',
                 'calculated_total' => 'total_value',
@@ -69,11 +68,12 @@ class PortfolioManagementController extends BaseController
             ];
             $sortKey = $map[$orderField] ?? 'portfolio_id';
 
-            // Sort in PHP
+            //ordinamento in php
             usort($enriched, function ($a, $b) use ($sortKey, $orderType) {
                 $valA = $a[$sortKey] ?? 0;
                 $valB = $b[$sortKey] ?? 0;
-                if ($valA == $valB) return 0;
+                if ($valA == $valB)
+                    return 0;
                 if ($orderType === 'ASC') {
                     return $valA < $valB ? -1 : 1;
                 } else {
@@ -81,7 +81,7 @@ class PortfolioManagementController extends BaseController
                 }
             });
 
-            // Manual pagination
+            //pagination manuale
             $total = count($enriched);
             $pageCount = ceil($total / $perPage);
             $offset = ($page - 1) * $perPage;
@@ -97,13 +97,13 @@ class PortfolioManagementController extends BaseController
                 ],
             ]);
         } else {
-            // Standard DB sorting
+            //ordinamento altri campi
             $result = $pfModel->adminSearchPaginate((string) $query, $page, $orderField, $orderType);
             $rows = [];
             foreach ($result['portfolios'] as $pf) {
                 $rows[] = $pfModel->attachMarketMetrics($pf);
             }
-
+            //ritorno dati impaginati
             $pager = $result['pager'];
             return $this->response->setJSON([
                 'portfolios' => $rows,

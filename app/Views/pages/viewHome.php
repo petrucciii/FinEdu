@@ -1,3 +1,4 @@
+<!-- ANCORA STATICA, FUNZIONALITA NON IMPLEMENTATE -->
 <div id="home">
     <section class="hero">
         <div class="container">

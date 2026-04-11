@@ -11,6 +11,7 @@ const eur = (n) =>
         maximumFractionDigits: 2,
     });
 
+//funzione per aggiornare prezzi degli ordini
 const refreshOrders = () => {
     fetch('/PortfolioController/refreshOrders')
         .then(res => res.json())

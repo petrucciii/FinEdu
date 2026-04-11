@@ -7,8 +7,8 @@ $alert_type = session()->getFlashdata('alert_type') ?? 'warning';
 <?php if ($alert): ?>
     <!--contenitore fisso in alto a destra per i toast-->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-        <div id="alertToast" class="toast align-items-center text-bg-<?= $alert_type ?> border-0 shadow-lg"
-            role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="alertToast" class="toast align-items-center text-bg-<?= $alert_type ?> border-0 shadow-lg" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body fw-semibold">
                     <!--icona dinamica in base al tipo di alert-->

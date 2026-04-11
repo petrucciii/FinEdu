@@ -14,17 +14,17 @@ class AuthController extends BaseController
 
         if ($this->request->getPost('email') && ($this->request->getPost('password')) && !$logged) {
             $model = model(UserModel::class);
-            //get user by mail
+            //prende utente da email
             $result = $model->fread(["email" => strtolower(trim($this->request->getPost('email')))]);
 
 
 
 
 
-            //check if exists
+            //controlla se esiste
             if (!empty($result)) {
                 $user = $result[0];
-                //compare input password with user's hashed password
+                //verifica pasword con password hashata nel db
                 if (password_verify(trim($this->request->getPost('password')), $user['password'])) {
                     unset($user['password']);
                     $this->session->set('logged', true);
@@ -56,7 +56,7 @@ class AuthController extends BaseController
             $this->request->getPost('first_name') &&
             $this->request->getPost('last_name') &&
             $this->request->getPost('password') &&
-            !$this->session->has('logged')//if not already logged
+            !$this->session->has('logged')//se non già loggato
         ) {
             $model = model(UserModel::class);
             $data = [];

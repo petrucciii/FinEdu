@@ -44,7 +44,7 @@ const loadPortfolios = (page) => {
         .catch((err) => console.error(err));
 };
 
-//gestione ordinamento colonne con event delegation
+//gestione ordinamento colonne
 const orderBy = () => {
     document.addEventListener('click', (e) => {
         const th = e.target.closest('a[data-order]');
@@ -85,6 +85,7 @@ const eur = (n) =>
         maximumFractionDigits: 2,
     });
 
+//crea elemento non letto da dom come userManagement    
 const renderRows = (rows) => {
     const tbody = document.getElementById('portfoliosTableBody');
     if (!tbody) return;

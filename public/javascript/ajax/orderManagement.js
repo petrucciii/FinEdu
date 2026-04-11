@@ -1,5 +1,6 @@
 import renderPagination from '../control.js';
 
+//variabili di stato per ricerca e filtri
 let currentQuery = '';
 let currentUser = 'all';
 let currentPortfolio = 'all';
@@ -10,17 +11,22 @@ let currentDate = '';
 let currentPnlMin = '';
 let currentPnlMax = '';
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    const qs = new URLSearchParams(location.search);
-    const pf = qs.get('pf');
-    if (pf) {
-        const sel = document.getElementById('filterPortfolio');
-        if (sel) {
-            sel.value = pf;
-            currentPortfolio = pf;
+    const path = new URLSearchParams(location.search);//URLSearchParams legge i parametri get dall'URL
+    const portfolio = path.get('pf');
+    if (portfolio) {
+        const select = document.getElementById('filterPortfolio');
+        if (select) {
+            select.value = portfolio;
+            currentPortfolio = portfolio;
         }
     }
+
+    //carica utenti
     loadOrders();
+
+    //gestione
     document.getElementById('searchInput')?.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
         loadOrders(1);

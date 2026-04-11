@@ -14,6 +14,7 @@ class ExchangeManagementController extends BaseController
         return $this->session->has('logged') && $this->session->get('role_id') == 1;
     }
 
+    //load pagina
     public function index()
     {
         if (!$this->isAdmin()) {
@@ -33,6 +34,7 @@ class ExchangeManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //aggiunta nuovo exchange
     public function create()
     {
         if (!$this->isAdmin()) {
@@ -60,6 +62,7 @@ class ExchangeManagementController extends BaseController
         return redirect()->back()->with('alert', 'Errore: controlla i dati e il codice MIC.');
     }
 
+    //modifica nuovo exchange
     public function update()
     {
         if (!$this->isAdmin()) {
@@ -88,6 +91,7 @@ class ExchangeManagementController extends BaseController
         return redirect()->back()->with('alert', 'Aggiornamento non riuscito.');
     }
 
+    //eliminazione exchange (soft)
     public function delete()
     {
         if (!$this->isAdmin()) {

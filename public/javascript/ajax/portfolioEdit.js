@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Gestione click sul pulsante modifica nome (event delegation)
+    //gestione click sul pulsante modifica nome
     document.addEventListener('click', function (e) {
         const editBtn = e.target.closest('.edit-name-btn');
         if (!editBtn) return;
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const discardBtn = e.target.closest('.discard-name-btn');
 
         if (saveBtn) {
-            // Salva nome - usa fetch AJAX
+            //salva nome
             const container = saveBtn.closest('.portfolio-name-container');
             const portfolioId = container.dataset.portfolioId;
             const input = container.querySelector('.name-input');
@@ -42,17 +42,11 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('portfolio_id', portfolioId);
             formData.append('name', newName);
 
-            fetch('/PortfolioController/updatePortfolioName', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formData.toString()
-            })
+            fetch('/PortfolioController/updatePortfolioName')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Aggiorna visualizzazione
+                        //aggiorna visualizzazione
                         container.innerHTML = `
                             <span class="portfolio-name">${newName}</span>
                             <button type="button" class="btn btn-link p-0 text-info border-0 shadow-none edit-name-btn">
@@ -70,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (discardBtn) {
-            // Annulla modifiche - ripristina visualizzazione originale
+            //annulla modifiche, ripristina visualizzazione originale
             const container = discardBtn.closest('.portfolio-name-container');
             const portfolioId = container.dataset.portfolioId;
             const input = container.querySelector('.name-input');

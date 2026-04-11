@@ -28,7 +28,7 @@ const loadNews = (page = 1, query = '') => {
         .then((res) => res.json())
         .then((data) => {
             renderNewsRows(data.news);
-            //renderPagination e importato da control.js, gestisce i bottoni pagina
+            //renderPagination e importato da control.js, gestisce i link della paginazione
             renderPagination(data.pagination, (newPage) => {
                 loadNews(newPage, currentQuery);
             });
@@ -65,17 +65,18 @@ const createNewsRow = (n) => {
     //arrivata dal GROUP_CONCAT nella query del model
     const logosCell = tr.querySelector('[data-field="logos"]');
     logosCell.innerHTML = '';
+    //wrap per sovrappore i loghi
     const wrap = document.createElement('div');
     wrap.className = 'd-flex align-items-center';
     const paths = (n.logos_raw || '').split('|||').filter(Boolean);
     if (paths.length === 0) {
         wrap.innerHTML = '<span class="text-muted small">—</span>';
     } else {
-        //mostra max 4 loghi sovrapposti con effetto stack (marginLeft negativo)
+        //mostra max 4 loghi sovrapposti
         paths.slice(0, 4).forEach((p, i) => {
             const img = document.createElement('img');
             const src = p.trim();
-            //normalizza il percorso: gestisce url assoluti, relativi con / e con ./
+            //gestisce perrorsi assoluti e relativi, se comincia con http lo usa cosi com'è altrimenti perocorso relativo sostituendo ./ con /
             img.src = src.startsWith('http') ? src : (src.startsWith('/') ? src : '/' + src.replace(/^\.\//, ''));
             img.alt = '';
             img.style.width = '32px';
@@ -100,16 +101,17 @@ const createNewsRow = (n) => {
     //imposta il news_id sui bottoni modifica/elimina (usati dai listener delegati)
     const editBtn = tr.querySelector('[data-field="edit_btn"]');
     const delBtn = tr.querySelector('[data-field="del_btn"]');
-    editBtn.dataset.newsId = n.news_id;
+    editBtn.dataset.newsId = n.news_id;//.dataset crea attributo data-news-id con valore id news usato poi dai listener per identificare news da mostrare/eliminare
     delBtn.dataset.newsId = n.news_id;
 
     return tr;
 };
 
-//listener delegato per i bottoni "modifica": intercetta il click su qualsiasi
+//listener per i bottoni "modifica": intercetta il click su qualsiasi
 //bottone con classe .open-news-edit-btn (anche quelli generati dinamicamente).
 //carica i dati completi della news dal server e popola il modal di modifica
 const bindEditButtons = () => {
+    //non su ogni bottone perche sono generati dinamicamente
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.open-news-edit-btn');
         if (!btn) return;
@@ -128,14 +130,14 @@ const bindEditButtons = () => {
                 document.getElementById('edit_author').value = data.news.author || '';
                 document.getElementById('edit_body').value = data.body || '';
 
-                //popola l'editor quill con il contenuto html formattato.
+                //popola quill con il contenuto html formattato.
                 //quillEdit e la variabile globale definita in modalNewsEdit.php
                 //creata da initQuillEditor() di quill.js
                 if (typeof quillEdit !== 'undefined' && quillEdit) {
                     quillEdit.root.innerHTML = data.body || '';
                 }
 
-                //popola il select delle fonti con la lista completa + seleziona quella attuale
+                //popola il select con lista delle testate
                 const sel = document.getElementById('edit_newspaper_id');
                 sel.innerHTML = '';
                 (data.newspapers || []).forEach((np) => {
@@ -163,7 +165,7 @@ const bindEditButtons = () => {
     });
 };
 
-//listener delegato per i bottoni "elimina": imposta l'id nel form di conferma
+//listener per i bottoni "elimina": imposta l'id nel form di conferma
 //e apre il modal di eliminazione
 const bindDeleteButtons = () => {
     document.addEventListener('click', (e) => {

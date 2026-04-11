@@ -2,7 +2,7 @@ import renderPagination from '../control.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     settingsModal();
-    loadUsers();//load all users when page is loaded
+    loadUsers();//carica gli utenti quando pagina è caricata (piccolo delay)
     searchUser();
     filterByLevel();
     filterByRole();
@@ -10,17 +10,18 @@ document.addEventListener('DOMContentLoaded', () => {
     exportUsers();
 });
 
+//finestra modale per gestione utente (aperta con ajax)
 const settingsModal = () => {
+    //gestita sul documento e non su ogni bottone dato che ce n'è uno per ogni riga
     document.addEventListener('click', (e) => {
 
-        //USER SETTINGS MODAL AJAX
-        let btn = e.target.closest('.open-user-btn');//iif the clicked element or any of its parents has the class .open-user-btn, it will be assigned to btn, otherwise btn will be null
+        let btn = e.target.closest('.open-user-btn');
         if (!btn) return;
 
-        //get user id from data attribute of the button
+        //prende id da data-attribute
         let userId = btn.dataset.id;
 
-        //ajax request to get user data by id, then populate and open the modal
+        //fetch ajax all'endpoint con userId
         fetch('/admin/UserManagementController/settings/' + userId)//endpoint : UserManagement::settings($userId)
             .then(response => {
                 if (!response.ok) {
@@ -30,7 +31,7 @@ const settingsModal = () => {
                 return response.json();
             })
             .then(data => {
-                //populate modal with user data
+                //popola modal
                 document.getElementById('modalUserTitle').textContent = " Utente #" + data.user.user_id;
                 document.getElementsByClassName('modalInputFirstName')[0].value = data.user.first_name;
                 document.getElementsByClassName('modalInputLastName')[0].value = data.user.last_name;
@@ -38,17 +39,17 @@ const settingsModal = () => {
                 document.getElementById('modalCreatedAt').textContent = new Date(data.user.created_at).toLocaleDateString();
                 document.getElementById('modalLevel').textContent = data.user.level;
 
-                //form action for edit and delete
+                //inseisce attributi per i form (bottoni) con le varie azioni
                 document.querySelectorAll('form[name="modalEditForm"]').forEach(form => {
                     form.action = '/admin/UserManagementController/editColumn/' + userId;
                 });
                 document.getElementById('modalDeleteForm').action = '/admin/UserManagementController/delete/' + userId;
 
-                //roles radiobuttons
+                //radio buttons per i ruoli
                 let rolesContainer = document.getElementById('modalRolesContainer');
-                rolesContainer.innerHTML = "";//clear previous roles
+                rolesContainer.innerHTML = "";//pulisce il container per evitare duplicazioni
 
-                //populate radiobuttons with all roles, and check the one that is the current role of the user
+                //mette dentro il container ogni ruolo e seleziona quello corrente
                 data.roles.forEach(role => {
                     let div = document.createElement('div');
                     div.className = "form-check form-check-inline";
@@ -63,7 +64,7 @@ const settingsModal = () => {
                     rolesContainer.appendChild(div);
                 });;
 
-                //open modal
+                //apre il modal
                 let modal = new bootstrap.Modal(
                     document.getElementById('userModal')
                 );
@@ -72,34 +73,35 @@ const settingsModal = () => {
 
 
             })
-            //other tyoes of errors (network, json, etc.)
             .catch(err => {
                 console.error(err);
                 alert("Errore caricamento utente");
             });
     });
 }
+
+//colori in sequenza per avatar
 const avatarColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg-info'];
 
-//global status
+//variabili di stato per ricerca e filtri
 let currentQuery = '';
 let currentRole = '';
 let currentLevel = '';
 let currentOrder = '';
 let orderType = 'ASC';
 
-//build the url for fetching users
+//costrusice url per endpoint in base a stato
 const buildUsersUrl = (page = 1, exportCsv = false) => {
-    //get parameters building
+    //parametri get
     let queryString = `page=${page}`;
 
-    //optional filters
+    //filtri
     if (currentRole) queryString += `&role_id=${encodeURIComponent(currentRole)}`;
     if (currentLevel) queryString += `&level_id=${encodeURIComponent(currentLevel)}`;
     if (currentOrder) queryString += `&order=${encodeURIComponent(currentOrder)}&order_type=${encodeURIComponent(orderType)}`;
     if (exportCsv) queryString += `&export=${encodeURIComponent(exportCsv)}`;
 
-    //final URL
+    //endpoint
     return `/admin/UserManagementController/search/${encodeURIComponent(currentQuery)}?${queryString}`;
 };
 
@@ -109,29 +111,29 @@ const exportUsers = () => {
     const exportBtn = document.getElementById("exportBtn");
     if (!exportBtn) { console.log("non trovato"); return; }
 
-    //when btn clicked
+    //quando il bottone viene cliccato
     exportBtn.addEventListener('click', () => {
         exportBtn.disabled = true;
 
-        //ajax call with export mode true
+        //chiamata ajax: endpoint con export a trye
         fetch(buildUsersUrl(1, true))
             .then(response => {
                 if (!response.ok) throw new Error("Errore nel download");
-                return response.blob();//server response is blob format (csv)
+                return response.blob();//server risponde con un blob
             })
             .then(blob => {
-                //temporary elements
-                const url = window.URL.createObjectURL(blob);//url that points to the blob
-                const a = document.createElement('a');
+                //elementi temporeanei
+                const url = window.URL.createObjectURL(blob);//url che punta a blob
+                const a = document.createElement('a');//link per accedere a doucmento
                 a.style.display = 'none';
                 a.href = url;
 
-                a.download = `export_utenti_${formatDate(new Date())}.csv`;//filename
+                a.download = `export_utenti_${formatDate(new Date())}.csv`;//nome del file
 
                 document.body.appendChild(a);
-                a.click();
+                a.click();//scarica il file
 
-                //remove temporary
+                //rimozione elementi temporanei
                 window.URL.revokeObjectURL(url);
                 a.remove();
                 exportBtn.disabled = false;
@@ -143,7 +145,7 @@ const exportUsers = () => {
     });
 };
 
-//search user by name, email or role.
+//ricerca da nome o cognome
 const searchUser = () => {
     const input = document.getElementById('searchInput');
 
@@ -155,21 +157,21 @@ const searchUser = () => {
 
 
 
-//load users with ajax, passing page number as parameter, and using global status for search query and filters.
-//  then render users and pagination.
+//carica utenti con richiesta ajax, passando il numero della pagina corrente e l'endpoint creato con stato globale
+//gli utenti vengono poi renderizzati e inseriti nella tabella con impaginazione
 const loadUsers = (page = 1) => {
     fetch(buildUsersUrl(page))
         .then(res => res.json())
         .then(data => {
             renderUsers(data.users);
-            renderPagination(data.pagination, loadUsers);//callback function
+            renderPagination(data.pagination, loadUsers);//callaback
         });
 
-    seeFilters();//update dropdown buttons styles based on current filters, using global status
+    seeFilters();//aggiorna dropdown con filtro corrente
 }
 
 const seeFilters = () => {
-    //update dropdown buttons styles based on current filters, using global status
+    //per ogni option conrolla quella attiva
     document.querySelectorAll('button[data-role_id]').forEach(btn => {
         if (btn.dataset.role_id === currentRole) {
             btn.classList.add('bg-primary', 'text-white');
@@ -180,6 +182,7 @@ const seeFilters = () => {
 
     });
 
+
     document.querySelectorAll('button[data-level_id]').forEach(btn => {
         if (btn.dataset.level_id === currentLevel) {
             btn.classList.add('bg-primary', 'text-white');
@@ -189,43 +192,43 @@ const seeFilters = () => {
     });
 }
 
-//render users in the table
+//renderizza users nella tabella
 const renderUsers = (users) => {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
 
-    //create a document fragmented (non rendered in the DOM) to append all the users (rows). so that the DOM is updated only once
+    //crea un document fragmented (non renderizzato nel DOM) aggiungendo tutti gli utenti (righe), 
+    // così il DOM viene aggiornato solo una volta e non una volta ogni riga
     const fragment = document.createDocumentFragment();
     users.forEach((user, index) => fragment.appendChild(createUserRow(user, index)));
-    //upload the fragment into the tbody
+    //inserimento come figlo nel tbody
     tbody.appendChild(fragment);
 };
 
 
 
-//row built passing user as an object and index for avatar color
+//riga costruita passand utente come oggetto e index per l'icona dell'avatar
 const createUserRow = (user, index) => {
-    //avatar color based on a loop : index=0 % 5 = 0 (primary), index=1 % 5 = 1 (success), index=2 % 5 = 2 (warning), index=3 % 5 = 3 (danger), index=4 % 5 = 4 (info), index=5 % 5 = 0 (primary), etc.
+    //il colore dell'avatar cambia in sequenza : index=0 % 5 = 0 (primary), index=1 % 5 = 1 (success), index=2 % 5 = 2 (warning), index=3 % 5 = 3 (danger), index=4 % 5 = 4 (info), index=5 % 5 = 0 (primary), ecc.
     const colorClass = avatarColors[index % avatarColors.length];
 
-    //role badge: red: Admin, gray: User
+    //ruolo badge: red: Admin, gray: User
     let role_id = new Number(user.role_id);
     const roleBadge = role_id == 1 ? 'bg-danger' : 'bg-secondary';
 
-    //level badge: green: Principiante, blue: Intermedio, yellow: Avanzato
+    //lievello badge: verde: Principiante, blu: Intermedio, giallo: Avanzato
     const lvlBadgeMap = {
         1: 'bg-success',
         2: 'bg-primary',
     };
     const lvlBadge = lvlBadgeMap[user.level_id] ?? 'bg-warning text-dark';
 
-    //populate <template> with user dat
+    //popola <template> con dati utente
     const template = document.getElementById('userRowTemplate');
-    //create a copy of the template content (its children, too) and select the row(tr), return a fragmented docment not yet rendered in the dom
+    //crea una copia di template  (anche i suoi figli) e prende la riga(tr), ritorna un fragment non ancora renderizzato
     const tr = template.content.cloneNode(true).querySelector('tr');
 
-    //fill the the data table row wit user data, and add the color classes for avatar, role and level
-    //get the row(tr) and each field(td) by data-field attribute (datatables element)
+    //riempie colonne utilizzato i data-attribute
     tr.querySelector('[data-field="user_id"]').textContent = `#${user.user_id}`;
     tr.querySelector('[data-field="avatar"]').classList.add(colorClass);
     tr.querySelector('[data-field="avatar"]').textContent = getInitials(user.first_name, user.last_name);
@@ -241,46 +244,47 @@ const createUserRow = (user, index) => {
     return tr;
 };
 
-//filter users by level, when dropdown item is clicked
+//filtro per livello
 const filterByLevel = () => {
     document.addEventListener('click', (e) => {
-        let btn = e.target.closest('button[data-level_id]');//dropdown buttons
+        let btn = e.target.closest('button[data-level_id]');//dropdown
         if (!btn) return;
 
-        currentLevel = btn.dataset.level_id || 0;//set status
-        loadUsers(1);//load users with new filter
+        currentLevel = btn.dataset.level_id || 0;//setta stato globale
+        loadUsers(1);//utenti filtrati
     });
 }
 
-//filter users by level, when dropdown item is clicked
+//filtro per ruolo
 const filterByRole = () => {
     document.addEventListener('click', (e) => {
-        let btn = e.target.closest('button[data-role_id]');//dropdown buttons
+        let btn = e.target.closest('button[data-role_id]');//dropdown
         if (!btn) return;
 
-        currentRole = btn.dataset.role_id || 0;//set status
-        loadUsers(1);//load users with new filter
+        currentRole = btn.dataset.role_id || 0;//setta stato globale
+        loadUsers(1);//carica utenti filtrati
     });
 }
 
 
+//ordinamento
 const orderBy = () => {
 
     document.addEventListener('click', (e) => {
 
-        const th = e.target.closest('a[data-order]');//header fields
+        const th = e.target.closest('a[data-order]');//headers
         if (!th) return;
 
         const clickedOrder = th.dataset.order;
 
-        if (currentOrder === clickedOrder) {//chenge order type
+        if (currentOrder === clickedOrder) {//cambia ordine (asc->desc; desc->asc)
             orderType = orderType === 'ASC' ? 'DESC' : 'ASC';
         } else {
             currentOrder = clickedOrder;
-            orderType = 'DESC'; //default order type when clicking a new header
+            orderType = 'DESC'; //default
         }
 
-        //chaneing icons of all the other headers (besides the clicked one)
+        //cambia icone di ordinamneto di tutti gli altre colonne
         document.querySelectorAll('a[data-order]').forEach(header => {
             if (header.dataset.order !== currentOrder) {
                 header.innerHTML = header.textContent + "<i class='fas fa-sort-amount-up ms-1'></i>";
@@ -288,16 +292,16 @@ const orderBy = () => {
         });
 
 
-        //add icon to the clicked header
+        //aggiunge icona a header
         const icon = document.createElement('i');
         icon.className = orderType === 'ASC'
             ? 'fas fa-sort-amount-up ms-1'
             : 'fas fa-sort-amount-down ms-1';
 
-        //add the icon to the clicked header
+
         th.innerHTML = `${th.textContent} ${icon.outerHTML}`;
 
-        loadUsers(1);
+        loadUsers(1);//carica utenti ordinati
 
     });
 
@@ -306,8 +310,7 @@ const orderBy = () => {
 
 
 
-//utility functions
-const getInitials = (first, last) => { //first name and last name initials used for avatar, converted to uppercase
+const getInitials = (first, last) => { //prime due lettere per icona avatar
     return (first[0] + last[0]).toUpperCase();
 };
 
@@ -317,7 +320,7 @@ const formatDate = (dateString) =>
 const ucFirst = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1);
 
-// Prevent HTML/JS injection in user data (name, email, ecc.)
+//previene xss
 const escapeHtml = (str) => {
     const div = document.createElement('div');
     div.textContent = str;

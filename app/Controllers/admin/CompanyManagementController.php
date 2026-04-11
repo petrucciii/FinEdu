@@ -57,6 +57,7 @@ class CompanyManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //endpoint AJAX
     public function search($query = '')
     {
         if (!$this->isAdmin()) {
@@ -80,6 +81,7 @@ class CompanyManagementController extends BaseController
         ]);
     }
 
+    //crea nuova company
     public function create()
     {
         if (!$this->isAdmin()) {
@@ -103,6 +105,7 @@ class CompanyManagementController extends BaseController
         return redirect()->back()->with('alert', "Errore. Controlla che l'ISIN non esista già.")->with('alert_type', 'danger');
     }
 
+    //load pagina amministrazione (admin)
     public function edit($isin)
     {
         if (!$this->isAdmin()) {
@@ -143,6 +146,7 @@ class CompanyManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //update company
     public function update($isin)
     {
         if (!$this->isAdmin()) {
@@ -171,6 +175,7 @@ class CompanyManagementController extends BaseController
         return redirect()->back()->with('alert', 'Dati base aggiornati con successo.');
     }
 
+
     public function delete($isin)
     {
         if (!$this->isAdmin()) {
@@ -181,6 +186,7 @@ class CompanyManagementController extends BaseController
         return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda disattivata.');
     }
 
+    //aggiunge listing
     public function addListing()
     {
         if (!$this->isAdmin()) {
@@ -200,6 +206,7 @@ class CompanyManagementController extends BaseController
             : redirect()->back()->with('alert', 'Impossibile aggiungere la quotazione (verifica ticker/MIC o vincoli DB).')->with('alert_type', 'danger');
     }
 
+    //elimina listing
     public function deleteListing($ticker, $mic)
     {
         if (!$this->isAdmin()) {
@@ -212,6 +219,9 @@ class CompanyManagementController extends BaseController
     }
 
     //import bilanci da file XML (standard progetto): upsert per anno su tabella data
+    /**
+     * NON FUNZIONANTE
+     */
     public function importFinancialXml()
     {
         if (!$this->isAdmin()) {
@@ -289,6 +299,7 @@ class CompanyManagementController extends BaseController
         return redirect()->back()->with('alert', "Import XML completato: {$inserted} inserimenti, {$updated} aggiornamenti.");
     }
 
+    //aggiorna o aggiunge riga bilancio
     public function saveFinancial()
     {
         if (!$this->isAdmin()) {
@@ -297,6 +308,7 @@ class CompanyManagementController extends BaseController
 
         $model = model(FinancialDataModel::class);
         $isin = trim((string) $this->request->getPost('isin'));
+        //se salva è stato fatto da una riga esistente
         $isEdit = $this->request->getPost('is_edit') === '1';
         $year = (int) $this->request->getPost('year');
 
@@ -306,6 +318,7 @@ class CompanyManagementController extends BaseController
 
         $payload = $this->buildFinancialPayload();
 
+        //aggiorna o inserisce riga
         if ($isEdit) {
             $ok = $model->updateRow($isin, $year, $payload);
             $msg = $ok ? "Bilancio {$year} aggiornato." : 'Aggiornamento non riuscito.';
@@ -323,6 +336,7 @@ class CompanyManagementController extends BaseController
             : redirect()->back()->with('alert', $msg)->with('alert_type', 'danger');
     }
 
+    //elimina bilancio
     public function deleteFinancial($year, $isin)
     {
         if (!$this->isAdmin()) {
@@ -334,6 +348,7 @@ class CompanyManagementController extends BaseController
         return redirect()->back()->with('alert', 'Bilancio rimosso.');
     }
 
+    //aggiunge membro cda di una societa
     public function addBoardMember()
     {
         if (!$this->isAdmin()) {
@@ -363,6 +378,7 @@ class CompanyManagementController extends BaseController
             : redirect()->back()->with('alert', 'Impossibile aggiungere il membro (già presente o errore DB).')->with('alert_type', 'danger');
     }
 
+    //update membro board
     public function updateBoardMember()
     {
         if (!$this->isAdmin()) {
@@ -388,6 +404,7 @@ class CompanyManagementController extends BaseController
             : redirect()->back()->with('alert', 'Aggiornamento ruolo non riuscito.')->with('alert_type', 'danger');
     }
 
+    //elimina membro del board
     public function deleteBoardMember($member_id, $isin)
     {
         if (!$this->isAdmin()) {
@@ -399,6 +416,7 @@ class CompanyManagementController extends BaseController
         return redirect()->back()->with('alert', 'Membro rimosso dal CdA.');
     }
 
+    //aggiunge azionista
     public function addShareholder()
     {
         if (!$this->isAdmin()) {
@@ -425,6 +443,7 @@ class CompanyManagementController extends BaseController
             : redirect()->back()->with('alert', 'Impossibile aggiungere l\'azionista (già presente o dati non validi).')->with('alert_type', 'danger');
     }
 
+    //aggiorna ownership shareholder
     public function updateShareholder()
     {
         if (!$this->isAdmin()) {
@@ -545,6 +564,7 @@ class CompanyManagementController extends BaseController
         $typeId = (int) $this->request->getPost('type_id');
         $cur = trim((string) $this->request->getPost('currency_code'));
 
+        //costruisce riga
         $row = [
             'type_id' => $typeId,
             'currency_code' => $cur,

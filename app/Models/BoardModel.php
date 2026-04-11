@@ -18,8 +18,8 @@ class BoardModel extends Model
 
     //timestamp automatici
     protected $useTimestamps = true;
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'last_update';
+    protected $createdField = 'created_at';
+    protected $updatedField = 'last_update';
 
     //elenco membri cda di una società
     public function findBoardPerCompany(string $isin)

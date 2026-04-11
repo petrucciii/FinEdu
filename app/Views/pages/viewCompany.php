@@ -1,5 +1,5 @@
 <div class="container mt-4 mb-5" style="min-height: 80vh;">
-
+    <!-- header -->
     <div class="row mb-4">
         <div class="col-md-1 d-flex align-items-center justify-content-center">
             <img src="<?= $company['logo_path'] ?>" class="img-fluid rounded" alt="Logo">
@@ -28,6 +28,7 @@
         </div>
     </div>
 
+    <!-- grafico -->
     <div class="row">
         <div class="col-lg-8">
             <div class="card mb-4">
@@ -45,6 +46,7 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- dati da passare al grafico -->
                     <canvas id="priceChart" height="100" data-isin="<?= esc($company['isin']) ?>"
                         data-currency="<?= esc($company['currency'] ?? '€') ?>"
                         data-labels='<?= json_encode($chartLabels) ?>'
@@ -65,7 +67,7 @@
             </ul>
 
             <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom shadow-sm">
-
+            <!-- bilanci -->
                 <div class="tab-pane fade show active" id="financials">
                     <?php if ($financialData): ?>
                         <h5 class="mb-3">Bilancio (Dati in <?= $financialData['currency_code'] ?> Migliaia)</h5>
@@ -89,7 +91,7 @@
                                             <?php foreach ($rowData['values'] as $year => $value): ?>
                                                 <td class="text-end <?= $key === 'net_profit' ? 'fw-bold' : '' ?>">
                                                     <?php
-                                                    // Controllo ESATTO per il trattino (i NULL del DB)
+                                                    // controllo ESATTO per il trattino (i NULL del DB)
                                                     if ($value === '-') {
                                                         echo '-';
                                                     } else {
@@ -111,7 +113,7 @@
                         <h3>Nessun Dato Disponibile</h3>
                     <?php endif; ?>
                 </div>
-
+                <!-- CdA -->
                 <div class="tab-pane fade" id="board">
                     <?php if ($board): ?>
                         <div class="row">
@@ -134,7 +136,7 @@
                         <h3>Nessun Dato Disponibile</h3>
                     <?php endif; ?>
                 </div>
-
+                <!-- Azionisti -->
                 <div class="tab-pane fade" id="shareholders">
                     <?php if ($shareholders): ?>
                         <ul class="list-group">
@@ -155,15 +157,18 @@
         </div>
 
         <div class="col-lg-4">
+            <!-- Consensus Analisti -->
             <div class="card mb-4 text-center">
                 <div class="card-header bg-primary text-white">Consensus Analisti</div>
                 <div class="card-body">
+                    <!-- average rating e tp se non disponibili N/A (controllo fatto dal server) -->
                     <h3 class="card-title text-uppercase <?= $averageRating ?>"><?= $averageRating ?></h3>
                     <p class="card-text small text-muted">Target Price: <?= $company['currency'] ?>
                         <?= $averageTargetPrice ?>
                     </p>
                     <p class="card-text small text-muted"></p>
                 </div>
+                <!-- solo se c'è consensus viene mostrato bottone e tabella -->
                 <?php if ($consensus): ?>
                     <div class="card-footer p-0">
                         <button
@@ -222,7 +227,7 @@
 
             </div>
 
-
+            <!-- ultime N notizie passate -->
             <h5 class="border-bottom pb-2">Ultime Notizie</h5>
             <div class="list-group list-group-flush">
                 <?php if (!empty($latestNews)): ?>
@@ -247,9 +252,10 @@
     <?= $this->include('modals/modalCompanyNews') ?>
 
 </div>
-
+<!--  -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    //script per modal norizie, fetch ajax per ottenere newsBody formattato e altri campi news. 
     document.addEventListener('DOMContentLoaded', () => {
         const modalEl = document.getElementById('companyNewsModal');
         if (!modalEl) return;
@@ -264,7 +270,7 @@
                         if (!r.ok) throw new Error();
                         return r.json();
                     })
-                    .then((d) => {
+                    .then((d) => {//riempie moda viewCompanyNews
                         modalEl.querySelector('.modal-title').textContent = d.headline || '';
                         const sub = modalEl.querySelector('[data-news-field="subtitle"]');
                         const body = modalEl.querySelector('[data-news-field="body"]');
@@ -272,7 +278,7 @@
                         if (sub) sub.textContent = d.subtitle || '';
                         if (body) body.innerHTML = d.body || '';
                         const dt = d.date ? new Date(d.date).toLocaleString('it-IT') : '';
-                        if (meta) meta.textContent = (d.newspaper ? d.newspaper + ' — ' : '') + dt + (d.author ? ' — ' + d.author : '');
+                        if (meta) meta.textContent = (d.newspaper ? d.newspaper + ' — ' : '') + dt + (d.author ? ' — ' + d.author : '');//data, giornale e autore
                         modal.show();
                     })
                     .catch(() => alert('Impossibile caricare la notizia'));

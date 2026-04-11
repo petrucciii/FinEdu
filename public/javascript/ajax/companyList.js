@@ -1,6 +1,6 @@
 import renderPagination from '../control.js';
 
-//define global status for the query
+//variabile globale di stato per ricordare l'ultima ricerca
 let currentQuery = '';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,7 +13,7 @@ const searchCompany = () => {
 
     input.addEventListener('input', (e) => {
         currentQuery = e.target.value.trim();
-        loadCompanies(1, currentQuery); //pass the query to the loader
+        loadCompanies(1, currentQuery); //on input  viene caricata la prima pagina con la ricerca corrente
     });
 };
 
@@ -23,30 +23,33 @@ const loadCompanies = (page = 1, query = '') => {
         .then(data => {
             renderCompanies(data.companies);
 
-            //pass callback function
+            //funzione callback, al cambio pagina viene ricaricata con stato corrente (pagina e ricerca)
             renderPagination(data.pagination, (newPage) => {
                 loadCompanies(newPage, currentQuery);
             });
         })
-        .catch(err => console.error("Errore nel caricamento companies:", err)); // Always good to have a catch!
+        .catch(err => console.error("Errore nel caricamento companies:", err)); 
 }
 
 const renderCompanies = (companies) => {
     const tbody = document.getElementById('companiesTableBody');
     tbody.innerHTML = '';
 
-    //create a document fragmented (non rendered in the DOM) to append all the companies (rows). so that the DOM is updated only once
+    //crea un DocumentFragment (non renderizzato nel DOM) mettendo tutte le righe della società. così da fare un'unica operazione di inserimento nel DOM (più efficiente)
     const fragment = document.createDocumentFragment();
     companies.forEach((company, index) => fragment.appendChild(createCompanyRow(company, index)));
-    //upload the fragment into the tbody
+    //inserimento fragment nel DOM
     tbody.appendChild(fragment);
 };
 
 
+//crea una riga della tabella 
 const createCompanyRow = (company, index) => {
+    //copia elemento template (riga non renderizzata)
     const template = document.getElementById('companyRowTemplate');
     const tr = template.content.cloneNode(true).querySelector('tr');
 
+    //inserisce dati dellq società nella riga clonata
     const logoImg = tr.querySelector('[data-field="logo"]');
     if (company.logo_path && company.logo_path.trim() !== '') {
         logoImg.src = company.logo_path;

@@ -1,3 +1,5 @@
+<!-- funziona per la lista delle società sia lato admin che lato utente. -->
+
 <div id="content-wrapper">
 
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
@@ -5,6 +7,8 @@
         <div class="d-flex gap-2">
             <div class="d-flex justify-content-between align-items-center mb-4">
 
+            <!-- $adminSection controlla se l'utente proviene da un admin controller e quindi admin
+             in questo caso aggiunge bottone di aggiunta -->
                 <?php if ($adminSection): ?>
                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCompanyModal">
                         <i class="fas fa-plus"></i> Nuova Società
@@ -32,6 +36,7 @@
                     </div>
                 </div>
 
+                <!-- scheletro tabella -->
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table align-middle table-hover w-100" id="companiesTable">
@@ -58,6 +63,7 @@
         </div>
     </div>
 
+    <!-- elemento speciale non letto nel DOM, raapresenta una riga di una tabela che verrà valorizzata con ajax e clonata. una volta pronte saranno inserite in tbody -->
     <template id="companyRowTemplate">
         <tr>
             <td>
@@ -85,7 +91,7 @@
             </td>
         </tr>
     </template>
-
+    <!--  -->
     <?php if ($adminSection) { ?>
         <?= $this->include("modals/modalCompanyAdd"); ?>
     <?php } else { ?>

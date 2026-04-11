@@ -15,6 +15,7 @@ class OrderManagementController extends BaseController
         return $this->session->has('logged') && (int) $this->session->get('role_id') === 1;
     }
 
+    //load viewCompanyList con flag adminSection= true per mostare view admin
     public function index()
     {
         if (!$this->isAdmin()) {
@@ -39,6 +40,7 @@ class OrderManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //endpoint ajax
     public function search($query = '')
     {
         if (!$this->isAdmin()) {

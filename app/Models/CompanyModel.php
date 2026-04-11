@@ -20,7 +20,7 @@ class CompanyModel extends Model
         'ea_code',
         'active',
         'main_exchange',
-        'id_user', 
+        'id_user',
     ];
 
     //automatic update and creation timestamp

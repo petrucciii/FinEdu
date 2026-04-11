@@ -25,19 +25,20 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
+    //endpoint ajax
     public function search($where = '')
     {
         $userModel = model(UserModel::class);
         $allowedOrderFields = ['user_id', 'last_name, first_name', 'email', 'created_at'];
 
-        //only admin can search users, otherwise redirect to home page
+        //solo admin possono accedere a questo metodo
         if ($this->session->get('role_id') == 1 && $this->session->has('logged')) {
 
             $page = $this->request->getGet('page') ?? 1;
             $roleId = $this->request->getGet('role_id');
             $levelId = $this->request->getGet('level_id');
 
-            //validate ordering
+            //ordinamento
             $order = $this->request->getGet('order');
             $orderType = $this->request->getGet('order_type');
 
@@ -53,7 +54,7 @@ class UserManagementController extends BaseController
 
             $isExport = $this->request->getGet('export') ? true : false;
 
-            //call model method to handle logic
+
             $result = $userModel->searchAndPaginate(
                 $where,
                 $roleId,
@@ -64,13 +65,13 @@ class UserManagementController extends BaseController
                 $isExport
             );
 
-            //if is export mode pass everything at once not page by page
+            //se va esporatto in csv ritorna un unico array non impaginato
             if ($isExport) {
                 $columns = ['user_id', 'first_name', 'last_name', 'email', 'role_id', 'level_id', 'created_at'];
                 self::toCSV($result, $columns);
             }
 
-            //paginate results
+            //paginate
             $users = $result['users'];
             $pager = $result['pager'];
 
@@ -87,6 +88,7 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
+    //endpoint ajax
     public function settings($userId)
     {
         $userModel = model(UserModel::class);
@@ -95,7 +97,7 @@ class UserManagementController extends BaseController
 
         if ($this->session->has('logged') && $this->session->get('role_id') == 1 && isset($user[0])) {
             unset($user[0]['password']);
-            //return user data as json and all roles to populate dropdown 
+            //ritorna i dati come json 
             return $this->response->setJSON(['user' => $user[0], 'roles' => $roles]);
         }
 
@@ -107,7 +109,7 @@ class UserManagementController extends BaseController
         $allowedColumns = ['first_name', 'last_name', 'email', 'role_id'];
 
         $model = model(UserModel::class);
-        //if is admin and fields have been inserted
+        //se admin e ci sono i campi va avanti
         if ($this->session->has('logged') && $this->session->get('role_id') == 1 && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
 
@@ -136,9 +138,9 @@ class UserManagementController extends BaseController
             $admin = $model->fread(['users.user_id' => $this->session->get('user_id')]);
             $hashAdminPassword = $admin[0]['password'];
 
-            //admin's password needed to delete user
+            //necessaria possword admin per eliminazione
             if (password_verify($this->request->getPost('password'), $hashAdminPassword)) {
-                if ($model->fdelete($userId)) { //logical delete user
+                if ($model->fdelete($userId)) { //soft
                     return redirect()->back()->with('alert', 'Profilo eliminato!');
                 } else {
                     return redirect()->back()->with('alert', 'Profilo non eliminato!');
@@ -159,7 +161,7 @@ class UserManagementController extends BaseController
             if ($this->request->getPost('email') && $this->request->getPost('password') && $this->request->getPost('first_name') && $this->request->getPost('last_name') && $this->request->getPost('role_id')) {
                 $data = [
                     'email' => strtolower(trim($this->request->getPost('email'))),
-                    'password' => $this->request->getPost('password'), //hashing is done in the model
+                    'password' => $this->request->getPost('password'), //hashing fatto nel model
                     'first_name' => ucwords(strtolower(trim($this->request->getPost('first_name')))),
                     'last_name' => ucwords(strtolower(trim($this->request->getPost('last_name')))),
                     'role_id' => (int) $this->request->getPost('role_id'),
@@ -177,20 +179,20 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
-    //return a CSV file
+    //ritorna un CSV file
     public static function toCSV($mdArray, $columns)
     {
-        //file specifics
+        //header richiesta http
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename=users_export.csv');
 
-        //output stream: send the response to an output window like an echo
+        //php manda la risposta ad uno stream di output
         $output = fopen('php://output', 'w');
 
-        //header of the csv
+        //header del csv
         fputcsv($output, $columns);
 
-        //populate csv
+        //popolamento csv
         foreach ($mdArray as $user) {
             $row = [];
             foreach ($columns as $column) {

@@ -10,11 +10,12 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label>Email</label>
-                        <input type="email" name="email" class="form-control" required value="<?= old('email') ?>">
+                        <input type="email" name="email" placeholder="riccardo.petrucci99@gmail.com"
+                            class="form-control" required value="<?= old('email') ?>">
                     </div>
                     <div class="mb-3">
                         <label>Password</label>
-                        <input type="password" name="password" class="form-control" requireds>
+                        <input type="password" name="password" placeholder="Pass" class="form-control" requireds>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="rememberMe">

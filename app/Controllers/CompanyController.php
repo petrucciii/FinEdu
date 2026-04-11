@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\CompanyModel;
+use App\Models\PortfolioModel;
 use App\Models\SectorModel;
 use App\Models\CurrencyModel;
 use App\Models\CountryModel;
@@ -85,13 +86,11 @@ class CompanyController extends BaseController
         $board = $boardModel->findBoardPerCompany($isin);
         $shareholders = $shareholderModel->findShareholdersPerCompany($isin);
 
-        //recupera l'ultimo prezzo dal primo listing attivo della societa.
-        //il listing[0] e il principale (ordinato per mic asc)
-        $listings = model(ListingModel::class)->findActiveByIsin($isin);
-        $latestPriceLine = null;
-        if (!empty($listings)) {
-            $latestPriceLine = model(PriceModel::class)->getLatestForListing($listings[0]['ticker'], $listings[0]['mic']);
-        }
+        //recupera l'ultimo prezzo dal main listing della societa.
+        $mainListing = self::getMainExchange($isin);
+        if ($mainListing)
+            $latestPriceLine = model(PriceModel::class)->getLatestForListing($mainListing['ticker'], $mainListing['mic']);
+
 
         //prepara prezzo e data ultimo aggiornamento per la view
         $displayPrice = $latestPriceLine['price'] ?? '-';
@@ -120,7 +119,9 @@ class CompanyController extends BaseController
             'financialData' => self::buildFinancialArray($financialData),
             'board' => $board,
             'shareholders' => $shareholders,
-            'listings' => $listings,
+            'listings' => model(ListingModel::class)->findActiveByIsin($isin),
+            'mainListing' => $mainListing,
+            'userPortfolios' => model(PortfolioModel::class)->findActiveByUser(session()->get('user_id')),
             'countries' => model(CountryModel::class)->findAll(),
             'currencies' => model(CurrencyModel::class)->findAll(),
             'sectors' => model(SectorModel::class)->findAll(),
@@ -145,13 +146,14 @@ class CompanyController extends BaseController
     //per il range MAX usa solo "mese anno" (es. "Mar 2024") per leggibilita
     private function getChartData($isin, $range)
     {
-        $listings = model(ListingModel::class)->findActiveByIsin($isin);
-        if (empty($listings)) {
-            return ['labels' => [], 'values' => []];
+        $mainListing = self::getMainExchange($isin);
+
+        if (!$mainListing) {
+            return false;
         }
 
+
         //usa il primo listing come riferimento per i prezzi
-        $mainListing = $listings[0];
         $prices = model(PriceModel::class)->getDailySeriesForChart($mainListing['ticker'], $mainListing['mic'], $range);
 
         $labels = [];
@@ -175,6 +177,29 @@ class CompanyController extends BaseController
         }
 
         return ['labels' => $labels, 'values' => $values];
+    }
+
+    public static function getMainExchange($isin)
+    {
+
+        $company = model(CompanyModel::class)->getCompanyByISIN($isin);
+        $listings = model(ListingModel::class)->findActiveByIsin($isin);
+
+        if (empty($company) || empty($listings) || !$company || !$listings) {
+            return false;
+        }
+        $mainExchange = $company['main_exchange'];
+
+        $mainListing = "";
+
+        foreach ($listings as $l) {
+            if ($l['mic'] == $mainExchange) {
+                $mainListing = $l;
+                break;
+            }
+        }
+
+        return $mainListing;
     }
 
     //endpoint ajax per caricare il body di una news nel modal di lettura (viewCompany).
@@ -234,7 +259,7 @@ class CompanyController extends BaseController
 
         try {
             $avgTP = array_sum($targetPrices) / count($targetPrices);
-            return $avgTP;
+            return format_number($avgTP, 2);
         } catch (Throwable $e) {
             return "N/A";
         }
