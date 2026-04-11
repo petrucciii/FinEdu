@@ -347,3 +347,19 @@
      padding: 0.75rem !important;
      min-height: 150px;
  }
+
+ /* tabella bilanci admin: input più larghi per leggibilità */
+ .financial-sheet td input.form-control,
+ .financial-sheet td select.form-select {
+     min-width: 7rem;
+ }
+
+ /* tabella bilanci viewCompany: colonne valori più larghe */
+ .financial-view-table td {
+     min-width: 110px;
+ }
+
+ /* tabella bilanci admin: assicura CdA e azionisti abbiano input leggibili */
+ .board-member-form input.form-control {
+     min-width: 12rem;
+ }

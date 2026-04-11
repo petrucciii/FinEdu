@@ -1,10 +1,14 @@
 <div class="container mt-4 mb-5" style="min-height: 80vh;">
     <!-- header -->
     <div class="row mb-4">
-        <div class="col-md-1 d-flex align-items-center justify-content-center">
-            <img src="<?= $company['logo_path'] ?>" class="img-fluid rounded" alt="Logo">
-        </div>
-        <div class="col-md-7">
+        <?php if (isset($company['logo_path'])): ?>
+            <div class="col-3 col-md-1 d-flex align-items-center justify-content-center">
+
+                <img src="<?= $company['logo_path'] ?>" class="img-fluid rounded" alt="Logo"
+                    style="max-width: 60px; max-height: 60px; object-fit: contain;">
+            </div>
+        <?php endif; ?>
+        <div class="col-9 col-md-7">
             <h1 class="display-5 fw-bold">
                 <?= $company['name'] ?>
             </h1>
@@ -67,24 +71,25 @@
             </ul>
 
             <div class="tab-content bg-white p-3 border border-top-0 rounded-bottom shadow-sm">
-            <!-- bilanci -->
+                <!-- bilanci -->
                 <div class="tab-pane fade show active" id="financials">
                     <?php if ($financialData): ?>
                         <h5 class="mb-3">Bilancio (Dati in <?= $financialData['currency_code'] ?> Migliaia)</h5>
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped">
+                            <table class="table table-sm table-striped" style="min-width: 700px;">
                                 <thead>
                                     <tr>
-                                        <th>Voce</th>
+                                        <th class="text-nowrap" style="min-width: 200px;">Voce</th>
                                         <?php foreach ($financialData['years'] as $yearLabel): ?>
-                                            <th class="text-end"><?= esc($yearLabel) ?></th>
+                                            <th class="text-end text-nowrap" style="min-width: 110px;"><?= esc($yearLabel) ?>
+                                            </th>
                                         <?php endforeach; ?>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($financialData['rows'] as $key => $rowData): ?>
                                         <tr>
-                                            <td>
+                                            <td class="text-nowrap">
                                                 <?= esc($rowData['label']) ?>
                                             </td>
 

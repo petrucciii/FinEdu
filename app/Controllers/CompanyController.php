@@ -248,18 +248,34 @@ class CompanyController extends BaseController
     }
 
     //calcola la media dei target price degli analisti.
-    //restituisce il valore numerico o "N/A" se non ci sono consensus
+    //restituisce il valore numerico o "N/A" se non ci sono consensus con target price
+    //calcola la media dei target price degli analisti.
+    //restituisce il valore numerico o "N/A" se non ci sono consensus con target price
     private static function getAverageTargetPrice($consensus)
     {
         $targetPrices = [];
 
+        if (empty($consensus)) {
+            return "N/A";
+        }
+
         foreach ($consensus as $c) {
-            array_push($targetPrices, $c['target_price']);
+            // Estrae il target price e lo converte in float se è numerico
+            $tp = $c['target_price'] ?? null;
+
+            if ($tp !== null && $tp !== '' && is_numeric($tp) && (float) $tp > 0) {
+                $targetPrices[] = (float) $tp;
+            }
+        }
+
+        if (empty($targetPrices)) {
+            return "N/A";
         }
 
         try {
             $avgTP = array_sum($targetPrices) / count($targetPrices);
-            return format_number($avgTP, 2);
+            // Uso number_format (standard PHP) per evitare errori su funzioni custom mancanti
+            return number_format($avgTP, 2, ',', '.');
         } catch (Throwable $e) {
             return "N/A";
         }

@@ -152,6 +152,7 @@ $finNumVal = static function ($v) {
                             class="row g-2 align-items-end mb-4 p-3 bg-light rounded-3 border">
                             <!-- isin nascosto da passare al server -->
                             <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                            <input type="hidden" name="active_tab" value="listings">
                             <div class="col-6 col-md-3">
                                 <!-- ticker -->
                                 <label class="form-label small fw-bold mb-1">Ticker</label>
@@ -228,6 +229,7 @@ $finNumVal = static function ($v) {
                             class="d-none" aria-hidden="true">
                             <input type="hidden" name="isin" value="<?= esc($company['isin'], 'attr') ?>">
                             <input type="hidden" name="is_edit" value="0">
+                            <input type="hidden" name="active_tab" value="financials">
                         </form>
 
                         <!-- genera un form nascosto per ogni bilancio esistente per permettere l'aggiornamento (edit) via id form -->
@@ -236,6 +238,7 @@ $finNumVal = static function ($v) {
                                 action="<?= esc($finAction, 'attr') ?>" method="post" class="d-none" aria-hidden="true">
                                 <input type="hidden" name="isin" value="<?= esc($company['isin'], 'attr') ?>">
                                 <input type="hidden" name="is_edit" value="1">
+                                <input type="hidden" name="active_tab" value="financials">
                             </form>
                         <?php endforeach; ?>
 
@@ -248,6 +251,7 @@ $finNumVal = static function ($v) {
                                 <form action="<?= base_url('admin/CompanyManagementController/importFinancialXml') ?>"
                                     method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
                                     <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                                    <input type="hidden" name="active_tab" value="financials">
 
                                     <!-- selezione del tipo di dato (es. annuale, trimestrale) per l'import xml -->
                                     <div class="col-12 col-md-3">
@@ -289,15 +293,17 @@ $finNumVal = static function ($v) {
                         <!-- tabella principale per la visualizzazione e l'editing manuale dei singoli esercizi -->
                         <div class="table-responsive border rounded-3 bg-white" style="max-height:70vh;">
                             <table class="table table-sm table-bordered align-middle mb-0 financial-sheet"
-                                style="min-width: 1480px;">
+                                style="min-width: 1800px;">
                                 <thead class="table-light sticky-top">
                                     <tr class="small text-nowrap">
-                                        <th>Anno</th>
-                                        <th>Tipo dato</th>
-                                        <th>Valuta</th>
+                                        <th style="min-width: 6rem;">Anno</th>
+                                        <th style="min-width: 9rem;">Tipo dato</th>
+                                        <th style="min-width: 5rem;">Valuta</th>
                                         <!-- cicla le etichette dei campi finanziari per le intestazioni della tabella -->
                                         <?php foreach ($finCols as $col): ?>
-                                            <th title="<?= esc($col) ?>"><?= esc($financialLabels[$col] ?? $col) ?></th>
+                                            <th title="<?= esc($col) ?>" style="min-width: 8rem;">
+                                                <?= esc($financialLabels[$col] ?? $col) ?>
+                                            </th>
                                         <?php endforeach; ?>
                                         <th class="text-end text-wrap" style="min-width:5.5rem;">Azioni</th>
                                     </tr>
@@ -420,6 +426,7 @@ $finNumVal = static function ($v) {
                         <form action="<?= base_url('admin/CompanyManagementController/addBoardMember') ?>" method="post"
                             class="row g-2 align-items-end mb-4 p-3 bg-light rounded-3 border">
                             <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                            <input type="hidden" name="active_tab" value="board">
                             <div class="col-12 col-md-5">
                                 <label class="form-label small fw-bold mb-1">Membro</label>
                                 <!-- lista persone esistenti -->
@@ -448,7 +455,7 @@ $finNumVal = static function ($v) {
 
                         <!-- lista cda -->
                         <div class="table-responsive">
-                            <table class="table table-sm align-middle border mb-0">
+                            <table class="table table-sm align-middle border mb-0" style="min-width: 600px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Membro</th>
@@ -470,7 +477,7 @@ $finNumVal = static function ($v) {
                                                         membro -->
                                                     <div class="d-flex align-items-center" style="min-width: 250px;">
                                                         <!-- immagine rotonda con fallback se il percorso non esiste o è vuoto -->
-                                                        <img src="<?= base_url($member['picture_path'] ?: 'assets/img/default-avatar.png') ?>"
+                                                        <img src="<?= base_url($member['picture_path'] ?: '/images/board/default-avatar.png') ?>"
                                                             class="rounded-circle me-2 border"
                                                             style="width: 40px; height: 40px; object-fit: cover;" alt="Profile">
 
@@ -483,13 +490,15 @@ $finNumVal = static function ($v) {
                                                     <form
                                                         action="<?= base_url('admin/CompanyManagementController/updateBoardMember') ?>"
                                                         method="post"
-                                                        class="d-flex flex-wrap gap-3 align-items-center mb-0 p-2 border-bottom">
+                                                        class="d-flex gap-2 align-items-center mb-0 board-member-form" class="d-flex flex-wrap gap-3 align-items-center mb-0 p-2
+                                                        border-bottom">
 
                                                         <!-- campi nascosti per identificare l'azienda e il membro del board
                                                             durante il salvataggio -->
                                                         <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
                                                         <input type="hidden" name="member_id"
                                                             value="<?= esc($member['member_id']) ?>">
+                                                        <input type="hidden" name="active_tab" value="board">
 
 
                                                         <div class="flex-grow-1">
@@ -531,6 +540,7 @@ $finNumVal = static function ($v) {
                         <form action="<?= base_url('admin/CompanyManagementController/addShareholder') ?>" method="post"
                             class="row g-2 align-items-end mb-4 p-3 bg-light rounded-3 border">
                             <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                            <input type="hidden" name="active_tab" value="shareholders">
                             <div class="col-12 col-md-6">
                                 <label class="form-label small fw-bold mb-1">Fondo / società</label>
                                 <select name="firm_id" class="form-select form-select-sm" required>
@@ -556,7 +566,7 @@ $finNumVal = static function ($v) {
                         </form>
                         <!-- shareholders esistenti -->
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle border mb-0">
+                            <table class="table table-hover align-middle border mb-0" style="min-width: 550px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th style="width: 60%;">Fondo / società</th>
@@ -582,8 +592,9 @@ $finNumVal = static function ($v) {
                                                         <!-- campi nascosti da passare a controller -->
                                                         <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
                                                         <input type="hidden" name="firm_id" value="<?= esc($sh['firm_id']) ?>">
+                                                        <input type="hidden" name="active_tab" value="shareholders">
 
-                                                        <div class="input-group input-group-sm" style="width: 100px;">
+                                                        <div class="input-group input-group-sm" style="width: 130px;">
                                                             <input type="number" name="ownership" class="form-control"
                                                                 step="0.01" min="0" max="100"
                                                                 value="<?= esc($sh['ownership']) ?>" required>
@@ -621,6 +632,7 @@ $finNumVal = static function ($v) {
                             class="row g-2 align-items-end mb-4 p-3 bg-light rounded-3 border">
                             <!-- isin da passare a controller -->
                             <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                            <input type="hidden" name="active_tab" value="consensus">
                             <div class="col-12 col-md-3">
                                 <label class="form-label small fw-bold mb-1">Banca d'Affari</label>
                                 <select name="firm_id" class="form-select form-select-sm" required>
@@ -657,7 +669,7 @@ $finNumVal = static function ($v) {
                         </form>
                         <!-- elenco consensus società -->
                         <div class="table-responsive">
-                            <table class="table table-sm align-middle border mb-0">
+                            <table class="table table-sm align-middle border mb-0" style="min-width: 700px;">
                                 <thead class="table-light">
                                     <tr>
                                         <th style="width: 40%;">Banca d'Affari</th>
@@ -684,6 +696,8 @@ $finNumVal = static function ($v) {
 
                                                         <input type="hidden" name="analysis_id"
                                                             value="<?= esc($row['analysis_id']) ?>">
+                                                        <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                                                        <input type="hidden" name="active_tab" value="consensus">
 
                                                         <div class="flex-grow-1" style="min-width: 10rem;">
                                                             <input type="date" name="date" class="form-control form-control-sm"
@@ -738,3 +752,20 @@ $finNumVal = static function ($v) {
         </div>
     </div>
 </div>
+
+<script>
+    // Restore tab focus based on session flash data passed from controller
+    document.addEventListener('DOMContentLoaded', function () {
+        // First, check if there's a tab parameter from session flash data passed from PHP
+        const tabName = '<?= isset($activeTab) ? esc($activeTab, 'js') : 'info' ?>';
+
+        if (tabName && tabName !== 'info') {
+            const tabElement = document.querySelector(`[data-bs-target="#${tabName}"]`);
+            if (tabElement) {
+                // Use Bootstrap Tab to activate the tab
+                const tab = new bootstrap.Tab(tabElement);
+                tab.show();
+            }
+        }
+    });
+</script>

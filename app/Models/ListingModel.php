@@ -29,14 +29,24 @@ class ListingModel extends Model
 
     public function insertRow(array $row): bool
     {
-        return $this->insert($row);
+        try {
+            return $this->insert($row);
+        } catch (\Throwable $th) {
+            return false;
+        }
+
     }
 
     public function deleteRow(string $ticker, string $mic): bool
     {
-        return $this->where('ticker', $ticker)
-            ->where('mic', $mic)
-            ->update(['active' => 0]);
+        try {
+            return (bool) $this->db->table($this->table)
+                ->where('ticker', trim($ticker))
+                ->where('mic', trim($mic))
+                ->update(['active' => 0]);
+        } catch (\Throwable $th) {
+            return false;
+        }
     }
 
     //listings attive con MIC per Yahoo, solo borse attualmente aperte (CET) 

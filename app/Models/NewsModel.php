@@ -131,11 +131,11 @@ class NewsModel extends Model
             ->findAll();
     }
 
-    //recupera headline + body di una news per il modal di lettura lato utente (viewCompany).
+    //recupera tutti i campi di una news (headline, subtitle, body, author, date, newspaper) per il modal di lettura lato utente (viewCompany).
     //verifica che la news sia effettivamente collegata all'isin richiesto
     public function getBodyJson(int $newsId, string $isin): ?array
     {
-        $row = $this->select(' news.body')
+        $row = $this->select('news.headline, news.subtitle, news.body, news.author, news.date, newspapers.newspaper')
             ->join('companies_news', 'companies_news.news_id = news.news_id')
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')//left join cosi anche se non ha news collegate ritorna qualcosa
             ->where('news.news_id', $newsId)

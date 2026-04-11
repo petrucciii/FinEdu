@@ -22,6 +22,13 @@ class CompanyManagementController extends BaseController
         return $this->session->has('logged') && (int) $this->session->get('role_id') === 1;
     }
 
+    //legge il parametro active_tab dal POST per mantenere il focus sulla tab corrente dopo il redirect
+    private function getActiveTab(string $default = 'info'): string
+    {
+        $tab = trim((string) $this->request->getPost('active_tab'));
+        return !empty($tab) ? $tab : $default;
+    }
+
     //etichette bilanci allineate a CompanyController::buildFinancialArray (stessi testi)
     public static function financialLabelsForManagement(): array
     {
@@ -139,6 +146,7 @@ class CompanyManagementController extends BaseController
             'financialLabels' => self::financialLabelsForManagement(),
             'boardMemberCreateUrl' => base_url('admin/BoardMembersController/create'),
             'adminSection' => true,
+            'activeTab' => session()->getFlashdata('tab') ?? 'info',
         ];
 
         echo view('templates/header');
@@ -201,9 +209,7 @@ class CompanyManagementController extends BaseController
             'active' => 1,
         ]);
 
-        return $ok
-            ? redirect()->back()->with('alert', 'Quotazione aggiunta con successo.')
-            : redirect()->back()->with('alert', 'Impossibile aggiungere la quotazione (verifica ticker/MIC o vincoli DB).')->with('alert_type', 'danger');
+        return redirect()->back()->with('alert', 'Quotazione aggiunta con successo.');
     }
 
     //elimina listing
@@ -213,9 +219,14 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/');
         }
 
-        model(ListingModel::class)->deleteRow(rawurldecode($ticker), rawurldecode($mic));
+        $ticker = trim(rawurldecode($ticker));
+        $mic = trim(rawurldecode($mic));
 
-        return redirect()->back()->with('alert', 'Quotazione rimossa.');
+        if (model(ListingModel::class)->deleteRow($ticker, $mic)) {
+            return redirect()->back()->with('alert', 'Quotazione rimossa.')->with('tab', 'listings');
+        }
+
+        return redirect()->back()->with('alert', 'Impossibile rimuovere la quotazione.')->with('alert_type', 'danger')->with('tab', 'listings');
     }
 
     //import bilanci da file XML (standard progetto): upsert per anno su tabella data
@@ -234,11 +245,11 @@ class CompanyManagementController extends BaseController
         $file = $this->request->getFile('xml_file');
 
         if ($isin === '' || $typeId < 1 || $currency === '') {
-            return redirect()->back()->with('alert', 'Tipo dato, valuta e ISIN sono obbligatori per l\'import.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Tipo dato, valuta e ISIN sono obbligatori per l\'import.')->with('alert_type', 'danger')->with('tab', 'financials');
         }
 
         if (!$file || !$file->isValid()) {
-            return redirect()->back()->with('alert', 'File XML non valido o mancante.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'File XML non valido o mancante.')->with('alert_type', 'danger')->with('tab', 'financials');
         }
 
         //cartella scrittura per upload temporanei XML
@@ -311,9 +322,10 @@ class CompanyManagementController extends BaseController
         //se salva è stato fatto da una riga esistente
         $isEdit = $this->request->getPost('is_edit') === '1';
         $year = (int) $this->request->getPost('year');
+        $tab = $this->getActiveTab('financials');
 
         if ($year < 1900 || $year > 2100) {
-            return redirect()->back()->with('alert', 'Anno non valido.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Anno non valido.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $payload = $this->buildFinancialPayload();
@@ -332,8 +344,8 @@ class CompanyManagementController extends BaseController
         }
 
         return $ok
-            ? redirect()->back()->with('alert', $msg)
-            : redirect()->back()->with('alert', $msg)->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', $msg)->with('tab', $tab)
+            : redirect()->back()->with('alert', $msg)->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //elimina bilancio
@@ -345,7 +357,7 @@ class CompanyManagementController extends BaseController
 
         model(FinancialDataModel::class)->deleteRow(rawurldecode($isin), (int) $year);
 
-        return redirect()->back()->with('alert', 'Bilancio rimosso.');
+        return redirect()->back()->with('alert', 'Bilancio rimosso.')->with('tab', 'financials');
     }
 
     //aggiunge membro cda di una societa
@@ -361,9 +373,10 @@ class CompanyManagementController extends BaseController
         $memberId = (int) $rawMember;
         $role = trim((string) $this->request->getPost('role'));
         $idUser = $this->session->get('user_id');
+        $tab = $this->getActiveTab('board');
 
         if ($role === '' || $memberId < 1) {
-            return redirect()->back()->with('alert', 'Ruolo e membro sono obbligatori.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Ruolo e membro sono obbligatori.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(BoardModel::class)->insertRow([
@@ -374,8 +387,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Membro associato al CdA.')
-            : redirect()->back()->with('alert', 'Impossibile aggiungere il membro (già presente o errore DB).')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Membro associato al CdA.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Impossibile aggiungere il membro (già presente o errore DB).')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //update membro board
@@ -388,9 +401,10 @@ class CompanyManagementController extends BaseController
         $isin = trim((string) $this->request->getPost('isin'));
         $memberId = (int) $this->request->getPost('member_id');
         $role = trim((string) $this->request->getPost('role'));
+        $tab = $this->getActiveTab('board');
 
         if ($role === '') {
-            return redirect()->back()->with('alert', 'Il ruolo non può essere vuoto.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Il ruolo non può essere vuoto.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(BoardModel::class)->updateRow($isin, $memberId, [
@@ -400,8 +414,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Ruolo aggiornato.')
-            : redirect()->back()->with('alert', 'Aggiornamento ruolo non riuscito.')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Ruolo aggiornato.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Aggiornamento ruolo non riuscito.')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //elimina membro del board
@@ -413,7 +427,7 @@ class CompanyManagementController extends BaseController
 
         model(BoardModel::class)->deleteRow(rawurldecode($isin), (int) $member_id);
 
-        return redirect()->back()->with('alert', 'Membro rimosso dal CdA.');
+        return redirect()->back()->with('alert', 'Membro rimosso dal CdA.')->with('tab', 'board');
     }
 
     //aggiunge azionista
@@ -426,9 +440,10 @@ class CompanyManagementController extends BaseController
         $isin = trim((string) $this->request->getPost('isin'));
         $firmId = (int) $this->request->getPost('firm_id');
         $ownership = $this->request->getPost('ownership');
+        $tab = $this->getActiveTab('shareholders');
 
         if ($firmId < 1 || $ownership === '' || $ownership === null) {
-            return redirect()->back()->with('alert', 'Fondo e quota sono obbligatori.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Fondo e quota sono obbligatori.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(ShareholderModel::class)->insertRow([
@@ -439,8 +454,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Azionista associato.')
-            : redirect()->back()->with('alert', 'Impossibile aggiungere l\'azionista (già presente o dati non validi).')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Azionista associato.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Impossibile aggiungere l\'azionista (già presente o dati non validi).')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //aggiorna ownership shareholder
@@ -453,9 +468,10 @@ class CompanyManagementController extends BaseController
         $isin = trim((string) $this->request->getPost('isin'));
         $firmId = (int) $this->request->getPost('firm_id');
         $ownership = $this->request->getPost('ownership');
+        $tab = $this->getActiveTab('shareholders');
 
         if ($ownership === '' || $ownership === null) {
-            return redirect()->back()->with('alert', 'Quota non valida.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Quota non valida.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(ShareholderModel::class)->updateRow($isin, $firmId, [
@@ -465,8 +481,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Quota aggiornata.')
-            : redirect()->back()->with('alert', 'Aggiornamento quota non riuscito.')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Quota aggiornata.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Aggiornamento quota non riuscito.')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     public function deleteShareholder($firm_id, $isin)
@@ -477,7 +493,7 @@ class CompanyManagementController extends BaseController
 
         model(ShareholderModel::class)->deleteRow(rawurldecode($isin), (int) $firm_id);
 
-        return redirect()->back()->with('alert', 'Azionista rimosso.');
+        return redirect()->back()->with('alert', 'Azionista rimosso.')->with('tab', 'shareholders');
     }
 
     //aggiunge una riga consensus analisti
@@ -493,9 +509,10 @@ class CompanyManagementController extends BaseController
         $date = trim((string) $this->request->getPost('date'));
         $targetRaw = $this->request->getPost('target_price');
         $targetPrice = ($targetRaw === '' || $targetRaw === null) ? null : (float) $targetRaw;
+        $tab = $this->getActiveTab('consensus');
 
         if ($isin === '' || $firmId < 1 || $ratingId < 1 || $date === '') {
-            return redirect()->back()->with('alert', 'Società, casa d’analisi, data e rating sono obbligatori.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', "Società, casa d'analisi, data e rating sono obbligatori.")->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(AnalystConsensusModel::class)->insertRow([
@@ -509,8 +526,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Consensus aggiunto.')
-            : redirect()->back()->with('alert', 'Impossibile salvare il consensus.')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Consensus aggiunto.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Impossibile salvare il consensus.')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //aggiorna data, rating e prezzo obiettivo
@@ -525,9 +542,10 @@ class CompanyManagementController extends BaseController
         $date = trim((string) $this->request->getPost('date'));
         $targetRaw = $this->request->getPost('target_price');
         $targetPrice = ($targetRaw === '' || $targetRaw === null) ? null : (float) $targetRaw;
+        $tab = $this->getActiveTab('consensus');
 
         if ($analysisId < 1 || $ratingId < 1 || $date === '') {
-            return redirect()->back()->with('alert', 'Dati consensus non validi.')->with('alert_type', 'danger');
+            return redirect()->back()->with('alert', 'Dati consensus non validi.')->with('alert_type', 'danger')->with('tab', $tab);
         }
 
         $ok = model(AnalystConsensusModel::class)->updateRow($analysisId, [
@@ -539,8 +557,8 @@ class CompanyManagementController extends BaseController
         ]);
 
         return $ok
-            ? redirect()->back()->with('alert', 'Consensus aggiornato.')
-            : redirect()->back()->with('alert', 'Aggiornamento consensus non riuscito.')->with('alert_type', 'danger');
+            ? redirect()->back()->with('alert', 'Consensus aggiornato.')->with('tab', $tab)
+            : redirect()->back()->with('alert', 'Aggiornamento consensus non riuscito.')->with('alert_type', 'danger')->with('tab', $tab);
     }
 
     //elimina un record consensus
@@ -550,10 +568,11 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/');
         }
 
-        if (model(AnalystConsensusModel::class)->deleteRow((int) $analysis_id))
-            return redirect()->back()->with('alert', 'Consensus eliminato.');
-        else
-            return redirect()->back()->with('alert', 'Impossibile eliminare il consensus.')->with('alert_type', 'danger');
+        if (model(AnalystConsensusModel::class)->deleteRow((int) $analysis_id)) {
+            return redirect()->back()->with('alert', 'Consensus eliminato.')->with('tab', 'consensus');
+        } else {
+            return redirect()->back()->with('alert', 'Impossibile eliminare il consensus.')->with('alert_type', 'danger')->with('tab', 'consensus');
+        }
     }
 
     /**
