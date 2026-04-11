@@ -119,7 +119,7 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda non trovata')->with('alert_type', 'danger');
         }
 
-        $db = \Config\Database::connect();//da cambiare, usare i model
+        $db = db_connect();//da cambiare, usare i model
 
         $data = [
             'company' => $company,
