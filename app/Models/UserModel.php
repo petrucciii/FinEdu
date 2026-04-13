@@ -128,7 +128,7 @@ class UserModel extends Model
         ];
     }
 
-    //count users by role
+    //conta utenti per ruolo (dashboard)
     public function countUsersByRole(int $roleId)
     {
         try {
