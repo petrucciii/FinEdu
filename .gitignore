@@ -133,3 +133,5 @@ yarn-error.log
 /writable/logs/*
 /writable/session/*
 /writable/uploads/*
+
+finedu-schema.sql
