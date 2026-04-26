@@ -41,6 +41,20 @@ class CompanyModel extends Model
             ->first();//prende solo la prima (l'unica), cosi da non avere un array dentro un altro array come in findAll()
     }
 
+    public function findActiveOrdered(): array
+    {
+        //elenco aziende attive per select e filtri admin.
+        return $this->where('active', 1)
+            ->orderBy('name', 'ASC')
+            ->findAll();
+    }
+
+    public function countActive(): int
+    {
+        //conta aziende attive per dashboard admin.
+        return (int) $this->where('active', 1)->countAllResults();
+    }
+
     //ricerca e impagina risultato per la view di elenco società
     public function searchAndPaginate(string $searchQuery, int $page)
     {

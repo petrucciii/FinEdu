@@ -317,15 +317,4 @@ class OrderModel extends Model
             ->findAll();
     }
 
-    //recupera le ultime notizie attive. metodo un po' fuori posto (dovrebbe stare in NewsModel) ma comodo per la dashboard.
-    public function findRecentNewsForDashboard(int $limit = 5): array
-    {
-        return $this->db->table('news')
-            ->select('news.headline, news.date')
-            ->where('news.active', 1)
-            ->orderBy('news.date', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
-    }
 }

@@ -27,7 +27,7 @@ class NewsManagementController extends BaseController
 
         $data = [
             'newspapers' => model(NewspaperModel::class)->listActive(),
-            'companies' => model(CompanyModel::class)->where('active', 1)->orderBy('name', 'ASC')->findAll(),
+            'companies' => model(CompanyModel::class)->findActiveOrdered(),
             'adminSection' => true,
         ];
 

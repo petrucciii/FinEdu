@@ -1,3 +1,18 @@
+<?php
+$profileUser = $user ?? [];
+$firstName = $profileUser['first_name'] ?? session()->get('first_name') ?? '';
+$lastName = $profileUser['last_name'] ?? session()->get('last_name') ?? '';
+$displayName = trim($firstName . ' ' . $lastName);
+$email = $profileUser['email'] ?? session()->get('email') ?? '';
+$level = $profileUser['level'] ?? session()->get('level') ?? '-';
+$experience = (int) ($profileUser['experience'] ?? session()->get('experience') ?? 0);
+$modules = $modules ?? [];
+$recentAttempts = $recentAttempts ?? [];
+$overallPercent = (int) ($progressPercent ?? 0);
+$completedLessons = (int) ($completedLessons ?? 0);
+$totalLessons = (int) ($totalLessons ?? 0);
+?>
+
 <div class="container mb-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -6,119 +21,34 @@
                 <div class="profile-cover"></div>
 
                 <div class="profile-info-overlay">
-
-                    <!-- stampa dati salvati in sessione -->
                     <div class="user-details-text">
                         <h3 class="fw-bold text-dark">
-                            <?= session()->get('first_name') . " " . session()->get('last_name') ?>
+                            <?= esc($displayName) ?>
                         </h3>
                         <span class="user-email-pill">
                             <i class="far fa-envelope me-1"></i>
-                            <?= session()->get('email') ?>
+                            <?= esc($email) ?>
                         </span>
                     </div>
                 </div>
 
                 <ul class="nav nav-tabs border-0 px-4 mt-2" id="profileTab" role="tablist">
-                    <li class="nav-item">
-                    <li class="nav-item">
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="settings-tab" data-bs-toggle="tab"
-                            data-bs-target="#settings" type="button">Impostazioni</button>
+                            data-bs-target="#settings" type="button" role="tab" aria-controls="settings"
+                            aria-selected="true">Impostazioni</button>
                     </li>
-                    <button class="nav-link" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview"
-                        type="button">Attività</button>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
+                            type="button" role="tab" aria-controls="activity" aria-selected="false">Attivit&agrave;</button>
                     </li>
-
                 </ul>
             </div>
 
             <div class="tab-content" id="profileTabContent">
-
-                <!-- NON ANCORA DINAMICA -->
-                <div class="tab-pane fade" id="overview">
-                    <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center">
-                                <h6 class="text-muted text-uppercase small fw-bold">Esperienza</h6>
-                                <h3 class="fw-bold text-primary">1,450 XP</h3>
-                                <div class="progress mt-3" style="height: 10px; border-radius: 5px;">
-                                    <div class="progress-bar" style="width: 65%"></div>
-                                </div>
-                                <small class="text-muted mt-2 d-block">Livello: Intermedio</small>
-                            </div>
-
-                            <div class="card border-0 shadow-sm rounded-4 p-4">
-                                <h6 class="fw-bold mb-3">Moduli</h6>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between small mb-1">
-                                        <span>Basi della Borsa</span>
-                                        <span class="text-success fw-bold">100%</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar bg-success" style="width: 100%"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="d-flex justify-content-between small mb-1">
-                                        <span>Analisi Bilancio</span>
-                                        <span class="text-primary fw-bold">45%</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar" style="width: 45%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-8">
-                            <div class="card border-0 shadow-sm rounded-4 mb-4">
-                                <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-3">I miei Portafogli</h5>
-                                    <div class="row g-3">
-                                        <div class="col-6">
-                                            <div class="p-3 border rounded-3">
-                                                <small class="text-muted d-block">Lungo Termine</small>
-                                                <span class="fw-bold">€ 5.240</span>
-                                                <span class="text-success small ms-2">+4%</span>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="p-3 border rounded-3">
-                                                <small class="text-muted d-block">Trading Test</small>
-                                                <span class="fw-bold">€ 950</span>
-                                                <span class="text-danger small ms-2">-1%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card border-0 shadow-sm rounded-4 p-4">
-                                <h5 class="fw-bold mb-4">Ultimi Tentativi Lezioni</h5>
-                                <div class="lesson-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0 fw-bold">Analisi del Bilancio: Ricavi</h6>
-                                        <span class="badge bg-success-subtle text-success">Passato</span>
-                                    </div>
-                                    <small class="text-muted">Tentativo n° 3 • 14/02/2026</small>
-                                </div>
-                                <div class="lesson-item">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0 fw-bold">Introduzione all'Inflazione</h6>
-                                        <span class="badge bg-danger-subtle text-danger">Fallito</span>
-                                    </div>
-                                    <small class="text-muted">Tentativo n° 1 • 12/02/2026</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- modifica dei dati personali: FUNZIONANTE -->
-                <div class="tab-pane fade show active" id="settings">
+                <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                     <div class="row justify-content-center">
                         <div class="col-md-10">
-                            <!-- possibilità di modificare i dati uno per volta -->
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Dati Personali</h5>
@@ -126,7 +56,7 @@
                                         <label class="form-label">Nome</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="new_value" required
-                                                value="<?= session()->get('first_name') ?>">
+                                                value="<?= esc($firstName, 'attr') ?>">
                                             <button class="btn btn-outline-primary px-4" name="edit" value="first_name"
                                                 type="submit">Salva</button>
                                         </div>
@@ -135,7 +65,7 @@
                                         <label class="form-label">Cognome</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="new_value" required
-                                                value="<?= session()->get('last_name') ?>">
+                                                value="<?= esc($lastName, 'attr') ?>">
                                             <button class="btn btn-outline-primary px-4" name="edit" value="last_name"
                                                 type="submit">Salva</button>
                                         </div>
@@ -144,14 +74,14 @@
                                         <label class="form-label">Email</label>
                                         <div class="input-group">
                                             <input type="email" class="form-control" name="new_value"
-                                                value="<?= session()->get('email') ?>">
+                                                value="<?= esc($email, 'attr') ?>">
                                             <button class="btn btn-outline-primary px-4" type="submit" name="edit"
                                                 value="email">Salva</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
-                            <!-- per cambiare la password va inserita quella attuale e poi la nuova, confermandola -->
+
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Cambia Password</h5>
@@ -161,7 +91,6 @@
                                             <input type="password" name="password" class="form-control" required>
                                         </div>
                                         <div class="row">
-                                            <!-- valdazione in tempo reale con js, se le due password non corrispono: secondo input sarà rosso -->
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Nuova Password</label>
                                                 <input type="password" name="new_password" class="form-control"
@@ -177,8 +106,7 @@
                                             </div>
                                         </div>
                                         <button type="submit" name="password_change"
-                                            class="btn btn-warning w-100 fw-bold">Aggiorna
-                                            Password</button>
+                                            class="btn btn-warning w-100 fw-bold">Aggiorna Password</button>
                                     </form>
                                 </div>
                             </div>
@@ -198,25 +126,114 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center">
+                                <h6 class="text-muted text-uppercase small fw-bold">Esperienza</h6>
+                                <h3 class="fw-bold text-primary"><?= $experience ?> XP</h3>
+                                <div class="progress mt-3" style="height: 10px; border-radius: 5px;">
+                                    <div class="progress-bar bg-primary" style="width: <?= $overallPercent ?>%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">
+                                    Livello: <?= esc($level) ?> - <?= $overallPercent ?>% completato
+                                </small>
+                            </div>
+
+                            <div class="card border-0 shadow-sm rounded-4 p-4">
+                                <h6 class="fw-bold mb-3">Riepilogo lezioni</h6>
+                                <div class="d-flex justify-content-between small mb-1">
+                                    <span>Completate</span>
+                                    <span class="fw-bold"><?= $completedLessons ?> / <?= $totalLessons ?></span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" style="width: <?= $overallPercent ?>%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-3">Progressi moduli</h5>
+
+                                    <?php if (empty($modules)): ?>
+                                        <p class="text-muted mb-0">Nessun modulo disponibile.</p>
+                                    <?php else: ?>
+                                        <?php foreach ($modules as $module): ?>
+                                            <?php
+                                            $modulePercent = (int) ($module['progress_percent'] ?? 0);
+                                            $status = (string) ($module['status'] ?? 'available');
+                                            $barClass = 'bg-primary';
+                                            if ($status === 'completed') {
+                                                $barClass = 'bg-success';
+                                            } elseif ($status === 'locked') {
+                                                $barClass = 'bg-secondary';
+                                            }
+                                            ?>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between small mb-1">
+                                                    <span><?= esc($module['name'] ?? '') ?></span>
+                                                    <span class="fw-bold"><?= $modulePercent ?>%</span>
+                                                </div>
+                                                <div class="progress" style="height: 6px;">
+                                                    <div class="progress-bar <?= esc($barClass) ?>"
+                                                        style="width: <?= $modulePercent ?>%"></div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm rounded-4 p-4">
+                                <h5 class="fw-bold mb-4">Ultimi tentativi lezioni</h5>
+
+                                <?php if (empty($recentAttempts)): ?>
+                                    <p class="text-muted mb-0">Non hai ancora completato o tentato lezioni.</p>
+                                <?php else: ?>
+                                    <?php foreach ($recentAttempts as $attempt): ?>
+                                        <?php $passed = (int) ($attempt['completed'] ?? 0) === 1; ?>
+                                        <div class="lesson-item">
+                                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                                <h6 class="mb-0 fw-bold"><?= esc($attempt['title'] ?? 'Lezione') ?></h6>
+                                                <span
+                                                    class="badge <?= $passed ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' ?>">
+                                                    <?= $passed ? 'Passato' : 'Fallito' ?>
+                                                </span>
+                                            </div>
+                                            <small class="text-muted">
+                                                <?= esc($attempt['module_name'] ?? 'Modulo') ?> -
+                                                Tentativo n. <?= (int) ($attempt['attempt'] ?? 1) ?> -
+                                                <?= !empty($attempt['date']) ? esc(date('d/m/Y H:i', strtotime($attempt['date']))) : '-' ?>
+                                            </small>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
 </div>
-<!-- modal per conferma di eliminazione: inserimento password persoanle -->
+
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-body text-center p-5">
                 <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3.5rem;"></i>
                 <h4 class="fw-bold">Sei sicuro?</h4>
-                <p class="text-muted">L'azione è irreversibile. Digita la tua password per confermare.</p>
+                <p class="text-muted">L'azione &egrave; irreversibile. Digita la tua password per confermare.</p>
                 <form action="/UserController/delete" method="post">
                     <input type="password" name="password" class="form-control mb-3" placeholder="Password attuale"
                         required>
                     <div class="d-flex gap-2 justify-content-center">
                         <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Annulla</button>
-                        <button type="sumbit" class="btn btn-danger px-4">Elimina Definitivamente</button>
+                        <button type="submit" class="btn btn-danger px-4">Elimina Definitivamente</button>
                     </div>
                 </form>
 

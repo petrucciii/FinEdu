@@ -149,7 +149,7 @@ class PortfolioController extends BaseController
             return redirect()->back()->with('alert', 'Portafoglio non valido.')->with('alert_type', 'danger');
         }
 
-        $listing = model(ListingModel::class)->where('ticker', $ticker)->where('mic', $mic)->where('active', 1)->first();
+        $listing = model(ListingModel::class)->findActiveByTickerMic($ticker, $mic);
         if (!$listing) {
             return redirect()->back()->with('alert', 'Titolo non disponibile.')->with('alert_type', 'danger');
         }

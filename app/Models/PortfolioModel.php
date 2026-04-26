@@ -47,6 +47,14 @@ class PortfolioModel extends Model
 
     }
 
+    public function findActiveOrdered(): array
+    {
+        //elenco portafogli attivi per filtri admin.
+        return $this->where('active', 1)
+            ->orderBy('name', 'ASC')
+            ->findAll();
+    }
+
     //controlla se portfolio è di proprietà dell'utente
     public function findOwnedByUser(int $portfolioId, int $userId)
     {

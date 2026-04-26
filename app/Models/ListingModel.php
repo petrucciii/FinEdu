@@ -27,6 +27,17 @@ class ListingModel extends Model
             ->findAll();
     }
 
+    public function findActiveByTickerMic(string $ticker, string $mic): ?array
+    {
+        //verifica che una quotazione sia presente e attiva.
+        $row = $this->where('ticker', trim($ticker))
+            ->where('mic', trim($mic))
+            ->where('active', 1)
+            ->first();
+
+        return $row ?: null;
+    }
+
     public function insertRow(array $row): bool
     {
         try {

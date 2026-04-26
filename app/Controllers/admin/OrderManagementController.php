@@ -27,7 +27,7 @@ class OrderManagementController extends BaseController
         $ex = model(ExchangeModel::class)->fread();
         $data = [
             'users' => is_array($users) ? $users : [],
-            'portfolios' => model(PortfolioModel::class)->where('active', 1)->orderBy('name', 'ASC')->findAll(),
+            'portfolios' => model(PortfolioModel::class)->findActiveOrdered(),
             'exchanges' => is_array($ex) ? $ex : [],
             'topCompanies' => $orderModel->reportTopCompaniesByOpenVolume(8),
             'topUsers' => $orderModel->reportTopUsersByRealizedPnl(8),

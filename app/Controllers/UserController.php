@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
 
+use App\Models\CompletedLessonModel;
+use App\Models\EducationModuleModel;
 use App\Models\UserModel;
 
 class UserController extends BaseController
@@ -8,8 +10,27 @@ class UserController extends BaseController
     public function profile()
     {
         if ($this->session->has('logged')) {
+            $userId = (int) $this->session->get('user_id');
+            $user = model(UserModel::class)->fread(['users.user_id' => $userId])[0] ?? [];
+            $modules = $this->enrichModuleStatuses(model(EducationModuleModel::class)->findProgressForUser($userId));
+            $recentAttempts = model(CompletedLessonModel::class)->recentAttemptsForUser($userId, 6);
+
+            $totalLessons = 0;
+            $completedLessons = 0;
+            foreach ($modules as $module) {
+                $totalLessons += (int) ($module['lesson_count'] ?? 0);
+                $completedLessons += (int) ($module['completed_count'] ?? 0);
+            }
+
             echo view("templates/header");
-            echo view("pages/viewProfile");
+            echo view("pages/viewProfile", [
+                'user' => $user,
+                'modules' => $modules,
+                'recentAttempts' => $recentAttempts,
+                'totalLessons' => $totalLessons,
+                'completedLessons' => $completedLessons,
+                'progressPercent' => $totalLessons > 0 ? (int) round(($completedLessons / $totalLessons) * 100) : 0,
+            ]);
             echo view("templates/footer");
             return;
         }
@@ -111,5 +132,32 @@ class UserController extends BaseController
             }
         }
         return redirect()->to('/');
+    }
+
+    private function enrichModuleStatuses(array $modules): array
+    {
+        //Calcola stato e percentuale dei moduli come nella pagina Education.
+        $previousCompleted = true;
+
+        foreach ($modules as &$module) {
+            $lessonCount = (int) ($module['lesson_count'] ?? 0);
+            $completedCount = (int) ($module['completed_count'] ?? 0);
+            $module['progress_percent'] = $lessonCount > 0 ? (int) round(($completedCount / $lessonCount) * 100) : 0;
+
+            if (!$previousCompleted) {
+                $module['status'] = 'locked';
+            } elseif ($lessonCount > 0 && $completedCount >= $lessonCount) {
+                $module['status'] = 'completed';
+            } elseif ($completedCount > 0) {
+                $module['status'] = 'in_progress';
+            } else {
+                $module['status'] = 'available';
+            }
+
+            $previousCompleted = $previousCompleted && ($lessonCount === 0 || $completedCount >= $lessonCount);
+        }
+        unset($module);
+
+        return $modules;
     }
 }
