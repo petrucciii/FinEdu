@@ -1,9 +1,19 @@
 import renderPagination from '../control.js';
 
+/*
+ * Gestione AJAX della pagina admin portafogli.
+ *
+ * La view contiene solo tabella, input e template riga. Questo script chiama il controller
+ * per ottenere JSON gia filtrato/ordinato e poi ricostruisce il tbody. Se l'URL contiene
+ * ?user_id=..., per esempio arrivando dal modal utenti, tutte le richieste mantengono
+ * quel filtro e mostrano solo i portafogli dell'utente scelto.
+ */
+
 //stato globale ricerca e ordinamento
 let currentQuery = '';
 let currentOrder = '';
 let orderType = 'ASC';
+const selectedUserId = new URLSearchParams(window.location.search).get('user_id') || '';
 
 //colori alternati per avatar come in userManagement
 const avatarColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-danger', 'bg-info'];
@@ -21,16 +31,24 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => loadPortfolios(), 120000);
 });
 
-//costruisce url con parametri di ricerca e ordinamento
+/*
+ * Costruisce URL dell'endpoint. Come per gli utenti, quando la ricerca e' vuota
+ * non aggiungiamo uno slash con segmento vuoto; questo rende il routing piu' stabile.
+ * user_id viene sempre riaggiunto alle chiamate AJAX per non perdere il filtro.
+ */
 const buildPortfoliosUrl = (page = 1) => {
-    let url = `/admin/PortfolioManagementController/search/${encodeURIComponent(currentQuery)}?page=${page}`;
+    const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
+    let url = `/admin/PortfolioManagementController${searchPath}?page=${page}`;
+    if (selectedUserId) {
+        url += `&user_id=${encodeURIComponent(selectedUserId)}`;
+    }
     if (currentOrder) {
         url += `&order=${encodeURIComponent(currentOrder)}&order_type=${encodeURIComponent(orderType)}`;
     }
     return url;
 };
 
-//variabile per tenere traccia della pagina corrente durante il refresh
+//pagina corrente conservata anche durante l'auto-refresh dei prezzi
 let lastPage = 1;
 
 const loadPortfolios = (page) => {
@@ -44,7 +62,7 @@ const loadPortfolios = (page) => {
         .catch((err) => console.error(err));
 };
 
-//gestione ordinamento colonne
+//gestione ordinamento colonne: alterna ASC/DESC e ricarica dalla prima pagina
 const orderBy = () => {
     document.addEventListener('click', (e) => {
         const th = e.target.closest('a[data-order]');
@@ -85,7 +103,7 @@ const eur = (n) =>
         maximumFractionDigits: 2,
     });
 
-//crea elemento non letto da dom come userManagement    
+//crea le righe in un fragment, cosi il DOM viene aggiornato una sola volta
 const renderRows = (rows) => {
     const tbody = document.getElementById('portfoliosTableBody');
     if (!tbody) return;
@@ -95,12 +113,12 @@ const renderRows = (rows) => {
     tbody.appendChild(frag);
 };
 
-//costruisce riga con colori alternati per avatar
+//costruisce una riga usando il template HTML della view e colori avatar sequenziali
 const row = (p, index) => {
     const t = document.getElementById('portfolioRowTemplate');
     const tr = t.content.cloneNode(true).querySelector('tr');
     const initials = ((p.first_name || '?')[0] || '') + ((p.last_name || '?')[0] || '');
-    //colore ciclico basato sull'indice, come in userManagement
+    //colore ciclico basato sull'indice, coerente con la gestione utenti
     const colorClass = avatarColors[index % avatarColors.length];
 
     tr.querySelector('[data-field="pid"]').textContent = String(p.portfolio_id);
@@ -120,6 +138,10 @@ const row = (p, index) => {
     tr.querySelector('[data-field="mv"]').textContent = eur(p.market_value_open || 0);
     tr.querySelector('[data-field="total"]').textContent = eur(p.total_value || 0);
 
+    /*
+     * P&L e percentuale sono metriche calcolate dal model. Qui si decide solo come
+     * mostrarle: verde se positive o zero, rosse se negative.
+     */
     const unreal = Number(p.unrealized_pnl || 0);
     const pct = p.unrealized_pct != null ? ` (${unreal >= 0 ? '+' : ''}${p.unrealized_pct}%)` : '';
     const unrealCell = tr.querySelector('[data-field="unreal"]');

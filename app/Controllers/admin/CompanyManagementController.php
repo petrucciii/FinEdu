@@ -4,12 +4,17 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\AnalystConsensusModel;
+use App\Models\BoardMemberModel;
 use App\Models\BoardModel;
 use App\Models\CompanyModel;
 use App\Models\CountryModel;
+use App\Models\CurrencyModel;
+use App\Models\DataTypeModel;
 use App\Models\ExchangeModel;
+use App\Models\FirmModel;
 use App\Models\FinancialDataModel;
 use App\Models\ListingModel;
+use App\Models\RatingModel;
 use App\Models\SectorModel;
 use App\Models\ShareholderModel;
 use Exception;
@@ -53,9 +58,11 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/');
         }
 
+        $sectors = model(SectorModel::class)->fread();
+        $countries = model(CountryModel::class)->fread();
         $data = [
-            'sectors' => model(SectorModel::class)->where('active', 1)->findAll(),
-            'countries' => model(CountryModel::class)->where('active', 1)->findAll(),
+            'sectors' => is_array($sectors) ? $sectors : [],
+            'countries' => is_array($countries) ? $countries : [],
             'adminSection' => true,
         ];
 
@@ -126,18 +133,17 @@ class CompanyManagementController extends BaseController
             return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda non trovata')->with('alert_type', 'danger');
         }
 
-        $db = db_connect();//da cambiare, usare i model
-
+        $exchanges = model(ExchangeModel::class)->fread();
         $data = [
             'company' => $company,
             'sectors' => model(SectorModel::class)->findAll(),
             'countries' => model(CountryModel::class)->findAll(),
-            'exchanges' => model(ExchangeModel::class)->where('active', 1)->findAll(),
-            'currencies' => $db->table('currencies')->get()->getResultArray(),
-            'data_types' => $db->table('data_type')->where('active', 1)->get()->getResultArray(),
-            'all_firms' => $db->table('firms')->where('active', 1)->orderBy('firm_name', 'ASC')->get()->getResultArray(),
-            'all_members' => $db->table('board_members')->where('active', 1)->orderBy('full_name', 'ASC')->get()->getResultArray(),
-            'ratings' => $db->table('ratings')->where('active', 1)->orderBy('rating', 'ASC')->get()->getResultArray(),
+            'exchanges' => is_array($exchanges) ? $exchanges : [],
+            'currencies' => model(CurrencyModel::class)->findAll(),
+            'data_types' => model(DataTypeModel::class)->findActiveOrdered(),
+            'all_firms' => model(FirmModel::class)->findActiveOrdered(),
+            'all_members' => model(BoardMemberModel::class)->findActiveOrdered(),
+            'ratings' => model(RatingModel::class)->findActiveOrdered(),
             'listings' => model(ListingModel::class)->findActiveByIsin($isin),
             'financials' => model(FinancialDataModel::class)->findDataPerCompany($isin),
             'board' => model(BoardModel::class)->findBoardPerCompany($isin),

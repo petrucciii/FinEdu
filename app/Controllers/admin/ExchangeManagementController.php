@@ -22,10 +22,12 @@ class ExchangeManagementController extends BaseController
         }
 
         $ex = model(ExchangeModel::class)->fread();
+        $countries = model(CountryModel::class)->fread();
+        $currencies = model(CurrencyModel::class)->fread();
         $data = [
             'exchanges' => is_array($ex) ? $ex : [],
-            'countries' => model(CountryModel::class)->where('active', 1)->findAll(),
-            'currencies' => model(CurrencyModel::class)->where('active', 1)->findAll(),
+            'countries' => is_array($countries) ? $countries : [],
+            'currencies' => is_array($currencies) ? $currencies : [],
             'adminSection' => true,
         ];
 

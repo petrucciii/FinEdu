@@ -1,6 +1,11 @@
-//renderizza la paginazione passando un oggetto con pagina corrente, numero pagina, elementi per pagina e totale.
-// viene poi passata onPageChange che è una callback function per la renderizzazione delle righe nella nuova pagian
-// in pratica onPageChange è una funzione carica utenti, società, ecc. nelle pagine successive 
+/*
+ * Helper unico per la paginazione AJAX.
+ *
+ * Tutte le tabelle dinamiche (utenti, news, portafogli, ordini, progressi) ricevono dal
+ * controller lo stesso oggetto pagination. Questo helper costruisce i link Bootstrap e
+ * chiama onPageChange(page) invece di ricaricare la pagina, così ogni view decide da sola
+ * quale endpoint richiamare mantenendo ricerca e filtri correnti.
+ */
 function renderPagination({ currentPage, pageCount, perPage, total }, onPageChange) {
     const container = document.getElementById('paginationContainer');
     container.innerHTML = '';

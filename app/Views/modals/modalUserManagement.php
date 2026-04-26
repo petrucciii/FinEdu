@@ -69,7 +69,7 @@
 
                     <div class="d-flex align-items-center mb-1">
                         <strong class="me-1">Portafogli: </strong>
-                        <p class="mb-0">2</p>
+                        <p class="mb-0" id="modalPortfolioCount">0</p>
                     </div>
                 </div>
 
@@ -78,10 +78,12 @@
                 <h6 class="mb-3">Azioni Amministrative</h6>
 
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary"><i class="fas fa-eye me-2"></i> Visualizza
-                        Portafogli</button>
-                    <button class="btn btn-outline-info"><i class="fas fa-chart-line me-2"></i> Vedi
-                        Progressi Educativi</button>
+                    <a href="/admin/PortfolioManagementController/" class="btn btn-outline-primary" id="modalPortfolioLink">
+                        <i class="fas fa-eye me-2"></i> Visualizza Portafogli
+                    </a>
+                    <a href="/admin/ModuleManagementController/progress" class="btn btn-outline-info" id="modalProgressLink">
+                        <i class="fas fa-chart-line me-2"></i> Vedi Progressi Educativi
+                    </a>
                     <button class="btn btn-warning"><i class="fas fa-key me-2"></i> Invia Reset
                         Password</button>
                 </div>
@@ -91,8 +93,9 @@
                 <!-- eliminazione soft utente -->
                 <p class="text-danger mb-2"><strong>Azioni Irreversibili</strong></p>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-outline-danger"><i class="fas fa-ban me-2"></i> Disattiva
-                        Utente</button>
+                    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-ban me-2"></i> Disattiva Utente
+                    </button>
 
                 </div>
 

@@ -20,6 +20,45 @@
 
 
 <body>
+    <?php
+    /*
+     * Calcolo del link "active" nella navbar utente.
+     *
+     * getPath() restituisce il path reale dell'URL corrente. Lo normalizziamo perche'
+     * l'app puo' girare in sottocartella o con index.php nell'URL: senza pulizia il
+     * confronto con "EducationController" o "PortfolioController" potrebbe fallire.
+     *
+     * preg_replace rimuove un eventuale "index.php/" iniziale. La regex significa:
+     * - ^: inizio stringa;
+     * - index\.php: testo letterale "index.php" (il punto va escapato);
+     * - /?: slash opzionale;
+     * - i: confronto case-insensitive.
+     */
+    $currentPath = trim((string) service('request')->getUri()->getPath(), '/');
+    $basePath = trim((string) (parse_url(base_url(), PHP_URL_PATH) ?? ''), '/');
+    if ($basePath !== '' && strpos($currentPath, $basePath) === 0) {
+        $currentPath = trim(substr($currentPath, strlen($basePath)), '/');
+    }
+    $currentPath = trim((string) preg_replace('#^index\.php/?#i', '', $currentPath), '/');
+
+    /*
+     * Ritorna true se il path corrente contiene uno dei prefissi passati.
+     * Usiamo preg_match con separatori (^|/) e (/|$) per evitare falsi positivi:
+     * "PortfolioController" deve attivare il link portafoglio, ma non deve bastare una
+     * sottostringa casuale dentro un altro segmento URL.
+     */
+    $isActivePath = static function (array $prefixes) use ($currentPath): bool {
+        $path = strtolower($currentPath);
+        foreach ($prefixes as $prefix) {
+            $prefix = strtolower(trim($prefix, '/'));
+            if ($prefix !== '' && preg_match('#(^|/)' . preg_quote($prefix, '#') . '(/|$)#', $path)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+    ?>
     <?= $this->include('modals/modalAuth') ?>
     <nav class="navbar navbar-expand-lg navbar-dark p-3 bg-primary sticky-top">
         <div class="container">
@@ -32,23 +71,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="/CompanyController/index">Analisi Mercati</a>
+                        <a class="nav-link <?= $isActivePath(['CompanyController']) ? 'active' : '' ?>"
+                            href="/CompanyController/index">Analisi Mercati</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/EducationController/index">Educazione Finanziaria</a>
+                        <a class="nav-link <?= $isActivePath(['EducationController']) ? 'active' : '' ?>"
+                            href="/EducationController/index">Educazione Finanziaria</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="portfolioDrop" role="button"
+                        <a class="nav-link dropdown-toggle <?= $isActivePath(['PortfolioController']) ? 'active' : '' ?>" href="#" id="portfolioDrop" role="button"
                             data-bs-toggle="dropdown">
                             Portafoglio
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/PortfolioController/index">I miei Portafogli</a></li>
-                            <li><a class="dropdown-item" href="/PortfolioController/orders">Storico Ordini</a></li>
+                            <li><a class="dropdown-item <?= $isActivePath(['PortfolioController/index']) ? 'active' : '' ?>"
+                                    href="/PortfolioController/index">I miei Portafogli</a></li>
+                            <li><a class="dropdown-item <?= $isActivePath(['PortfolioController/orders']) ? 'active' : '' ?>"
+                                    href="/PortfolioController/orders">Storico Ordini</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/ListingController/index">Quotazioni</a>
+                        <a class="nav-link <?= $isActivePath(['ListingController']) ? 'active' : '' ?>"
+                            href="/ListingController/index">Quotazioni</a>
                     </li>
                 </ul>
                 <?php
@@ -62,7 +106,8 @@
                                 <?= session()->get('first_name') . " " . session()->get('last_name') ?>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="/UserController/profile">Profilo</a></li>
+                                <li><a class="dropdown-item <?= $isActivePath(['UserController/profile']) ? 'active' : '' ?>"
+                                        href="/UserController/profile">Profilo</a></li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>

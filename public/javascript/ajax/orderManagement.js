@@ -69,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const buildOrdersUrl = (page = 1) => {
+    /*
+     * Costruisce la query degli ordini mantenendo tutti i filtri attivi.
+     * currentQuery usa lo stesso pattern delle news: niente segmento vuoto quando
+     * l'input di ricerca e' vuoto, cosi il controller riceve sempre la richiesta.
+     */
     let qs = `page=${page}`;
     if (currentUser && currentUser !== 'all') qs += `&user_id=${encodeURIComponent(currentUser)}`;
     if (currentPortfolio && currentPortfolio !== 'all') qs += `&portfolio_id=${encodeURIComponent(currentPortfolio)}`;
@@ -78,7 +83,8 @@ const buildOrdersUrl = (page = 1) => {
     if (currentDate) qs += `&date_from=${encodeURIComponent(currentDate)}`;
     if (currentPnlMin !== '') qs += `&pnl_min=${encodeURIComponent(currentPnlMin)}`;
     if (currentPnlMax !== '') qs += `&pnl_max=${encodeURIComponent(currentPnlMax)}`;
-    return `/admin/OrderManagementController/search/${encodeURIComponent(currentQuery)}?${qs}`;
+    const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
+    return `/admin/OrderManagementController${searchPath}?${qs}`;
 };
 
 //tiene traccia della pagina corrente per il refresh automatico

@@ -4,7 +4,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\PortfolioModel;
-use App\Models\PriceModel;
 
 class PortfolioManagementController extends BaseController
 {
@@ -33,16 +32,22 @@ class PortfolioManagementController extends BaseController
         $page = (int) ($this->request->getGet('page') ?? 1);
         $orderField = (string) $this->request->getGet('order');
         $orderType = strtoupper((string) ($this->request->getGet('order_type') ?? 'ASC'));
+        $userId = (int) ($this->request->getGet('user_id') ?? 0);
+        $userFilter = $userId > 0 ? $userId : null;
         $perPage = 12;
 
         $pfModel = model(PortfolioModel::class);
-        $priceModel = model(PriceModel::class);
 
 
-        //ordina campi calcolati (metriche)
+        /*
+         * I campi calculated_* non esistono nel database: sono metriche create da
+         * attachMarketMetrics() usando ordini aperti e ultimi prezzi. Per questo caso
+         * non si puo' fare orderBy SQL diretto: carichiamo i record, calcoliamo le
+         * metriche in PHP, ordiniamo l'array e poi paginiamo manualmente.
+         */
         if (str_starts_with($orderField, 'calculated_')) {
 
-            $allPortfolios = $pfModel->findActive();
+            $allPortfolios = $pfModel->findActive($userFilter);
             //filtri ricerca
             $query = trim((string) $query);
             if ($query !== '') {
@@ -60,7 +65,7 @@ class PortfolioManagementController extends BaseController
                 $enriched[] = $pfModel->attachMarketMetrics($pf);//portafoglio con metriche (p&l, controvalore ecc)
             }
 
-            //nomi colonne convertiti in metriche
+            //nomi degli header della tabella convertiti nelle chiavi metriche dell'array
             $map = [
                 'calculated_mv' => 'market_value_open',
                 'calculated_total' => 'total_value',
@@ -68,7 +73,7 @@ class PortfolioManagementController extends BaseController
             ];
             $sortKey = $map[$orderField] ?? 'portfolio_id';
 
-            //ordinamento in php
+            //ordinamento in PHP per metriche non presenti come colonne DB
             usort($enriched, function ($a, $b) use ($sortKey, $orderType) {
                 $valA = $a[$sortKey] ?? 0;
                 $valB = $b[$sortKey] ?? 0;
@@ -81,7 +86,7 @@ class PortfolioManagementController extends BaseController
                 }
             });
 
-            //pagination manuale
+            //paginazione manuale dopo l'ordinamento PHP sulle metriche calcolate
             $total = count($enriched);
             $pageCount = ceil($total / $perPage);
             $offset = ($page - 1) * $perPage;
@@ -97,8 +102,11 @@ class PortfolioManagementController extends BaseController
                 ],
             ]);
         } else {
-            //ordinamento altri campi
-            $result = $pfModel->adminSearchPaginate((string) $query, $page, $orderField, $orderType);
+            /*
+             * Per colonne reali del database il lavoro resta nel model: ricerca,
+             * eventuale filtro user_id, orderBy SQL e paginazione standard CodeIgniter.
+             */
+            $result = $pfModel->adminSearchPaginate((string) $query, $page, $orderField, $orderType, $userFilter);
             $rows = [];
             foreach ($result['portfolios'] as $pf) {
                 $rows[] = $pfModel->attachMarketMetrics($pf);

@@ -64,7 +64,9 @@ const updateCostEstimate = () => {
 const buildListingsUrl = (page = 1) => {
     let qs = `page=${page}`;
     if (currentMic) qs += `&mic=${encodeURIComponent(currentMic)}`;
-    return `/ListingController/search/${encodeURIComponent(currentQuery)}?${qs}`;
+    //evita /search/ con segmento vuoto e mantiene lo stesso pattern usato nelle news
+    const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
+    return `/ListingController${searchPath}?${qs}`;
 };
 
 //tiene traccia della pagina corrente per il refresh automatico

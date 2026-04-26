@@ -84,7 +84,13 @@ class OrderModel extends Model
         $pnlMax,
         int $page
     ): array {
-        //calcolo P&L realizzato direttamente in SQL con CASE per evitare di doverlo calcolare in PHP su ogni riga
+        /*
+         * Calcolo del P&L realizzato direttamente in SQL.
+         *
+         * Il CASE restituisce un valore solo per ordini chiusi con sellPrice valorizzato.
+         * La tassazione al 26% viene sottratta solo se il risultato lordo è positivo.
+         * Tenere la formula in SQL permette anche di usarla nei filtri pnl_min/pnl_max.
+         */
         $pnlSql = '(CASE 
                         WHEN orders.status = 0 AND 
                         orders.sellPrice IS NOT NULL 
@@ -94,7 +100,7 @@ class OrderModel extends Model
                     END
                     )';//calcoal controvalore dell ordine, se chiuso, e quindi sellPrice valorizzato, sottrae il il buyPirce moltiplicato per quantita e toglie gain tax di 26% se positivo
 
-        // uery per ottenere gli ordini con filtri
+        //query principale: unisce ordine, portafoglio, utente, listing e società per mostrare una riga completa in admin
         $builder = $this->db->table('orders')
             ->select('orders.*, portfolios.name AS portfolio_name, portfolios.user_id,
                 users.first_name, users.last_name, users.email,
@@ -104,16 +110,19 @@ class OrderModel extends Model
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
             ->join('companies', 'companies.isin = listings.isin');
 
-        //filtri di ricerca
-        $q = trim($q);
-        if ($q !== '') {
+        /*
+         * Ricerca a token nello stesso input: ogni parola può combaciare con ticker,
+         * società, email, nome/cognome utente o nome portafoglio.
+         */
+        $tokens = preg_split('/\s+/', trim($q), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
             $builder->groupStart()
-                ->like('orders.ticker', $q)
-                ->orLike('companies.name', $q)
-                ->orLike('users.email', $q)
-                ->orLike('users.first_name', $q)
-                ->orLike('users.last_name', $q)
-                ->orLike('portfolios.name', $q)
+                ->like('orders.ticker', $token)
+                ->orLike('companies.name', $token)
+                ->orLike('users.email', $token)
+                ->orLike('users.first_name', $token)
+                ->orLike('users.last_name', $token)
+                ->orLike('portfolios.name', $token)
                 ->groupEnd();
         }
 
@@ -147,8 +156,7 @@ class OrderModel extends Model
             $builder->where('DATE(orders.date) >=', $dateFrom);
         }
 
-       //filtro per profitto minimo: usa la formula sql definita sopra.
-        //forza lo stato a "chiuso" perché solo quegli ordini hanno un pnl realizzato.
+        //filtro profitto minimo: forza ordini chiusi perché solo loro hanno pnl realizzato
         if ($pnlMin !== '' && $pnlMin !== null && is_numeric($pnlMin)) {
             $builder->where($pnlSql . ' >= ' . (float) $pnlMin, null, false);
             $builder->where('orders.status', self::STATUS_CLOSED);
@@ -317,15 +325,4 @@ class OrderModel extends Model
             ->findAll();
     }
 
-    //recupera le ultime notizie attive. metodo un po' fuori posto (dovrebbe stare in NewsModel) ma comodo per la dashboard.
-    public function findRecentNewsForDashboard(int $limit = 5): array
-    {
-        return $this->db->table('news')
-            ->select('news.headline, news.date')
-            ->where('news.active', 1)
-            ->orderBy('news.date', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
-    }
 }
