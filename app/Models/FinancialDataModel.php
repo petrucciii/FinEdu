@@ -31,6 +31,7 @@ class FinancialDataModel extends Model
     public function findDataPerCompany(string $isin): array
     {
         return $this->select('data.*, data_type.type, data_type.name AS type_name')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('data_type', 'data_type.type_id = data.type_id', 'left')
             ->where('data.isin', trim($isin))
             ->orderBy('data.year', 'DESC')

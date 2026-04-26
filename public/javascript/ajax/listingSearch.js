@@ -75,6 +75,7 @@ let lastPage = 1;
 //carica listings aggiorna tabella e paginazione.
 const loadListings = (page) => {
     if (page !== undefined) lastPage = page;
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(buildListingsUrl(lastPage))
         .then(res => res.json())
         .then(data => {
@@ -96,6 +97,7 @@ const eur = (n) =>
 const renderRows = (listings) => {
     const tbody = document.getElementById('listingsTableBody');
     if (!tbody) return;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
     const frag = document.createDocumentFragment();
     (listings || []).forEach(l => frag.appendChild(row(l)));
@@ -115,8 +117,10 @@ const row = (listing) => {
     //ultimo prezzo con colore
     const priceCell = tr.querySelector('[data-field="last_price"]');
     if (listing.last_price != null) {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         priceCell.innerHTML = `<span class="fw-semibold text-primary">${eur(listing.last_price)}</span>`;
     } else {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         priceCell.innerHTML = '<span class="text-muted">—</span>';
     }
 

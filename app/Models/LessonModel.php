@@ -30,6 +30,7 @@ class LessonModel extends Model
         return $this->baseDetailQuery()
             ->where('l.id_module', $moduleId)
             ->where('l.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('l.id_lesson')
             ->orderBy('l.id_lesson', 'ASC')
             ->get()
@@ -42,6 +43,7 @@ class LessonModel extends Model
         $row = $this->baseDetailQuery()
             ->where('l.id_lesson', $lessonId)
             ->where('l.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('l.id_lesson')
             ->get()
             ->getRowArray();
@@ -55,6 +57,7 @@ class LessonModel extends Model
         return $this->baseDetailQuery()
             ->where('l.active', 1)
             ->where('m.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('l.id_lesson')
             ->having('COUNT(DISTINCT q.id_question) > 0', null, false)
             ->orderBy('m.id_module', 'ASC')
@@ -80,8 +83,11 @@ class LessonModel extends Model
                 WHEN COUNT(DISTINCT e.id_explanation) > 0 THEN 'explanation'
                 ELSE 'lesson'
             END AS lesson_type", false)
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('modules m', 'm.id_module = l.id_module', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('explanations e', 'e.id_lesson = l.id_lesson AND e.active = 1', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('questions q', 'q.id_lesson = l.id_lesson AND q.active = 1', 'left');
     }
 }

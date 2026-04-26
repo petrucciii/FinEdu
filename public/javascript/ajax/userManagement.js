@@ -62,12 +62,14 @@ const settingsModal = () => {
 
                 //radio buttons per i ruoli: generati dai dati DB, non scritti fissi nel JS
                 let rolesContainer = document.getElementById('modalRolesContainer');
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 rolesContainer.innerHTML = "";//pulisce il container per evitare duplicazioni
 
                 //mette dentro il container ogni ruolo e seleziona quello corrente
                 data.roles.forEach(role => {
                     let div = document.createElement('div');
                     div.className = "form-check form-check-inline";
+                    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                     div.innerHTML = `
                     <input class="form-check-input" type="radio" name="new_value" id="inlineRadio${role['role_id']}"
                         value=${role['role_id']}>
@@ -185,6 +187,7 @@ const searchUser = () => {
  * Dopo la risposta aggiorna tabella e paginazione senza reload della pagina.
  */
 const loadUsers = (page = 1) => {
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(buildUsersUrl(page))
         .then(res => res.json())
         .then(data => {
@@ -220,6 +223,7 @@ const seeFilters = () => {
 //renderizza gli utenti usando un DocumentFragment per aggiornare il DOM una volta sola
 const renderUsers = (users) => {
     const tbody = document.getElementById('usersTableBody');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
 
     //il fragment riduce repaint/reflow quando la tabella viene ricreata spesso
@@ -271,6 +275,7 @@ const createUserRow = (user, index) => {
 
 //filtro per livello: aggiorna lo stato e ricarica dalla prima pagina
 const filterByLevel = () => {
+    //event delegation: intercetto i click da un unico listener anche su elementi creati dopo
     document.addEventListener('click', (e) => {
         let btn = e.target.closest('button[data-level_id]');//dropdown
         if (!btn) return;
@@ -282,6 +287,7 @@ const filterByLevel = () => {
 
 //filtro per ruolo: combinabile con ricerca, livello e ordinamento
 const filterByRole = () => {
+    //event delegation: intercetto i click da un unico listener anche su elementi creati dopo
     document.addEventListener('click', (e) => {
         let btn = e.target.closest('button[data-role_id]');//dropdown
         if (!btn) return;
@@ -295,6 +301,7 @@ const filterByRole = () => {
 //ordinamento colonne: alterna ASC/DESC se si riclicca la stessa intestazione
 const orderBy = () => {
 
+    //event delegation: intercetto i click da un unico listener anche su elementi creati dopo
     document.addEventListener('click', (e) => {
 
         const th = e.target.closest('a[data-order]');//headers
@@ -312,6 +319,7 @@ const orderBy = () => {
         //cambia icone di ordinamneto di tutti gli altre colonne
         document.querySelectorAll('a[data-order]').forEach(header => {
             if (header.dataset.order !== currentOrder) {
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 header.innerHTML = header.textContent + "<i class='fas fa-sort-amount-up ms-1'></i>";
             }
         });
@@ -324,6 +332,7 @@ const orderBy = () => {
             : 'fas fa-sort-amount-down ms-1';
 
 
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         th.innerHTML = `${th.textContent} ${icon.outerHTML}`;
 
         loadUsers(1);//carica utenti ordinati

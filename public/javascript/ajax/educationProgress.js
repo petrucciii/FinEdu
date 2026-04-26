@@ -37,8 +37,10 @@ const progressUrl = (page = 1, query = '') => {
 
 //chiede i progressi al controller e aggiorna tabella + paginazione
 const loadProgress = (page = 1, query = '') => {
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(progressUrl(page, query))
         .then((res) => res.json())
+        //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
             renderRows(data.rows || [], Number(data.totalLessons || 0));
             renderPagination(data.pagination, (newPage) => loadProgress(newPage, currentQuery));
@@ -50,10 +52,12 @@ const loadProgress = (page = 1, query = '') => {
 const renderRows = (rows, totalLessons) => {
     const tbody = document.getElementById('educationProgressBody');
     if (!tbody) return;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
 
     if (!rows.length) {
         const tr = document.createElement('tr');
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         tr.innerHTML = '<td colspan="8" class="text-center text-muted py-4">Nessun utente trovato.</td>';
         tbody.appendChild(tr);
         return;

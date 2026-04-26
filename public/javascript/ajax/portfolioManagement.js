@@ -53,8 +53,10 @@ let lastPage = 1;
 
 const loadPortfolios = (page) => {
     if (page !== undefined) lastPage = page;
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(buildPortfoliosUrl(lastPage))
         .then((res) => res.json())
+        //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
             renderRows(data.portfolios);
             renderPagination(data.pagination, loadPortfolios);
@@ -64,6 +66,7 @@ const loadPortfolios = (page) => {
 
 //gestione ordinamento colonne: alterna ASC/DESC e ricarica dalla prima pagina
 const orderBy = () => {
+    //event delegation: intercetto i click da un unico listener anche su elementi creati dopo
     document.addEventListener('click', (e) => {
         const th = e.target.closest('a[data-order]');
         if (!th) return;
@@ -80,6 +83,7 @@ const orderBy = () => {
         //reset icone di tutti gli header non selezionati
         document.querySelectorAll('a[data-order]').forEach(header => {
             if (header.dataset.order !== currentOrder) {
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 header.innerHTML = header.textContent + "<i class='fas fa-sort-amount-up ms-1'></i>";
             }
         });
@@ -90,6 +94,7 @@ const orderBy = () => {
             ? 'fas fa-sort-amount-up ms-1'
             : 'fas fa-sort-amount-down ms-1';
 
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         th.innerHTML = `${th.textContent} ${icon.outerHTML}`;
 
         loadPortfolios(1);
@@ -107,6 +112,7 @@ const eur = (n) =>
 const renderRows = (rows) => {
     const tbody = document.getElementById('portfoliosTableBody');
     if (!tbody) return;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
     const frag = document.createDocumentFragment();
     (rows || []).forEach((p, index) => frag.appendChild(row(p, index)));
@@ -124,6 +130,7 @@ const row = (p, index) => {
     tr.querySelector('[data-field="pid"]').textContent = String(p.portfolio_id);
 
     const userCell = tr.querySelector('[data-field="user_cell"]');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     userCell.innerHTML = `
         <div class="d-flex align-items-center">
             <div class="${colorClass} text-white rounded-circle d-flex justify-content-center align-items-center me-2"
@@ -145,6 +152,7 @@ const row = (p, index) => {
     const unreal = Number(p.unrealized_pnl || 0);
     const pct = p.unrealized_pct != null ? ` (${unreal >= 0 ? '+' : ''}${p.unrealized_pct}%)` : '';
     const unrealCell = tr.querySelector('[data-field="unreal"]');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     unrealCell.innerHTML = `<span class="${unreal >= 0 ? 'text-success' : 'text-danger'} fw-bold">${eur(unreal)}${pct}</span>`;
 
     const link = tr.querySelector('[data-field="orders_link"]');

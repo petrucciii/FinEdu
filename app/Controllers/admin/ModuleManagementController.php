@@ -187,6 +187,7 @@ class ModuleManagementController extends BaseController
 
         //transazione necessaria per non lasciare una lesson senza specializzazione
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         $lessonModel = model(LessonModel::class);
@@ -200,6 +201,7 @@ class ModuleManagementController extends BaseController
         ]);
         $lessonId = (int) $lessonModel->getInsertID();
         if ($lessonId < 1) {
+            //faccio rollback per annullare anche le operazioni gia' fatte in questa transazione
             $db->transRollback();
             return redirect()->back()->with('alert', 'Errore durante la creazione della lezione.')->with('alert_type', 'danger');
         }
@@ -227,6 +229,7 @@ class ModuleManagementController extends BaseController
             ]);
         }
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Errore durante la creazione della lezione.')->with('alert_type', 'danger');
@@ -260,6 +263,7 @@ class ModuleManagementController extends BaseController
         }
 
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         model(LessonModel::class)->update($lessonId, [
@@ -293,6 +297,7 @@ class ModuleManagementController extends BaseController
             }
         }
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Aggiornamento non riuscito.')->with('alert_type', 'danger');
@@ -315,6 +320,7 @@ class ModuleManagementController extends BaseController
         }
 
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         //soft delete sulla parte comune della lezione
@@ -338,6 +344,7 @@ class ModuleManagementController extends BaseController
             );
         }
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Eliminazione non riuscita.')->with('alert_type', 'danger');

@@ -36,6 +36,7 @@ class PortfolioModel extends Model
     {
         try {
             $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
+                //left join: tengo comunque il record principale anche se il dato collegato manca
                 ->join('users', 'users.user_id = portfolios.user_id', 'left')
                 ->where('portfolios.active', 1);
 
@@ -110,6 +111,7 @@ class PortfolioModel extends Model
     {
         //seleziona portfogli e dati utenti con left join così da mostrare anche utenti senza portafogli
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('users', 'users.user_id = portfolios.user_id', 'left')
             ->where('portfolios.active', 1);
 
@@ -140,6 +142,7 @@ class PortfolioModel extends Model
         }
 
         return [
+            //paginazione lato database per non caricare tutto in memoria e mantenere la risposta veloce
             'portfolios' => $builder->paginate(12, 'default', $page),
             'pager' => $this->pager,
         ];

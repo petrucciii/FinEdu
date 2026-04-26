@@ -25,7 +25,9 @@ class ExchangeModel extends Model
     {
         try {
             return $this->select('exchanges.*, countries.country, currencies.description as currency_desc, currencies.symbol')
+                //left join: tengo comunque il record principale anche se il dato collegato manca
                 ->join('countries', 'countries.country_code = exchanges.country_code', 'left')
+                //left join: tengo comunque il record principale anche se il dato collegato manca
                 ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
                 ->where('exchanges.active', 1)
                 ->findAll();

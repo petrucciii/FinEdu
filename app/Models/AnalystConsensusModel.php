@@ -30,7 +30,9 @@ class AnalystConsensusModel extends Model
     public function findConsensusPerCompany($isin)
     {
         return $this->select('analysts_consensus.analysis_id, analysts_consensus.isin, analysts_consensus.date, analysts_consensus.firm_id, analysts_consensus.rating_id, analysts_consensus.target_price, firms.firm_name, ratings.rating')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('firms', 'firms.firm_id = analysts_consensus.firm_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('ratings', 'ratings.rating_id = analysts_consensus.rating_id')
             ->where('analysts_consensus.isin', trim($isin))
             ->where('analysts_consensus.active', 1)

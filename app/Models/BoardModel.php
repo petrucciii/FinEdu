@@ -27,6 +27,7 @@ class BoardModel extends Model
         try {
             return $this->db->table($this->table)
                 ->select('companies_board.isin, companies_board.member_id, companies_board.role, board_members.full_name, board_members.picture_path')
+                //uso la join per arricchire il record principale con dati collegati senza fare query separate
                 ->join('board_members', 'board_members.member_id = companies_board.member_id')
                 ->where('companies_board.isin', trim($isin))
                 ->where('board_members.active', 1) //solo quelli non eliminati

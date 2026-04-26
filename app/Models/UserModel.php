@@ -49,7 +49,9 @@ class UserModel extends Model
             $builder = $this->select('users.*, roles.role, levels.level')
                             //conteggio reale dei portafogli attivi dell'utente, letto dal DB e usato da tabella/modal admin.
                             ->select('(SELECT COUNT(*) FROM portfolios p WHERE p.user_id = users.user_id AND p.active = 1) AS portfolio_count', false)
+                            //left join: tengo comunque il record principale anche se il dato collegato manca
                             ->join('levels', 'levels.level_id = users.level_id', 'left')
+                            //left join: tengo comunque il record principale anche se il dato collegato manca
                             ->join('roles', 'roles.role_id = users.role_id', 'left')
                             ->where('users.active', 1);
 
@@ -104,7 +106,9 @@ class UserModel extends Model
     {
         $builder = $this->select('users.*, roles.role, levels.level')
                         ->select('(SELECT COUNT(*) FROM portfolios p WHERE p.user_id = users.user_id AND p.active = 1) AS portfolio_count', false)
+                        //left join: tengo comunque il record principale anche se il dato collegato manca
                         ->join('levels', 'users.level_id = levels.level_id', 'left')
+                        //left join: tengo comunque il record principale anche se il dato collegato manca
                         ->join('roles', 'users.role_id = roles.role_id', 'left')
                         ->where('users.active', 1);
 
@@ -140,6 +144,7 @@ class UserModel extends Model
 
         //altrimenti ritonna impaginato
         return [
+            //paginazione lato database per non caricare tutto in memoria e mantenere la risposta veloce
             'users' => $builder->paginate(10, 'default', $page),
             'pager' => $this->pager
         ];

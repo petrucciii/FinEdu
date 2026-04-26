@@ -60,10 +60,14 @@ class EducationModuleModel extends Model
             ->select('COUNT(DISTINCT l.id_lesson) AS lesson_count', false)
             ->select('COUNT(DISTINCT e.id_explanation) AS explanation_count', false)
             ->select('COUNT(DISTINCT CASE WHEN q.id_question IS NOT NULL THEN l.id_lesson END) AS quiz_count', false)
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('lessons l', 'l.id_module = m.id_module AND l.active = 1', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('explanations e', 'e.id_lesson = l.id_lesson AND e.active = 1', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('questions q', 'q.id_lesson = l.id_lesson AND q.active = 1', 'left')
             ->where('m.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('m.id_module')
             ->orderBy('m.id_module', 'ASC')
             ->get()
@@ -89,11 +93,15 @@ class EducationModuleModel extends Model
         return $this->db->table('modules m')
             ->select('m.*')
             ->select('COUNT(DISTINCT l.id_lesson) AS lesson_count', false)
+            //exists controlla la presenza di righe collegate senza duplicare i risultati della query principale
             ->select('COUNT(DISTINCT CASE WHEN EXISTS ' . $completedSubquery . ' THEN l.id_lesson END) AS completed_count', false)
             ->select('COALESCE(SUM(q.experience), 0) AS total_experience', false)
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('lessons l', 'l.id_module = m.id_module AND l.active = 1', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('questions q', 'q.id_lesson = l.id_lesson AND q.active = 1', 'left')
             ->where('m.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('m.id_module')
             ->orderBy('m.id_module', 'ASC')
             ->get()

@@ -1,6 +1,7 @@
 //auto-refresh dei portafogli utente ogni 2 minuti
 //aggiorna i campi calcolati (valore totale, p&l) nelle card senza ricaricare la pagina
 document.addEventListener('DOMContentLoaded', () => {
+    //aggiorno periodicamente i dati per mantenere la schermata allineata senza ricaricare la pagina
     setInterval(refreshPortfolios, 120000);
 });
 
@@ -12,6 +13,7 @@ const eur = (n) =>
     });
 
 const refreshPortfolios = () => {
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch('/PortfolioController/refreshPortfolios')
         .then(res => res.json())
         .then(data => {

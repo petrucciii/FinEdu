@@ -28,7 +28,9 @@ class OrderModel extends Model
     public function findOpenByPortfolio(int $portfolioId): array
     {
         return $this->select('orders.*, listings.isin, companies.name AS company_name')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->where('orders.portfolio_id', $portfolioId)
             ->where('orders.status', self::STATUS_OPEN)
@@ -43,9 +45,13 @@ class OrderModel extends Model
     {
         $builder = $this->select('orders.*, portfolios.name AS portfolio_name, portfolios.portfolio_id,
                 listings.isin, companies.name AS company_name, exchanges.short_name AS exchange_short')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('exchanges', 'exchanges.mic = orders.mic', 'left')
             ->where('portfolios.user_id', $userId)
             ->where('portfolios.active', 1);
@@ -62,6 +68,7 @@ class OrderModel extends Model
     public function findOwnedOpen(int $orderId, int $userId): ?array
     {
         $row = $this->select('orders.*')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
             ->where('orders.order_id', $orderId)
             ->where('portfolios.user_id', $userId)
@@ -105,9 +112,13 @@ class OrderModel extends Model
             ->select('orders.*, portfolios.name AS portfolio_name, portfolios.user_id,
                 users.first_name, users.last_name, users.email,
                 listings.isin, companies.name AS company_name, ' . $pnlSql . ' AS realized_pnl', false)
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('users', 'users.user_id = portfolios.user_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('companies', 'companies.isin = listings.isin');
 
         /*
@@ -221,9 +232,12 @@ class OrderModel extends Model
     public function reportTopCompaniesByOpenVolume(int $limit = 8): array
     {
         return $this->select('listings.isin, companies.name, SUM(orders.quantity) AS total_qty, COUNT(*) AS num_orders')//seleziona somma quantità e numero ordini raggruppando per azienda
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->where('orders.status', self::STATUS_OPEN)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy(['listings.isin', 'companies.name'])
             ->orderBy('total_qty', 'DESC')
             ->limit($limit)
@@ -235,7 +249,9 @@ class OrderModel extends Model
     {
         $rows = $this ->select('portfolios.user_id, users.first_name, users.last_name,
                 orders.quantity, orders.buyPrice, orders.sellPrice, orders.status')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('users', 'users.user_id = portfolios.user_id')
             ->where('orders.status', self::STATUS_CLOSED)
             ->where('orders.sellPrice IS NOT NULL', null, false)
@@ -280,9 +296,13 @@ class OrderModel extends Model
     public function reportBestClosedTrades(int $limit = 10): array
     {
         $rows = $this->select('orders.*, portfolios.user_id, users.first_name, users.last_name, companies.name AS company_name')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('users', 'users.user_id = portfolios.user_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->where('orders.status', self::STATUS_CLOSED)
             ->where('orders.sellPrice IS NOT NULL', null, false)
@@ -316,9 +336,13 @@ class OrderModel extends Model
     {
         return $this->select('orders.order_id, orders.ticker, orders.quantity, orders.buyPrice, orders.sellPrice, orders.status, orders.date,
             portfolios.name AS portfolio_name, users.first_name, users.last_name, users.email, companies.name AS company_name')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('portfolios', 'portfolios.portfolio_id = orders.portfolio_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('users', 'users.user_id = portfolios.user_id')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('listings', 'listings.ticker = orders.ticker AND listings.mic = orders.mic')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->orderBy('orders.order_id', 'DESC')
             ->limit($limit)

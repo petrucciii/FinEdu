@@ -8,6 +8,7 @@
  */
 function renderPagination({ currentPage, pageCount, perPage, total }, onPageChange) {
     const container = document.getElementById('paginationContainer');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     container.innerHTML = '';
 
     //sinistra: quanti elelementi mostrati
@@ -51,6 +52,7 @@ function renderPagination({ currentPage, pageCount, perPage, total }, onPageChan
             //se è abilitato crea un link, se è un icona aggiunge classi adatte
             a.className = 'page-link border-0 px-3' + (isIcon ? '' : ' fw-bold mx-1 rounded');
             a.href = '#';
+            //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
             a.innerHTML = label;
             //prevent default per evitare che al click il link ricarichi la pagina
             a.addEventListener('click', (e) => { e.preventDefault(); onPageChange(page); });//fa load delle righe

@@ -23,6 +23,7 @@ const loadCompanies = (page = 1, query = '') => {
      * vuoto, altrimenti alcuni routing possono non arrivare al metodo search.
      */
     const searchPath = query ? `/search/${encodeURIComponent(query)}` : '/search';
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(`/CompanyController${searchPath}?page=${page}`)
         .then(res => res.json())
         .then(data => {
@@ -38,6 +39,7 @@ const loadCompanies = (page = 1, query = '') => {
 
 const renderCompanies = (companies) => {
     const tbody = document.getElementById('companiesTableBody');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
 
     //crea un DocumentFragment (non renderizzato nel DOM) mettendo tutte le righe della società. così da fare un'unica operazione di inserimento nel DOM (più efficiente)

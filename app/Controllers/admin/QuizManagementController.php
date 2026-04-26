@@ -113,6 +113,7 @@ class QuizManagementController extends BaseController
 
         //transazione per salvare insieme questions e answers
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         $questionModel = model(QuestionModel::class);
@@ -124,6 +125,7 @@ class QuizManagementController extends BaseController
         ]);
         $questionId = (int) $questionModel->getInsertID();
         if ($questionId < 1) {
+            //faccio rollback per annullare anche le operazioni gia' fatte in questa transazione
             $db->transRollback();
             return redirect()->back()->with('alert', 'Errore durante il salvataggio.')->with('alert_type', 'danger');
         }
@@ -133,6 +135,7 @@ class QuizManagementController extends BaseController
             (int) $this->session->get('user_id')
         );
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Errore durante il salvataggio.')->with('alert_type', 'danger');
@@ -160,6 +163,7 @@ class QuizManagementController extends BaseController
         }
 
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         //aggiorna gli xp del set risposte
@@ -177,6 +181,7 @@ class QuizManagementController extends BaseController
             (int) $this->session->get('user_id')
         );
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Aggiornamento non riuscito.')->with('alert_type', 'danger');

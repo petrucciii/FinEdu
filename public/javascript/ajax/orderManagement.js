@@ -92,8 +92,10 @@ let lastPage = 1;
 
 const loadOrders = (page) => {
     if (page !== undefined) lastPage = page;
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(buildOrdersUrl(lastPage))
         .then((res) => res.json())
+        //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
             renderRows(data.orders);
             renderPagination(data.pagination, loadOrders);
@@ -111,6 +113,7 @@ const eur = (n) =>
 const renderRows = (orders) => {
     const tbody = document.getElementById('ordersTableBody');
     if (!tbody) return;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
     const frag = document.createDocumentFragment();
     (orders || []).forEach((o) => frag.appendChild(row(o)));
@@ -132,6 +135,7 @@ const row = (o) => {
     }
     tr.querySelector('[data-field="user"]').textContent = `${o.first_name || ''} ${o.last_name || ''}`.trim();
     tr.querySelector('[data-field="portfolio"]').textContent = o.portfolio_name || '';
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tr.querySelector('[data-field="ticker_mic"]').innerHTML = `<span>${o.ticker}:${o.mic}</span>`;
     tr.querySelector('[data-field="qty"]').textContent = String(qty);
     tr.querySelector('[data-field="buy"]').textContent = eur(buy);
@@ -142,6 +146,7 @@ const row = (o) => {
     const pnlCell = tr.querySelector('[data-field="pnl"]');
     if (o.realized_pnl != null && o.realized_pnl !== '') {
         const v = Number(o.realized_pnl);
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         pnlCell.innerHTML = `<span class="${v >= 0 ? 'text-success' : 'text-danger'} fw-semibold">${eur(v)}</span>`;
     } else {
         pnlCell.textContent = '—';
@@ -149,9 +154,11 @@ const row = (o) => {
 
     const st = tr.querySelector('[data-field="status"]');
     if (Number(o.status) === 1) {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         st.innerHTML =
             '<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fas fa-check-circle me-1"></i>Aperto</span>';
     } else {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         st.innerHTML =
             '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Chiuso</span>';
     }

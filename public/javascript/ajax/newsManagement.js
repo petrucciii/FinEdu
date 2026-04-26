@@ -24,8 +24,10 @@ const searchNews = () => {
 //carica la lista news da server (ajax) con paginazione.
 //chiama l'endpoint search del controller admin e renderizza tabella + paginazione
 const loadNews = (page = 1, query = '') => {
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(`/admin/NewsManagementController/search/${encodeURIComponent(query)}?page=${page}`)
         .then((res) => res.json())
+        //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
             renderNewsRows(data.news);
             //renderPagination e importato da control.js, gestisce i link della paginazione
@@ -41,6 +43,7 @@ const loadNews = (page = 1, query = '') => {
 const renderNewsRows = (rows) => {
     const tbody = document.getElementById('newsTableBody');
     if (!tbody) return;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tbody.innerHTML = '';
     const fragment = document.createDocumentFragment();
     (rows || []).forEach((item) => fragment.appendChild(createNewsRow(item)));
@@ -55,6 +58,7 @@ const createNewsRow = (n) => {
 
     //formatta la data in formato italiano (dd/mm/yyyy + orario)
     const d = new Date(n.date);
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     tr.querySelector('[data-field="date_cell"]').innerHTML =
         `${d.toLocaleDateString('it-IT')}<br><span class="text-muted">${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}</span>`;
 
@@ -64,12 +68,14 @@ const createNewsRow = (n) => {
     //gestione loghi aziende collegate: logos_raw e una stringa con loghi separati da |||
     //arrivata dal GROUP_CONCAT nella query del model
     const logosCell = tr.querySelector('[data-field="logos"]');
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     logosCell.innerHTML = '';
     //wrap per sovrappore i loghi
     const wrap = document.createElement('div');
     wrap.className = 'd-flex align-items-center';
     const paths = (n.logos_raw || '').split('|||').filter(Boolean);
     if (paths.length === 0) {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         wrap.innerHTML = '<span class="text-muted small">—</span>';
     } else {
         //mostra max 4 loghi sovrapposti
@@ -122,6 +128,7 @@ const bindEditButtons = () => {
                 if (!res.ok) throw new Error('Errore server');
                 return res.json();
             })
+            //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
             .then((data) => {
                 //popola i campi del form di modifica
                 document.getElementById('edit_news_id').value = data.news.news_id;
@@ -134,11 +141,13 @@ const bindEditButtons = () => {
                 //quillEdit e la variabile globale definita in modalNewsEdit.php
                 //creata da initQuillEditor() di quill.js
                 if (typeof quillEdit !== 'undefined' && quillEdit) {
+                    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                     quillEdit.root.innerHTML = data.body || '';
                 }
 
                 //popola il select con lista delle testate
                 const sel = document.getElementById('edit_newspaper_id');
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 sel.innerHTML = '';
                 (data.newspapers || []).forEach((np) => {
                     const opt = document.createElement('option');
@@ -168,6 +177,7 @@ const bindEditButtons = () => {
 //listener per i bottoni "elimina": imposta l'id nel form di conferma
 //e apre il modal di eliminazione
 const bindDeleteButtons = () => {
+    //event delegation: intercetto i click da un unico listener anche su elementi creati dopo
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.open-news-delete-btn');
         if (!btn) return;

@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const input = container.querySelector('.name-input');
             const originalName = input.dataset.originalName;
 
+            //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
             container.innerHTML = `
                     <span class="portfolio-name">${originalName}</span>
                     <button type="button" class="btn btn-link p-0 text-info border-0 shadow-none edit-name-btn">

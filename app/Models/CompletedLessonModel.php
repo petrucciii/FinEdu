@@ -25,6 +25,7 @@ class CompletedLessonModel extends Model
             ->select('id_lesson')
             ->where('user_id', $userId)
             ->where('completed', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('id_lesson')
             ->get()
             ->getResultArray();
@@ -80,6 +81,7 @@ class CompletedLessonModel extends Model
             ->select('id_lesson')
             ->where('user_id', $userId)
             ->where('completed', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('id_lesson')
             ->countAllResults();
     }
@@ -89,7 +91,9 @@ class CompletedLessonModel extends Model
         //recupera gli ultimi tentativi con titolo lezione e nome modulo
         return $this->db->table('completed_lessons cl')
             ->select('cl.*, l.title, m.name AS module_name')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('lessons l', 'l.id_lesson = cl.id_lesson', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('modules m', 'm.id_module = l.id_module', 'left')
             ->where('cl.user_id', $userId)
             ->orderBy('cl.date', 'DESC')
@@ -122,9 +126,12 @@ class CompletedLessonModel extends Model
             ->select('COUNT(DISTINCT CASE WHEN cl.completed = 1 THEN cl.id_lesson END) AS completed_lessons', false)
             ->select('SUM(CASE WHEN cl.completed = 0 THEN 1 ELSE 0 END) AS failed_attempts', false)
             ->select('MAX(cl.date) AS last_activity', false)
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('levels', 'levels.level_id = u.level_id', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('completed_lessons cl', 'cl.user_id = u.user_id', 'left')
             ->where('u.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('u.user_id');
 
         if ($userId !== null && $userId > 0) {

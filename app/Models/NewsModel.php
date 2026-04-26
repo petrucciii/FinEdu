@@ -56,10 +56,14 @@ class NewsModel extends Model
                 newspapers.newspaper,
                 GROUP_CONCAT(DISTINCT companies.logo_path ORDER BY companies.isin SEPARATOR "|||") AS logos_raw,
                 GROUP_CONCAT(DISTINCT companies.name ORDER BY companies.isin SEPARATOR "|||") AS names_raw', false)
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies_news', 'companies_news.news_id = news.news_id', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = companies_news.isin AND companies.active = 1', 'left')
             ->where('news.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('news.news_id');
 
         //filtro di ricerca su piu campi con OR (headline, subtitle, autore, fonte, azienda)
@@ -104,6 +108,7 @@ class NewsModel extends Model
     public function findDetailForAdmin(int $newsId): ?array
     {
         $row = $this->select('news.*, newspapers.newspaper')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
             ->where('news.news_id', $newsId)
             ->where('news.active', 1)
@@ -122,7 +127,9 @@ class NewsModel extends Model
     public function findLatestForCompany(string $isin, int $limit = 3): array
     {
         return $this->select('news.news_id, news.headline, news.subtitle, news.author, news.date, newspapers.newspaper')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('companies_news', 'companies_news.news_id = news.news_id')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
             ->where('companies_news.isin', $isin)
             ->where('news.active', 1)
@@ -146,7 +153,9 @@ class NewsModel extends Model
     public function getBodyJson(int $newsId, string $isin): ?array
     {
         $row = $this->select('news.headline, news.subtitle, news.body, news.author, news.date, newspapers.newspaper')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('companies_news', 'companies_news.news_id = news.news_id')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')//left join cosi anche se non ha news collegate ritorna qualcosa
             ->where('news.news_id', $newsId)
             ->where('companies_news.isin', $isin)

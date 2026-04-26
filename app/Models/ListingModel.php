@@ -18,7 +18,9 @@ class ListingModel extends Model
     {
         return $this
             ->select('listings.ticker, listings.mic, listings.isin, listings.active, exchanges.full_name, exchanges.short_name, exchanges.currency_code')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('exchanges', 'exchanges.mic = listings.mic')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('currencies', 'currencies.currency_code = exchanges.currency_code')
             ->where('listings.isin', trim($isin))
             ->where('listings.active', 1)
@@ -70,6 +72,7 @@ class ListingModel extends Model
         $dayOfWeek = (new \DateTime('now', new \DateTimeZone('Europe/Rome')))->format('l');
         if ($dayOfWeek != 'Saturday' && $dayOfWeek != 'Sunday') {
             return $this->select('listings.ticker, listings.mic')
+                //uso la join per arricchire il record principale con dati collegati senza fare query separate
                 ->join('exchanges', 'exchanges.mic = listings.mic')
                 ->where('listings.active', 1)
                 ->where('exchanges.active', 1)
@@ -95,7 +98,9 @@ class ListingModel extends Model
                 exchanges.full_name as exchange_name, exchanges.short_name,
                 companies.name as company_name,
                 (SELECT p.price FROM prices p WHERE p.ticker = listings.ticker AND p.mic = listings.mic ORDER BY p.date DESC LIMIT 1) as last_price')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('exchanges', 'exchanges.mic = listings.mic', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->where('listings.active', 1);
 
@@ -116,6 +121,7 @@ class ListingModel extends Model
         $builder->orderBy('listings.ticker', 'ASC');
 
         return [
+            //paginazione lato database per non caricare tutto in memoria e mantenere la risposta veloce
             'listings' => $builder->paginate(15, 'default', $page),
             'pager' => $this->pager,
         ];

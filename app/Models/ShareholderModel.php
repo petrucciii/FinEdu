@@ -19,6 +19,7 @@ class ShareholderModel extends Model
     {
         try {
             return $this->select('companies_shareholders.isin, companies_shareholders.firm_id, companies_shareholders.ownership, firms.firm_name')
+                //uso la join per arricchire il record principale con dati collegati senza fare query separate
                 ->join('firms', 'firms.firm_id = companies_shareholders.firm_id')
                 ->where('companies_shareholders.isin', trim($isin))
                 ->orderBy('companies_shareholders.ownership', 'DESC')

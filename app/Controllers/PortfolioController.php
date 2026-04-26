@@ -172,6 +172,7 @@ class PortfolioController extends BaseController
 
         // avvia una transazione: se una query fallisce, annulla tutto per evitare dati incoerenti
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         // sottrae il costo dalla liquidità e lo aggiunge al capitale investito
@@ -192,6 +193,7 @@ class PortfolioController extends BaseController
             'status' => OrderModel::STATUS_OPEN,
         ]);
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Errore durante l\'acquisto.')->with('alert_type', 'danger');
@@ -244,6 +246,7 @@ class PortfolioController extends BaseController
         }
 
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
 
         //riaccredita la vendita (meno tasse) e rimuove il valore originale dall'investito
@@ -261,6 +264,7 @@ class PortfolioController extends BaseController
             'closed_at' => date('Y-m-d H:i:s'),
         ]);
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return redirect()->back()->with('alert', 'Errore in chiusura.')->with('alert_type', 'danger');

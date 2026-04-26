@@ -32,9 +32,13 @@ class CompanyModel extends Model
     public function getCompanyByISIN($isin)
     {
         return $this->select('companies.*, countries.country, sectors.description as sector, exchanges.short_name as main_exchange_label, currencies.symbol as currency')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('sectors', 'sectors.ea_code = companies.ea_code', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('exchanges', 'exchanges.mic = companies.main_exchange', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('countries', 'countries.country_code = companies.country_code', 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('currencies', 'currencies.currency_code = exchanges.currency_code', 'left')
             ->where('companies.isin', $isin)
             ->where('companies.active', 1)
@@ -65,10 +69,14 @@ class CompanyModel extends Model
     public function searchAndPaginate(string $searchQuery, int $page)
     {
         $builder = $this->select('companies.*, sectors.description, countries.country, COUNT(listings.mic) as num_listings')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('sectors', "sectors.ea_code = companies.ea_code", 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('countries', "countries.country_code = companies.country_code", 'left')
+            //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('listings', "listings.isin = companies.isin AND listings.active = 1", 'left')
             ->where('companies.active', 1)
+            //raggruppo per evitare duplicati creati dalle join uno-a-molti
             ->groupBy('companies.isin');
 
         /*
@@ -86,6 +94,7 @@ class CompanyModel extends Model
 
         //ritorna le companie in varie pagine
         return [
+            //paginazione lato database per non caricare tutto in memoria e mantenere la risposta veloce
             'companies' => $builder->paginate(10, 'default', $page),//10 per pagina e pagina correte (senno 1)
             'pager' => $this->pager
         ];
@@ -96,7 +105,9 @@ class CompanyModel extends Model
     {
         return $this->db->table('listings')
             ->select('listings.*, exchanges.full_name, exchanges.short_name, currencies.currency_code')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('exchanges', 'exchanges.mic = listings.mic')
+            //uso la join per arricchire il record principale con dati collegati senza fare query separate
             ->join('currencies', 'currencies.currency_code = exchanges.currency_code')
             ->where('listings.isin', $isin)
             ->where('listings.active', 1)

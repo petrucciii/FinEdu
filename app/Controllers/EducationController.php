@@ -238,6 +238,7 @@ class EducationController extends BaseController
 
         //salva tentativo e xp nella stessa transazione
         $db = db_connect();
+        //apro una transazione per salvare tutto insieme: se un passaggio fallisce non restano dati a meta'
         $db->transStart();
         $completedModel->recordAttempt($userId, $lessonId, $allCorrect);
 
@@ -250,6 +251,7 @@ class EducationController extends BaseController
             $this->session->set('experience', $newExperience);
         }
 
+        //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
         $db->transComplete();
         if (!$db->transStatus()) {
             return $this->failEducationResponse('Errore durante il salvataggio del tentativo.', '/EducationController/module/' . (int) $lesson['id_module'], 'danger', 500);

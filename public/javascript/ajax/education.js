@@ -22,9 +22,11 @@ const submitEducationForm = (form) => {
     if (submitBtn) {
         //blocca il bottone per evitare doppi tentativi involontari
         submitBtn.disabled = true;
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Invio...';
     }
 
+    //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
     fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
@@ -44,6 +46,7 @@ const submitEducationForm = (form) => {
             if (!response.ok) data.success = false;
             return data;
         })
+        //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
             //trova la card lezione da aggiornare senza ricaricare pagina
             const lessonItem = form.closest('.education-lesson-item');
@@ -65,6 +68,7 @@ const submitEducationForm = (form) => {
             if (submitBtn) {
                 //se il quiz e sbagliato o c'e un errore, permette di riprovare
                 submitBtn.disabled = false;
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 submitBtn.innerHTML = originalText;
             }
 
@@ -81,6 +85,7 @@ const submitEducationForm = (form) => {
             }
             if (submitBtn) {
                 submitBtn.disabled = false;
+                //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
                 submitBtn.innerHTML = originalText;
             }
         });
@@ -165,6 +170,7 @@ const updateLessonBadge = (item, status) => {
 
     const config = badgeMap[status] || badgeMap.available;
     badge.className = config.className;
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     badge.innerHTML = config.html;
 };
 
@@ -192,6 +198,7 @@ const renderCompletedResult = (item) => {
     const explanationForm = resultArea.querySelector('.education-explanation-form');
 
     if (quizForm) {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         resultArea.innerHTML = `
             <div class="alert alert-success border-0 shadow-sm mb-0">
                 <i class="fas fa-check-circle me-2"></i>Quiz completato.
@@ -201,6 +208,7 @@ const renderCompletedResult = (item) => {
     }
 
     if (explanationForm) {
+        //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
         resultArea.innerHTML = `
             <button class="btn btn-outline-success" disabled>
                 <i class="fas fa-check-circle me-1"></i> Lezione completata
@@ -214,6 +222,7 @@ const showLessonFeedback = (item, message, type = 'warning') => {
     const feedback = item.querySelector('.lesson-feedback');
     if (!feedback) return;
 
+    //scrivo html dinamico qui per rendere il contenuto velocemente in base ai dati ricevuti
     feedback.innerHTML = '';
 
     const alert = document.createElement('div');
