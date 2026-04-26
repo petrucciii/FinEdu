@@ -132,7 +132,7 @@
             </td>
 
             <td>
-                <span class="fw-bold">0</span>
+                <span class="fw-bold" data-field="portfolio_count">0</span>
             </td>
 
             <td class="small text-muted" data-field="created_at"></td>

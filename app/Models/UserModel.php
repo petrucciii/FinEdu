@@ -47,6 +47,8 @@ class UserModel extends Model
     {
         try {
             $builder = $this->select('users.*, roles.role, levels.level')
+                            //conteggio reale dei portafogli attivi dell'utente, letto dal DB e usato da tabella/modal admin.
+                            ->select('(SELECT COUNT(*) FROM portfolios p WHERE p.user_id = users.user_id AND p.active = 1) AS portfolio_count', false)
                             ->join('levels', 'levels.level_id = users.level_id', 'left')
                             ->join('roles', 'roles.role_id = users.role_id', 'left')
                             ->where('users.active', 1);
@@ -89,6 +91,8 @@ class UserModel extends Model
      *
      * Le join con roles e levels servono per restituire direttamente le label leggibili
      * da mostrare in tabella, evitando query aggiuntive dal controller o dal JavaScript.
+     * portfolio_count viene calcolato con subquery per non duplicare gli utenti con una
+     * JOIN sui portafogli e per avere lo stesso numero reale in tabella, modal e CSV.
      * Sono LEFT JOIN per non perdere un utente se, per dati sporchi o incompleti, manca
      * temporaneamente il record collegato nella tabella roles o levels.
      *
@@ -99,6 +103,7 @@ class UserModel extends Model
     public function searchAndPaginate($searchQuery, $roleId, $levelId, $orderColumn, $orderType, $page, $isExport)
     {
         $builder = $this->select('users.*, roles.role, levels.level')
+                        ->select('(SELECT COUNT(*) FROM portfolios p WHERE p.user_id = users.user_id AND p.active = 1) AS portfolio_count', false)
                         ->join('levels', 'users.level_id = levels.level_id', 'left')
                         ->join('roles', 'users.role_id = roles.role_id', 'left')
                         ->where('users.active', 1);

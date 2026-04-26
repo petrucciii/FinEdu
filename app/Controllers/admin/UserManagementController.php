@@ -4,7 +4,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\LevelModel;
-use App\Models\PortfolioModel;
 use App\Models\RoleModel;
 use App\Models\UserModel;
 use Exception;
@@ -74,7 +73,7 @@ class UserManagementController extends BaseController
 
             //se va esporatto in csv ritorna un unico array non impaginato
             if ($isExport) {
-                $columns = ['user_id', 'first_name', 'last_name', 'email', 'role_id', 'level_id', 'created_at'];
+                $columns = ['user_id', 'first_name', 'last_name', 'email', 'role', 'level', 'portfolio_count', 'created_at'];
                 self::toCSV($result, $columns);
             }
 
@@ -111,15 +110,11 @@ class UserManagementController extends BaseController
 
         if ($this->session->has('logged') && $this->session->get('role_id') == 1 && isset($user[0])) {
             unset($user[0]['password']);
-            $portfolioModel = model(PortfolioModel::class);
-            $portfolios = $portfolioModel->findActiveByUser($userId);
-            $portfolios = is_array($portfolios) ? $portfolios : [];
 
             //ritorna i dati come json 
             return $this->response->setJSON([
                 'user' => $user[0],
                 'roles' => $roles,
-                'portfolios' => $portfolios,
             ]);
         }
 

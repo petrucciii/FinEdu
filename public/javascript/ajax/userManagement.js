@@ -44,8 +44,8 @@ const settingsModal = () => {
                 document.getElementsByClassName('modalInputLastName')[0].value = data.user.last_name;
                 document.getElementsByClassName('modalInputEmail')[0].value = data.user.email;
                 document.getElementById('modalCreatedAt').textContent = new Date(data.user.created_at).toLocaleDateString();
-                document.getElementById('modalLevel').textContent = data.user.level;
-                document.getElementById('modalPortfolioCount').textContent = (data.portfolios || []).length;
+                document.getElementById('modalLevel').textContent = data.user.level || '-';
+                document.getElementById('modalPortfolioCount').textContent = Number(data.user.portfolio_count || 0);
                 /*
                  * I bottoni non aprono tab dentro il modal: portano alle view admin gia
                  * esistenti e passano user_id. Quelle view filtrano progressi o portafogli
@@ -261,7 +261,8 @@ const createUserRow = (user, index) => {
     tr.querySelector('[data-field="role_id"]').className += ` ${roleBadge}`;
     tr.querySelector('[data-field="role_id"]').textContent = ucFirst(user.role);
     tr.querySelector('[data-field="level_id"]').className += ` ${lvlBadge}`;
-    tr.querySelector('[data-field="level_id"]').textContent = user.level;
+    tr.querySelector('[data-field="level_id"]').textContent = user.level || '-';
+    tr.querySelector('[data-field="portfolio_count"]').textContent = Number(user.portfolio_count || 0);
     tr.querySelector('[data-field="created_at"]').textContent = formatDate(user.created_at);
     tr.querySelector('[data-field="manage_btn"]').dataset.id = user.user_id;
 
