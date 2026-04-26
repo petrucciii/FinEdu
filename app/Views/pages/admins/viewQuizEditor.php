@@ -3,9 +3,6 @@
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <h5 class="m-0 text-muted">Quiz Editor</h5>
         <div class="d-flex gap-2">
-            <a href="/admin/QuizManagementController/" class="btn btn-outline-secondary">
-                <i class="fas fa-list me-1"></i> Elenco quiz
-            </a>
             <a href="/admin/ModuleManagementController/" class="btn btn-outline-primary">
                 <i class="fas fa-graduation-cap me-1"></i> Moduli
             </a>

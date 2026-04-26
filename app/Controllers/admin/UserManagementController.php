@@ -3,9 +3,10 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
-use App\Models\UserModel;
-use App\Models\RoleModel;
 use App\Models\LevelModel;
+use App\Models\PortfolioModel;
+use App\Models\RoleModel;
+use App\Models\UserModel;
 use Exception;
 
 class UserManagementController extends BaseController
@@ -25,7 +26,13 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
-    //endpoint ajax
+    /*
+     * Endpoint AJAX usato dalla tabella admin utenti.
+     *
+     * Il controller valida sempre i campi di ordinamento prima di passarli al model:
+     * cosi la colonna arriva dalla UI, ma non puo' diventare SQL arbitrario.
+     * La ricerca vera (nome/cognome/email nello stesso input) resta nel model.
+     */
     public function search($where = '')
     {
         $userModel = model(UserModel::class);
@@ -88,17 +95,32 @@ class UserManagementController extends BaseController
         return redirect()->to('/');
     }
 
-    //endpoint ajax
+    /*
+     * Endpoint AJAX per aprire il modal "Gestisci".
+     *
+     * Il modal deve restare quello compatto originale: qui mandiamo solo i dati utili a
+     * compilare campi, ruoli e numero di portafogli. I pulsanti progressi/portafogli
+     * rimandano alle rispettive view admin filtrate con user_id.
+     */
     public function settings($userId)
     {
+        $userId = (int) $userId;
         $userModel = model(UserModel::class);
         $user = $userModel->fread(['users.user_id' => $userId]);
         $roles = model(RoleModel::class)->fread();
 
         if ($this->session->has('logged') && $this->session->get('role_id') == 1 && isset($user[0])) {
             unset($user[0]['password']);
+            $portfolioModel = model(PortfolioModel::class);
+            $portfolios = $portfolioModel->findActiveByUser($userId);
+            $portfolios = is_array($portfolios) ? $portfolios : [];
+
             //ritorna i dati come json 
-            return $this->response->setJSON(['user' => $user[0], 'roles' => $roles]);
+            return $this->response->setJSON([
+                'user' => $user[0],
+                'roles' => $roles,
+                'portfolios' => $portfolios,
+            ]);
         }
 
         return redirect()->to('/');

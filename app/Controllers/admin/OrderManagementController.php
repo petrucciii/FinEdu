@@ -40,7 +40,11 @@ class OrderManagementController extends BaseController
         echo view('templates/footer');
     }
 
-    //endpoint ajax
+    /*
+     * Endpoint AJAX della gestione ordini.
+     * Tutti i filtri arrivano da query string perché la tabella si aggiorna senza reload;
+     * il model centralizza join, calcolo P&L e paginazione manuale.
+     */
     public function search($query = '')
     {
         if (!$this->isAdmin()) {

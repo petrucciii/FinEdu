@@ -145,23 +145,24 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-end text-nowrap">
-                                                    <?php //pulsanti che aprono i modal o l'editor quiz ?>
-                                                    <button class="btn btn-sm btn-light text-primary border shadow-sm me-1 open-lesson-edit"
-                                                        data-bs-toggle="modal" data-bs-target="#editLessonModal"
-                                                        data-id="<?= (int) $lesson['id_lesson'] ?>"
-                                                        data-title="<?= esc($lesson['title'], 'attr') ?>"
-                                                        data-description="<?= esc($lesson['description'], 'attr') ?>"
-                                                        data-hint="<?= esc($lesson['hint'], 'attr') ?>"
-                                                        data-type="<?= esc($lesson['lesson_type'], 'attr') ?>"
-                                                        data-body="<?= esc($lesson['body'] ?? '', 'attr') ?>">
-                                                        <i class="fas fa-eye"></i> / <i class="fas fa-pen"></i>
-                                                    </button>
-
+                                                    <?php //spiegazioni in modal, quiz direttamente nel Quiz Editor ?>
                                                     <?php if ($lesson['lesson_type'] === 'quiz'): ?>
                                                         <a href="/admin/QuizManagementController/editor/<?= (int) $lesson['id_lesson'] ?>"
                                                             class="btn btn-sm btn-light text-warning border shadow-sm me-1">
-                                                            <i class="fas fa-tasks"></i> Editor
+                                                            <i class="fas fa-eye"></i> / <i class="fas fa-pen"></i>
+                                                            
                                                         </a>
+                                                    <?php else: ?>
+                                                        <button class="btn btn-sm btn-light text-primary border shadow-sm me-1 open-lesson-edit"
+                                                            data-bs-toggle="modal" data-bs-target="#editLessonModal"
+                                                            data-id="<?= (int) $lesson['id_lesson'] ?>"
+                                                            data-title="<?= esc($lesson['title'], 'attr') ?>"
+                                                            data-description="<?= esc($lesson['description'], 'attr') ?>"
+                                                            data-hint="<?= esc($lesson['hint'], 'attr') ?>"
+                                                            data-type="<?= esc($lesson['lesson_type'], 'attr') ?>"
+                                                            data-body="<?= esc($lesson['body'] ?? '', 'attr') ?>">
+                                                            <i class="fas fa-eye"></i> / <i class="fas fa-pen"></i>
+                                                        </button>
                                                     <?php endif; ?>
 
                                                     <form action="/admin/ModuleManagementController/deleteLesson" method="post"

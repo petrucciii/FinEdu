@@ -22,6 +22,7 @@ class BoardMemberModel extends Model
 
     public function findActiveOrdered(): array
     {
+        //anagrafica membri CdA attivi, ordinata per compilare select e tabelle admin
         return $this->where('active', 1)
             ->orderBy('full_name', 'ASC')
             ->findAll();

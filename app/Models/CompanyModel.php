@@ -55,10 +55,15 @@ class CompanyModel extends Model
         return (int) $this->where('active', 1)->countAllResults();
     }
 
-    //ricerca e impagina risultato per la view di elenco società
+    /*
+     * Ricerca e impagina risultato per la view elenco società.
+     *
+     * Le LEFT JOIN portano descrizione settore, paese e numero quotazioni senza perdere
+     * società che hanno dati incompleti. Il groupBy serve perché una società può avere
+     * più listing: senza raggruppare avremmo una riga duplicata per ogni borsa.
+     */
     public function searchAndPaginate(string $searchQuery, int $page)
     {
-        //join 
         $builder = $this->select('companies.*, sectors.description, countries.country, COUNT(listings.mic) as num_listings')
             ->join('sectors', "sectors.ea_code = companies.ea_code", 'left')
             ->join('countries', "countries.country_code = companies.country_code", 'left')
@@ -66,13 +71,16 @@ class CompanyModel extends Model
             ->where('companies.active', 1)
             ->groupBy('companies.isin');
 
-        //filtra in base alla query di ricerca ricevuta su nome isin e ticker
-        $searchQuery = trim($searchQuery);
-        if ($searchQuery != '') {
-            $builder->groupStart()//raggruppamento condizioni
-                ->like('companies.name', $searchQuery)
-                ->orLike('companies.isin', $searchQuery)
-                ->orLike('listings.ticker', $searchQuery)
+        /*
+         * Un solo input cerca nome società, ISIN e ticker. La query è divisa in parole
+         * così ricerche composte continuano a funzionare come nelle news/admin utenti.
+         */
+        $tokens = preg_split('/\s+/', trim($searchQuery), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
+            $builder->groupStart()
+                ->like('companies.name', $token)
+                ->orLike('companies.isin', $token)
+                ->orLike('listings.ticker', $token)
                 ->groupEnd();
         }
 
@@ -97,7 +105,7 @@ class CompanyModel extends Model
 
 
 
-    //eliminazione logica
+    //eliminazione logica: non rimuove record, li disattiva per conservare storico e relazioni
     public function deleteCompany($isin, $data)
     {
         //transazione per assicurare che tutte le tabelle vengano aggiornate o nessuna

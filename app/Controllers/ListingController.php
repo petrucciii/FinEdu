@@ -37,7 +37,11 @@ class ListingController extends BaseController
         echo view('templates/footer');
     }
 
-    //endpoint json per ricerca ajax dei listings con filtro borsa
+    /*
+     * Endpoint JSON per la ricerca AJAX dei listing.
+     * La view chiama questo metodo ad ogni ricerca/filtro e riceve righe + paginazione
+     * nello stesso formato usato dalle altre tabelle dinamiche.
+     */
     public function search($query = '')
     {
         if (!$this->session->has('logged')) {

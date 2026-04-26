@@ -1,5 +1,12 @@
 import renderPagination from '../control.js';
 
+/*
+ * Gestione AJAX della pagina admin utenti.
+ *
+ * Il PHP renderizza la struttura della tabella e il <template>; questo file chiede
+ * al controller i dati JSON e ricostruisce righe, paginazione, filtri e ordinamenti.
+ * Cosi la ricerca resta dinamica e non serve ricaricare tutta la pagina.
+ */
 document.addEventListener('DOMContentLoaded', () => {
     settingsModal();
     loadUsers();//carica gli utenti quando pagina è caricata (piccolo delay)
@@ -10,9 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     exportUsers();
 });
 
-//finestra modale per gestione utente (aperta con ajax)
+//finestra modale per gestione utente: un solo modal viene riempito via AJAX al click
 const settingsModal = () => {
-    //gestita sul documento e non su ogni bottone dato che ce n'è uno per ogni riga
+    //event delegation: funziona anche sulle righe ricreate dopo ricerca o cambio pagina
     document.addEventListener('click', (e) => {
 
         let btn = e.target.closest('.open-user-btn');
@@ -21,7 +28,7 @@ const settingsModal = () => {
         //prende id da data-attribute
         let userId = btn.dataset.id;
 
-        //fetch ajax all'endpoint con userId
+        //fetch ajax all'endpoint con userId, evitando dati precaricati e modal duplicati
         fetch('/admin/UserManagementController/settings/' + userId)//endpoint : UserManagement::settings($userId)
             .then(response => {
                 if (!response.ok) {
@@ -31,13 +38,21 @@ const settingsModal = () => {
                 return response.json();
             })
             .then(data => {
-                //popola modal
+                //popola modal con i dati correnti dell'utente selezionato
                 document.getElementById('modalUserTitle').textContent = " Utente #" + data.user.user_id;
                 document.getElementsByClassName('modalInputFirstName')[0].value = data.user.first_name;
                 document.getElementsByClassName('modalInputLastName')[0].value = data.user.last_name;
                 document.getElementsByClassName('modalInputEmail')[0].value = data.user.email;
                 document.getElementById('modalCreatedAt').textContent = new Date(data.user.created_at).toLocaleDateString();
                 document.getElementById('modalLevel').textContent = data.user.level;
+                document.getElementById('modalPortfolioCount').textContent = (data.portfolios || []).length;
+                /*
+                 * I bottoni non aprono tab dentro il modal: portano alle view admin gia
+                 * esistenti e passano user_id. Quelle view filtrano progressi o portafogli
+                 * lato server, quindi si vede subito il dato dell'utente cliccato.
+                 */
+                document.getElementById('modalPortfolioLink').href = `/admin/PortfolioManagementController/?user_id=${encodeURIComponent(data.user.user_id)}`;
+                document.getElementById('modalProgressLink').href = `/admin/ModuleManagementController/progress?user_id=${encodeURIComponent(data.user.user_id)}`;
 
                 //inseisce attributi per i form (bottoni) con le varie azioni
                 document.querySelectorAll('form[name="modalEditForm"]').forEach(form => {
@@ -45,7 +60,7 @@ const settingsModal = () => {
                 });
                 document.getElementById('modalDeleteForm').action = '/admin/UserManagementController/delete/' + userId;
 
-                //radio buttons per i ruoli
+                //radio buttons per i ruoli: generati dai dati DB, non scritti fissi nel JS
                 let rolesContainer = document.getElementById('modalRolesContainer');
                 rolesContainer.innerHTML = "";//pulisce il container per evitare duplicazioni
 
@@ -90,7 +105,14 @@ let currentLevel = '';
 let currentOrder = '';
 let orderType = 'ASC';
 
-//costrusice url per endpoint in base a stato
+/*
+ * Costruisce l'URL dell'endpoint utenti partendo dallo stato corrente.
+ *
+ * Quando la ricerca e' vuota usiamo /search senza segmento aggiuntivo: /search/
+ * con parametro vuoto puo' essere ambiguo in alcuni setup di routing. La ricerca
+ * viene poi divisa in parole nel model, cosi lo stesso input cerca nome, cognome
+ * ed email anche con query come "rossi mario".
+ */
 const buildUsersUrl = (page = 1, exportCsv = false) => {
     //parametri get
     let queryString = `page=${page}`;
@@ -102,7 +124,8 @@ const buildUsersUrl = (page = 1, exportCsv = false) => {
     if (exportCsv) queryString += `&export=${encodeURIComponent(exportCsv)}`;
 
     //endpoint
-    return `/admin/UserManagementController/search/${encodeURIComponent(currentQuery)}?${queryString}`;
+    const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
+    return `/admin/UserManagementController${searchPath}?${queryString}`;
 };
 
 
@@ -145,7 +168,7 @@ const exportUsers = () => {
     });
 };
 
-//ricerca da nome o cognome
+//ricerca dinamica da un solo input: nome, cognome, email o combinazioni di parole
 const searchUser = () => {
     const input = document.getElementById('searchInput');
 
@@ -157,8 +180,10 @@ const searchUser = () => {
 
 
 
-//carica utenti con richiesta ajax, passando il numero della pagina corrente e l'endpoint creato con stato globale
-//gli utenti vengono poi renderizzati e inseriti nella tabella con impaginazione
+/*
+ * Carica utenti con richiesta AJAX, passando pagina, ricerca, filtri e ordinamento.
+ * Dopo la risposta aggiorna tabella e paginazione senza reload della pagina.
+ */
 const loadUsers = (page = 1) => {
     fetch(buildUsersUrl(page))
         .then(res => res.json())
@@ -171,7 +196,7 @@ const loadUsers = (page = 1) => {
 }
 
 const seeFilters = () => {
-    //per ogni option conrolla quella attiva
+    //evidenzia nei dropdown i filtri attivi, cosi lo stato AJAX resta visibile
     document.querySelectorAll('button[data-role_id]').forEach(btn => {
         if (btn.dataset.role_id === currentRole) {
             btn.classList.add('bg-primary', 'text-white');
@@ -192,13 +217,12 @@ const seeFilters = () => {
     });
 }
 
-//renderizza users nella tabella
+//renderizza gli utenti usando un DocumentFragment per aggiornare il DOM una volta sola
 const renderUsers = (users) => {
     const tbody = document.getElementById('usersTableBody');
     tbody.innerHTML = '';
 
-    //crea un document fragmented (non renderizzato nel DOM) aggiungendo tutti gli utenti (righe), 
-    // così il DOM viene aggiornato solo una volta e non una volta ogni riga
+    //il fragment riduce repaint/reflow quando la tabella viene ricreata spesso
     const fragment = document.createDocumentFragment();
     users.forEach((user, index) => fragment.appendChild(createUserRow(user, index)));
     //inserimento come figlo nel tbody
@@ -207,7 +231,7 @@ const renderUsers = (users) => {
 
 
 
-//riga costruita passand utente come oggetto e index per l'icona dell'avatar
+//riga costruita da un oggetto utente e dall'indice usato per il colore avatar sequenziale
 const createUserRow = (user, index) => {
     //il colore dell'avatar cambia in sequenza : index=0 % 5 = 0 (primary), index=1 % 5 = 1 (success), index=2 % 5 = 2 (warning), index=3 % 5 = 3 (danger), index=4 % 5 = 4 (info), index=5 % 5 = 0 (primary), ecc.
     const colorClass = avatarColors[index % avatarColors.length];
@@ -223,12 +247,12 @@ const createUserRow = (user, index) => {
     };
     const lvlBadge = lvlBadgeMap[user.level_id] ?? 'bg-warning text-dark';
 
-    //popola <template> con dati utente
+    //il <template> tiene HTML e JS separati: qui cloniamo solo la struttura da riempire
     const template = document.getElementById('userRowTemplate');
     //crea una copia di template  (anche i suoi figli) e prende la riga(tr), ritorna un fragment non ancora renderizzato
     const tr = template.content.cloneNode(true).querySelector('tr');
 
-    //riempie colonne utilizzato i data-attribute
+    //i data-field evitano querySelector fragili basati sulla posizione delle colonne
     tr.querySelector('[data-field="user_id"]').textContent = `#${user.user_id}`;
     tr.querySelector('[data-field="avatar"]').classList.add(colorClass);
     tr.querySelector('[data-field="avatar"]').textContent = getInitials(user.first_name, user.last_name);
@@ -244,7 +268,7 @@ const createUserRow = (user, index) => {
     return tr;
 };
 
-//filtro per livello
+//filtro per livello: aggiorna lo stato e ricarica dalla prima pagina
 const filterByLevel = () => {
     document.addEventListener('click', (e) => {
         let btn = e.target.closest('button[data-level_id]');//dropdown
@@ -255,7 +279,7 @@ const filterByLevel = () => {
     });
 }
 
-//filtro per ruolo
+//filtro per ruolo: combinabile con ricerca, livello e ordinamento
 const filterByRole = () => {
     document.addEventListener('click', (e) => {
         let btn = e.target.closest('button[data-role_id]');//dropdown
@@ -267,7 +291,7 @@ const filterByRole = () => {
 }
 
 
-//ordinamento
+//ordinamento colonne: alterna ASC/DESC se si riclicca la stessa intestazione
 const orderBy = () => {
 
     document.addEventListener('click', (e) => {
@@ -311,7 +335,7 @@ const orderBy = () => {
 
 
 const getInitials = (first, last) => { //prime due lettere per icona avatar
-    return (first[0] + last[0]).toUpperCase();
+    return (((first || '?')[0] || '') + ((last || '?')[0] || '')).toUpperCase();
 };
 
 const formatDate = (dateString) =>
@@ -319,10 +343,3 @@ const formatDate = (dateString) =>
 
 const ucFirst = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1);
-
-//previene xss
-const escapeHtml = (str) => {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-};

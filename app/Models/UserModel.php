@@ -84,7 +84,18 @@ class UserModel extends Model
         }
     }
 
-    //cerca e impagina
+    /*
+     * Cerca e impagina la lista utenti della gestione admin.
+     *
+     * Le join con roles e levels servono per restituire direttamente le label leggibili
+     * da mostrare in tabella, evitando query aggiuntive dal controller o dal JavaScript.
+     * Sono LEFT JOIN per non perdere un utente se, per dati sporchi o incompleti, manca
+     * temporaneamente il record collegato nella tabella roles o levels.
+     *
+     * La ricerca usa un solo input per nome, cognome ed email. La query viene divisa in
+     * parole e ogni parola viene cercata su tutte e tre le colonne: cosi "Mario Rossi",
+     * "Rossi Mario" o una parte dell'email filtrano lo stesso utente.
+     */
     public function searchAndPaginate($searchQuery, $roleId, $levelId, $orderColumn, $orderType, $page, $isExport)
     {
         $builder = $this->select('users.*, roles.role, levels.level')
@@ -92,12 +103,13 @@ class UserModel extends Model
                         ->join('roles', 'users.role_id = roles.role_id', 'left')
                         ->where('users.active', 1);
 
-        //cerca per email, nome o cognome
-        if (!empty(trim($searchQuery))) {
+        //cerca per email, nome o cognome usando token indipendenti nello stesso input.
+        $tokens = preg_split('/\s+/', trim((string) $searchQuery), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
             $builder->groupStart()
-                    ->like('users.email', trim($searchQuery))
-                    ->orLike('users.first_name', trim($searchQuery))
-                    ->orLike('users.last_name', trim($searchQuery))
+                    ->like('users.email', $token)
+                    ->orLike('users.first_name', $token)
+                    ->orLike('users.last_name', $token)
                     ->groupEnd();
         }
 

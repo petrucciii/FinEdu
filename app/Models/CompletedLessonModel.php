@@ -98,9 +98,24 @@ class CompletedLessonModel extends Model
             ->getResultArray();
     }
 
-    public function progressByUsers(string $searchQuery = '', int $page = 1): array
+    public function progressByUsers(string $searchQuery = '', int $page = 1, ?int $userId = null): array
     {
-        //costruisce la vista admin dei progressi senza permettere modifiche manuali
+        /*
+         * Costruisce la vista admin dei progressi senza permettere modifiche manuali.
+         *
+         * Si parte da users e si usa LEFT JOIN su completed_lessons per mostrare anche
+         * utenti che non hanno ancora tentativi: con una INNER JOIN sparirebbero dalla
+         * tabella, invece all'admin serve vedere tutti gli utenti attivi, admin compresi.
+         *
+         * Le COUNT/SUM calcolano dati riepilogativi direttamente nel database:
+         * - total_attempts conta tutti i tentativi;
+         * - completed_lessons conta lezioni diverse completate almeno una volta;
+         * - failed_attempts conta i tentativi sbagliati;
+         * - last_activity prende l'ultima data di attivita.
+         *
+         * Il filtro user_id serve quando si arriva dal modal gestione utente: il bottone
+         * "Vedi Progressi Educativi" apre la stessa view, ma gia filtrata su quell'utente.
+         */
         $builder = $this->db->table('users u')
             ->select('u.user_id, u.first_name, u.last_name, u.email, u.experience, levels.level')
             ->select('COUNT(cl.attempt) AS total_attempts', false)
@@ -112,16 +127,29 @@ class CompletedLessonModel extends Model
             ->where('u.active', 1)
             ->groupBy('u.user_id');
 
-        $searchQuery = trim($searchQuery);
-        if ($searchQuery !== '') {
+        if ($userId !== null && $userId > 0) {
+            $builder->where('u.user_id', $userId);
+        }
+
+        /*
+         * Ricerca a token su un input unico. Ogni parola digitata deve comparire in nome,
+         * cognome o email, quindi funzionano sia "mario rossi" sia "rossi mario".
+         */
+        $tokens = preg_split('/\s+/', trim($searchQuery), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
             $builder->groupStart()
-                ->like('u.first_name', $searchQuery)
-                ->orLike('u.last_name', $searchQuery)
-                ->orLike('u.email', $searchQuery)
+                ->like('u.first_name', $token)
+                ->orLike('u.last_name', $token)
+                ->orLike('u.email', $token)
                 ->groupEnd();
         }
 
-        //conteggio manuale per mantenere compatibile la paginazione con group by
+        /*
+         * La query e' raggruppata per utente, quindi la normale paginazione del model
+         * non puo' contare le righe in modo affidabile. Compiliamo la SELECT e la
+         * avvolgiamo in una sottoquery: il COUNT esterno conta quanti utenti aggregati
+         * verranno mostrati, non quante righe di completed_lessons esistono.
+         */
         $builder->orderBy('u.last_name', 'ASC')
             ->orderBy('u.first_name', 'ASC');
 

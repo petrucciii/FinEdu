@@ -45,15 +45,22 @@ class ModuleManagementController extends BaseController
 
     public function progress()
     {
-        //mostra una pagina sola lettura con i progressi utenti
+        /*
+         * Mostra una pagina sola lettura con i progressi educativi.
+         *
+         * La pagina puo' essere aperta dalla gestione moduli (tutti gli utenti) oppure dal
+         * modal gestione utente con ?user_id=...; in quel caso il model filtra lo stesso
+         * riepilogo su un singolo utente senza creare una view duplicata.
+         */
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
 
-        //legge ricerca e paginazione per evitare una tabella troppo pesante
+        //ricerca e paginazione tengono leggera la tabella quando gli utenti crescono
         $page = (int) ($this->request->getGet('page') ?? 1);
         $search = (string) ($this->request->getGet('search') ?? '');
-        $progress = model(CompletedLessonModel::class)->progressByUsers($search, $page);
+        $userId = (int) ($this->request->getGet('user_id') ?? 0);
+        $progress = model(CompletedLessonModel::class)->progressByUsers($search, $page, $userId > 0 ? $userId : null);
         $totalLessons = model(EducationModuleModel::class)->countActiveLessons();
 
         echo view('templates/header');
@@ -61,10 +68,35 @@ class ModuleManagementController extends BaseController
             'rows' => $progress['users'],
             'pager' => $progress['pager'],
             'search' => trim($search),
+            'selectedUserId' => $userId > 0 ? $userId : null,
             'totalLessons' => $totalLessons,
             'adminSection' => true,
         ]);
         echo view('templates/footer');
+    }
+
+    public function progressSearch($query = '')
+    {
+        /*
+         * Endpoint AJAX per la tabella "Progressi utenti".
+         *
+         * È costruito come la ricerca news: il JavaScript invia testo e pagina, il model
+         * cerca nel database e qui torniamo JSON con righe, paginazione e totale lezioni.
+         * Così la ricerca non filtra solo la pagina già caricata, ma tutti gli utenti.
+         */
+        if (!$this->isAdmin()) {
+            return redirect()->to('/');
+        }
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        $userId = (int) ($this->request->getGet('user_id') ?? 0);
+        $progress = model(CompletedLessonModel::class)->progressByUsers((string) $query, $page, $userId > 0 ? $userId : null);
+
+        return $this->response->setJSON([
+            'rows' => $progress['users'],
+            'pagination' => $progress['pager'],
+            'totalLessons' => model(EducationModuleModel::class)->countActiveLessons(),
+        ]);
     }
 
     public function createModule()

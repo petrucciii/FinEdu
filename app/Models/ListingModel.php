@@ -81,9 +81,14 @@ class ListingModel extends Model
         }
     }
 
-    //ricerca paginata dei listings con join exchange e ultimo prezzo per la pagina listings utente.
-    //supporta ricerca per ticker/isin/nome societa e filtro per mic (borsa).
-    //il prezzo viene recuperato con una subquery che prende il piu recente per ogni ticker+mic
+    /*
+     * Ricerca paginata dei listing per la pagina quotazioni utente.
+     *
+     * La subquery last_price prende il prezzo più recente per ogni coppia ticker/mic:
+     * evita una seconda chiamata AJAX solo per mostrare il prezzo nella tabella.
+     * Il filtro mic limita a una singola borsa, mentre la ricerca tokenizzata lavora su
+     * ticker, ISIN e nome società dallo stesso input.
+     */
     public function searchPaginate(string $searchQuery, int $page, string $mic = ''): array
     {
         $builder = $this->select('listings.ticker, listings.mic, listings.isin, listings.active,
@@ -94,12 +99,12 @@ class ListingModel extends Model
             ->join('companies', 'companies.isin = listings.isin', 'left')
             ->where('listings.active', 1);
 
-        $searchQuery = trim($searchQuery);
-        if ($searchQuery !== '') {
+        $tokens = preg_split('/\s+/', trim($searchQuery), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
             $builder->groupStart()
-                ->like('listings.ticker', $searchQuery)
-                ->orLike('listings.isin', $searchQuery)
-                ->orLike('companies.name', $searchQuery)
+                ->like('listings.ticker', $token)
+                ->orLike('listings.isin', $token)
+                ->orLike('companies.name', $token)
                 ->groupEnd();
         }
 

@@ -18,7 +18,12 @@ const searchCompany = () => {
 };
 
 const loadCompanies = (page = 1, query = '') => {
-    fetch(`/CompanyController/search/${encodeURIComponent(query)}?page=${page}`)
+    /*
+     * Stesso schema delle news: se la query e' vuota non aggiungiamo un segmento URL
+     * vuoto, altrimenti alcuni routing possono non arrivare al metodo search.
+     */
+    const searchPath = query ? `/search/${encodeURIComponent(query)}` : '/search';
+    fetch(`/CompanyController${searchPath}?page=${page}`)
         .then(res => res.json())
         .then(data => {
             renderCompanies(data.companies);

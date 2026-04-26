@@ -1,3 +1,9 @@
+/*
+ * Modifica inline del nome portafoglio.
+ *
+ * La card viene trasformata temporaneamente in input + salva/annulla. Usiamo event
+ * delegation perché dopo ogni salvataggio il blocco HTML viene ricreato.
+ */
 document.addEventListener('DOMContentLoaded', function () {
     //gestione click sul pulsante modifica nome
     document.addEventListener('click', function (e) {
@@ -42,7 +48,18 @@ document.addEventListener('DOMContentLoaded', function () {
             formData.append('portfolio_id', portfolioId);
             formData.append('name', newName);
 
-            fetch('/PortfolioController/updatePortfolioName')
+            /*
+             * Invio POST esplicito: il controller legge portfolio_id e name da getPost().
+             * Senza method/body la richiesta arriverebbe vuota e il salvataggio fallirebbe.
+             */
+            fetch('/PortfolioController/updatePortfolioName', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData.toString(),
+            })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

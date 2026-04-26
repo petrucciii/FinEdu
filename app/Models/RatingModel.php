@@ -21,6 +21,7 @@ class RatingModel extends Model
 
     public function findActiveOrdered(): array
     {
+        //dizionario rating attivi (BUY/HOLD/SELL ecc.) usato dai consensus analisti
         return $this->where('active', 1)
             ->orderBy('rating', 'ASC')
             ->findAll();

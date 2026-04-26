@@ -10,6 +10,11 @@ class UserController extends BaseController
     public function profile()
     {
         if ($this->session->has('logged')) {
+            /*
+             * La tab Attività del profilo usa gli stessi dati del percorso education:
+             * moduli con conteggi completati e ultimi tentativi. Il controller prepara
+             * percentuali e riepiloghi così la view resta solo di presentazione.
+             */
             $userId = (int) $this->session->get('user_id');
             $user = model(UserModel::class)->fread(['users.user_id' => $userId])[0] ?? [];
             $modules = $this->enrichModuleStatuses(model(EducationModuleModel::class)->findProgressForUser($userId));
@@ -136,7 +141,11 @@ class UserController extends BaseController
 
     private function enrichModuleStatuses(array $modules): array
     {
-        //Calcola stato e percentuale dei moduli come nella pagina Education.
+        /*
+         * Calcola stato e percentuale dei moduli come nella pagina Education.
+         * previousCompleted applica la regola sequenziale: se un modulo precedente non è
+         * finito, quelli successivi restano locked anche se esistono nel database.
+         */
         $previousCompleted = true;
 
         foreach ($modules as &$module) {

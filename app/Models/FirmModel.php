@@ -21,6 +21,7 @@ class FirmModel extends Model
 
     public function findActiveOrdered(): array
     {
+        //elenco società di analisi attive usato nei select consensus admin
         return $this->where('active', 1)
             ->orderBy('firm_name', 'ASC')
             ->findAll();

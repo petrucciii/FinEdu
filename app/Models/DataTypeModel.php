@@ -22,6 +22,7 @@ class DataTypeModel extends Model
 
     public function findActiveOrdered(): array
     {
+        //tabella dizionario per i tipi di dato finanziario: solo record attivi per select/import
         return $this->where('active', 1)
             ->orderBy('type_id', 'ASC')
             ->findAll();

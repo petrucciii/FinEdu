@@ -24,13 +24,26 @@ class PortfolioModel extends Model
     protected $createdField = 'created_at';
     protected $updatedField = 'last_update';
 
-    //trova tutti portafogli attivi
-    public function findActive()
+    /*
+     * Restituisce un builder con i portafogli attivi e i dati essenziali dell'utente.
+     *
+     * Il metodo ritorna il builder, non subito l'array, per permettere al controller di
+     * aggiungere filtri e ordinamenti particolari prima di chiamare findAll(). La LEFT JOIN
+     * mantiene visibile il portafoglio anche se il dato utente collegato fosse incompleto.
+     * Il parametro userId viene usato dal bottone "Visualizza Portafogli" nel modal utenti.
+     */
+    public function findActive(?int $userId = null)
     {
         try {
-            return $this->select('portfolios.*, users.first_name, users.last_name, users.email')
+            $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
                 ->join('users', 'users.user_id = portfolios.user_id', 'left')
                 ->where('portfolios.active', 1);
+
+            if ($userId !== null && $userId > 0) {
+                $builder->where('portfolios.user_id', $userId);
+            }
+
+            return $builder;
         } catch (\Throwable $th) {
             return false;
         }
@@ -86,22 +99,36 @@ class PortfolioModel extends Model
         }
     }
 
-    //ricerca e paginazione per admin
-    public function adminSearchPaginate(string $searchQuery, int $page, ?string $order = null, ?string $orderType = 'ASC'): array
+    /*
+     * Ricerca e paginazione per la view admin portafogli.
+     *
+     * La ricerca usa lo stesso input per nome portafoglio, email, nome e cognome utente.
+     * Il filtro userId e' opzionale: quando arriva dal modal utenti limita la tabella ai
+     * soli portafogli dell'utente selezionato, mantenendo pero' la stessa view admin.
+     */
+    public function adminSearchPaginate(string $searchQuery, int $page, ?string $order = null, ?string $orderType = 'ASC', ?int $userId = null): array
     {
         //seleziona portfogli e dati utenti con left join così da mostrare anche utenti senza portafogli
         $builder = $this->select('portfolios.*, users.first_name, users.last_name, users.email')
             ->join('users', 'users.user_id = portfolios.user_id', 'left')
             ->where('portfolios.active', 1);
 
-        //filtro ricerca 
-        $searchQuery = trim($searchQuery);
-        if ($searchQuery !== '') {
+        if ($userId !== null && $userId > 0) {
+            $builder->where('portfolios.user_id', $userId);
+        }
+
+        /*
+         * Ricerca a token nello stesso input. Ogni parola digitata viene cercata su tutte
+         * le colonne testuali utili, quindi "rossi portfolio" puo' filtrare insieme per
+         * cognome utente e nome portafoglio.
+         */
+        $tokens = preg_split('/\s+/', trim($searchQuery), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($tokens as $token) {
             $builder->groupStart()
-                ->like('portfolios.name', $searchQuery)
-                ->orLike('users.email', $searchQuery)
-                ->orLike('users.first_name', $searchQuery)
-                ->orLike('users.last_name', $searchQuery)
+                ->like('portfolios.name', $token)
+                ->orLike('users.email', $token)
+                ->orLike('users.first_name', $token)
+                ->orLike('users.last_name', $token)
                 ->groupEnd();
         }
 
@@ -118,8 +145,12 @@ class PortfolioModel extends Model
         ];
     }
 
-    /**
-     * calcola metriche (controvalore, liquidità, profitto/perdita non realizzati) per un portafoglio
+    /*
+     * Calcola metriche derivate per un portafoglio.
+     *
+     * Le metriche non sono salvate direttamente nella tabella portfolios perche' dipendono
+     * dagli ordini aperti e dall'ultimo prezzo disponibile. Se il prezzo manca si usa il
+     * prezzo di acquisto, cosi la view resta stabile anche con dati mercato incompleti.
      */
     public function attachMarketMetrics(array $portfolioId): array
     {
@@ -129,7 +160,8 @@ class PortfolioModel extends Model
         $unreal = 0.0;
 
         foreach ($open as $o) {
-            $currentPrice = model(PriceModel::class)->getLatestForListing($o['ticker'], $o['mic']) ?? null;
+            $latest = model(PriceModel::class)->getLatestForListing($o['ticker'], $o['mic']);
+            $currentPrice = $latest['price'] ?? null;
 
             //se ultimo prezzo non disoponibile usa buyprice
             if ($currentPrice === null) {
