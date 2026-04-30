@@ -101,7 +101,7 @@ $isAdminActive = static function (array $prefixes) use ($currentPath): bool {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/UserController/logout" class="nav-link text-danger">
+                        <a href="/AuthController/logout" class="nav-link text-danger">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="d-none d-sm-block">Logout</span>
                         </a>
