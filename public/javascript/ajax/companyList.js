@@ -60,8 +60,7 @@ const createCompanyRow = (company, index) => {
     const logoImg = tr.querySelector('[data-field="logo"]');
     if (company.logo_path && company.logo_path.trim() !== '') {
         logoImg.src = company.logo_path;
-    } else {
-        logoImg.src = '/images/logos/default_company.png';
+        logoImg.classList.remove('d-none');
     }
 
     tr.querySelector('[data-field="name"]').textContent = company.name;

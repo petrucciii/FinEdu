@@ -1,53 +1,71 @@
 <?php
-/**SI é SCELTO DI SVOLGERE UN ORDINAMENTO SENZA AJAX dato che la 
- * potenziale grande  quantità di ordini potrebbe causare problemi di performance  */
-
-
-//parametri passati dal controller per gestire filtro portfolio e ordinamento
-$filterPfId = $filterPortfolioId ?? 0;
-$sort = $currentSort ?? 'orders.date';
-$dir = $currentDir ?? 'DESC';
-//freccia ordinamento per la colonna data
-$dateIcon = ($sort === 'orders.date')
-    ? ($dir === 'ASC' ? 'fa-sort-amount-up' : 'fa-sort-amount-down')
-    : 'fa-sort-amount-up';
-$nextDir = ($sort === 'orders.date' && $dir === 'DESC') ? 'ASC' : 'DESC';
-//base url con eventuale filtro portafoglio
+//parametri passati dal controller per gestire il dataset iniziale
+$filterPfId = (int) ($filterPortfolioId ?? 0);
 $baseUrl = '/PortfolioController/orders';
-$pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
 ?>
+
 <div class="container mt-4 mb-5" style="min-height: 80vh;">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <!--titolo con icona (lato utente)-->
         <h2><i class="fas fa-history text-primary me-2"></i>Storico ordini</h2>
         <a href="/PortfolioController/index" class="btn btn-outline-primary">I miei portafogli</a>
     </div>
 
-    <!--barra filtri: ricerca ticker/borsa + filtro portafoglio (solo se view generale)-->
     <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body py-2">
-            <div class="d-flex gap-2 align-items-center flex-wrap">
-                <!--ricerca locale per ticker e borsa-->
-                <div class="input-group input-group-sm" style="max-width: 260px;">
-                    <input type="text" id="ordersSearchInput" class="form-control"
-                        placeholder="Cerca ticker o borsa...">
-                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+        <div class="card-body">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small mb-1">Titolo</label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="ordersSearchInput" class="form-control" placeholder="Cerca titolo...">
+                        <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    </div>
                 </div>
-                <!--filtro per portafoglio: visibile solo se non filtrato da link specifico-->
+
+                <div class="col-md-2">
+                    <label class="form-label small mb-1">Stato</label>
+                    <select id="ordersStatusFilter" class="form-select form-select-sm">
+                        <option value="all">Tutti</option>
+                        <option value="1">Aperti</option>
+                        <option value="0">Chiusi</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small mb-1">Ordina</label>
+                    <select id="ordersSortSelect" class="form-select form-select-sm">
+                        <option value="date_open_desc">Data apertura pi&ugrave; recente</option>
+                        <option value="date_open_asc">Data apertura meno recente</option>
+                        <option value="date_close_desc">Data chiusura pi&ugrave; recente</option>
+                        <option value="date_close_asc">Data chiusura meno recente</option>
+                        <option value="pnl_desc">P&amp;L maggiore</option>
+                        <option value="pnl_asc">P&amp;L minore</option>
+                        <option value="quantity_desc">Quantit&agrave; maggiore</option>
+                        <option value="quantity_asc">Quantit&agrave; minore</option>
+                    </select>
+                </div>
+
                 <?php if ($filterPfId === 0 && !empty($portfolios)): ?>
-                    <form method="get" action="<?= $baseUrl ?>" class="d-flex">
-                        <select name="portfolio_id" class="form-select form-select-sm" style="min-width: 180px;"
-                            onchange="this.form.submit()">
-                            <option value="0">Tutti i portafogli</option>
-                            <?php foreach ($portfolios as $pf): ?>
-                                <option value="<?= (int) $pf['portfolio_id'] ?>">
-                                    <?= esc($pf['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </form>
+                    <div class="col-md-3">
+                        <label class="form-label small mb-1">Portafoglio</label>
+                        <form method="get" action="<?= $baseUrl ?>">
+                            <select name="portfolio_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="0">Tutti i portafogli</option>
+                                <?php foreach ($portfolios as $pf): ?>
+                                    <option value="<?= (int) $pf['portfolio_id'] ?>">
+                                        <?= esc($pf['name']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
+                    </div>
                 <?php endif; ?>
+
+                <div class="col-md-auto">
+                    <button type="button" id="ordersResetFilters" class="btn btn-sm btn-outline-secondary">
+                        Reimposta
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -57,18 +75,11 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
             <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <!--data apertura ordinabile-->
-                    <th>
-                        <!-- ordinamento per data -->
-                        <a href="<?= $baseUrl ?>?<?= $pfParam ?>sort=orders.date&dir=<?= $nextDir ?>"
-                            class="text-decoration-none text-dark">
-                            Data apertura <i class="fas <?= $dateIcon ?> ms-1"></i>
-                        </a>
-                    </th>
+                    <th>Data apertura</th>
                     <th>Data chiusura</th>
                     <th>Portafoglio</th>
                     <th>Titolo</th>
-                    <th>Qtà</th>
+                    <th>Qt&agrave;</th>
                     <th>Prezzo acquisto</th>
                     <th>Ultimo / Vendita</th>
                     <th>Stato</th>
@@ -83,21 +94,33 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                     </tr>
                 <?php else: ?>
                     <?php foreach ($orders as $o): ?>
-                        <!--data-search contiene ticker + borsa per la ricerca lato client-->
-                        <tr data-order-id="<?= (int) $o['order_id'] ?>"
-                            data-search="<?= esc(strtolower($o['ticker'] . ' ' . ($o['exchange_short'] ?? $o['mic']) . ' ' . ($o['company_name'] ?? ''))) ?>">
+                        <?php
+                        //dataset usati dal javascript per filtrare e ordinare senza reload
+                        $pnlValue = null;
+                        if ((int) $o['status'] === 1 && $o['unrealized'] !== null) {
+                            $pnlValue = (float) $o['unrealized'];
+                        } elseif ($o['realized'] !== null) {
+                            $pnlValue = (float) $o['realized'];
+                        }
+                        $searchText = strtolower($o['ticker'] . ' ' . ($o['exchange_short'] ?? $o['mic']) . ' ' . ($o['company_name'] ?? ''));
+                        ?>
+                        <tr data-order-row="1" data-order-id="<?= (int) $o['order_id'] ?>"
+                            data-search="<?= esc($searchText, 'attr') ?>" data-status="<?= (int) $o['status'] ?>"
+                            data-date-open="<?= !empty($o['date']) ? (int) strtotime($o['date']) : 0 ?>"
+                            data-date-close="<?= !empty($o['closed_at']) ? (int) strtotime($o['closed_at']) : 0 ?>"
+                            data-pnl="<?= $pnlValue !== null ? esc((string) $pnlValue, 'attr') : '' ?>"
+                            data-quantity="<?= (int) $o['quantity'] ?>">
                             <td class="text-muted fw-bold">#<?= (int) $o['order_id'] ?></td>
                             <td class="small"><?= esc(date('d/m/Y H:i', strtotime($o['date']))) ?></td>
                             <td class="small text-muted">
                                 <?php if (!empty($o['closed_at'])): ?>
                                     <?= esc(date('d/m/Y H:i', strtotime($o['closed_at']))) ?>
                                 <?php else: ?>
-                                    —
+                                    -
                                 <?php endif; ?>
                             </td>
                             <td><?= esc($o['portfolio_name'] ?? '') ?></td>
                             <td>
-                                <!--ticker con short_name della borsa al posto del mic-->
                                 <span class="fw-semibold"><?= esc($o['ticker']) ?></span>
                                 <span class="text-muted">:<?= esc($o['exchange_short'] ?? $o['mic']) ?></span>
                                 <?php if (!empty($o['company_name'])): ?>
@@ -105,49 +128,45 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                                 <?php endif; ?>
                             </td>
                             <td class="fw-bold text-primary"><?= (int) $o['quantity'] ?></td>
-                            <td>€ <?= number_format((float) $o['buyPrice'], 2, ',', '.') ?></td>
+                            <td>&euro; <?= number_format((float) $o['buyPrice'], 2, ',', '.') ?></td>
                             <td data-field="last_price">
-                                <!-- se aperto last_price -->
                                 <?php if ((int) $o['status'] === 1): ?>
                                     <?php if ($o['last_price'] !== null): ?>
-                                        € <?= number_format((float) $o['last_price'], 2, ',', '.') ?>
+                                        &euro; <?= number_format((float) $o['last_price'], 2, ',', '.') ?>
                                     <?php else: ?>
-                                        <span class="text-muted">—</span>
+                                        <span class="text-muted">-</span>
                                     <?php endif; ?>
-                                    <!-- altrimenti sellPrice -->
                                 <?php else: ?>
-                                    € <?= number_format((float) $o['sellPrice'], 2, ',', '.') ?>
+                                    &euro; <?= number_format((float) $o['sellPrice'], 2, ',', '.') ?>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <!-- badge verde se aperto, grigio se chiuso -->
                                 <?php if ((int) $o['status'] === 1): ?>
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success"><i
-                                            class="fas fa-circle-notch me-1"></i>Aperto</span>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success">
+                                        <i class="fas fa-circle-notch me-1"></i>Aperto
+                                    </span>
                                 <?php else: ?>
-                                    <span
-                                        class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">Chiuso</span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">
+                                        Chiuso
+                                    </span>
                                 <?php endif; ?>
                             </td>
-                            <!-- profit and loss -->
                             <td data-field="pnl">
-
                                 <?php if ((int) $o['status'] === 1 && $o['unrealized'] !== null): ?>
-                                    <span class="<?= $o['unrealized'] >= 0 ? 'text-success' : 'text-danger' ?> fw-semibold">€
-                                        <?= number_format((float) $o['unrealized'], 2, ',', '.') ?>
+                                    <span class="<?= $o['unrealized'] >= 0 ? 'text-success' : 'text-danger' ?> fw-semibold">
+                                        &euro; <?= number_format((float) $o['unrealized'], 2, ',', '.') ?>
                                     </span>
                                     <div class="small text-muted">non real.</div>
                                 <?php elseif ($o['realized'] !== null): ?>
-                                    <span class="<?= $o['realized'] >= 0 ? 'text-success' : 'text-danger' ?> fw-semibold">€
-                                        <?= number_format((float) $o['realized'], 2, ',', '.') ?>
+                                    <span class="<?= $o['realized'] >= 0 ? 'text-success' : 'text-danger' ?> fw-semibold">
+                                        &euro; <?= number_format((float) $o['realized'], 2, ',', '.') ?>
                                     </span>
                                     <div class="small text-muted">realizzato</div>
                                 <?php else: ?>
-                                    —
+                                    -
                                 <?php endif; ?>
                             </td>
                             <td class="text-end">
-                                <!-- chiusura ordine -->
                                 <?php if ((int) $o['status'] === 1): ?>
                                     <form action="/PortfolioController/close" method="post" class="d-inline"
                                         onsubmit="return confirm('Chiudere la posizione al prezzo di mercato corrente?');">
@@ -155,30 +174,19 @@ $pfParam = $filterPfId > 0 ? "portfolio_id={$filterPfId}&" : '';
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Chiudi</button>
                                     </form>
                                 <?php else: ?>
-                                    —
+                                    -
                                 <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <tr id="ordersEmptyFilterRow" class="d-none">
+                        <td colspan="11" class="text-muted text-center py-4">Nessun ordine con i filtri selezionati.</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
 </div>
 
-<!--ricerca client-side per ticker e borsa (si veda exchangeManagement oer spiegazioni)-->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const inp = document.getElementById('ordersSearchInput');
-        if (!inp) return;
-        inp.addEventListener('input', () => {
-            const q = inp.value.trim().toLowerCase();
-            document.querySelectorAll('#ordersBody tr[data-search]').forEach(tr => {
-                const hay = tr.getAttribute('data-search') || '';
-                tr.style.display = !q || hay.includes(q) ? '' : 'none';
-            });
-        });
-    });
-</script>
-
+<script type="module" src="/javascript/ajax/userOrders.js"></script>
 <script type="module" src="/javascript/ajax/ordersRefresh.js"></script>

@@ -1,12 +1,70 @@
+<?php
+//mantiene titoli coerenti senza duplicare la logica nei controller
+$currentPath = trim((string) service('request')->getUri()->getPath(), '/');
+$basePath = trim((string) (parse_url(base_url(), PHP_URL_PATH) ?? ''), '/');
+if ($basePath !== '' && strpos($currentPath, $basePath) === 0) {
+    $currentPath = trim(substr($currentPath, strlen($basePath)), '/');
+}
+$currentPath = trim((string) preg_replace('#^index\.php/?#i', '', $currentPath), '/');
+$titlePath = strtolower($currentPath);
+
+//mappa i titoli sulle pagine raggiunte con autorouting
+$exactTitles = [
+    '' => 'Home',
+    'home' => 'Home',
+    'home/index' => 'Home',
+];
+
+$prefixTitles = [
+    'admin/dashboardcontroller' => 'Dashboard admin',
+    'admin/usermanagementcontroller' => 'Gestione utenti',
+    'admin/modulemanagementcontroller/progress' => 'Progressi educazione',
+    'admin/modulemanagementcontroller' => 'Gestione moduli',
+    'admin/quizmanagementcontroller/editor' => 'Editor quiz',
+    'admin/quizmanagementcontroller' => 'Gestione quiz',
+    'admin/companymanagementcontroller/edit' => 'Gestione società',
+    'admin/companymanagementcontroller' => 'Gestione società',
+    'admin/exchangemanagementcontroller' => 'Gestione borse',
+    'admin/newsmanagementcontroller' => 'Gestione news',
+    'admin/portfoliomanagementcontroller' => 'Gestione portafogli',
+    'admin/ordermanagementcontroller' => 'Storico ordini admin',
+    'admin/dictionarymanagementcontroller' => 'Tabelle dizionario',
+    'companycontroller/viewcompany' => 'Dettaglio società',
+    'companycontroller' => 'Analisi mercati',
+    'educationcontroller/initialtest' => 'Test iniziale',
+    'educationcontroller/module' => 'Modulo educazione',
+    'educationcontroller' => 'Educazione finanziaria',
+    'listingcontroller' => 'Quotazioni',
+    'portfoliocontroller/orders' => 'Storico ordini',
+    'portfoliocontroller' => 'I miei portafogli',
+    'usercontroller/profile' => 'Profilo',
+    'authcontroller' => 'Accesso',
+];
+
+$pageTitle = trim((string) ($pageTitle ?? ''));
+if ($pageTitle === '') {
+    $pageTitle = $exactTitles[$titlePath] ?? '';
+}
+if ($pageTitle === '') {
+    foreach ($prefixTitles as $prefix => $title) {
+        if (str_starts_with($titlePath, $prefix)) {
+            $pageTitle = $title;
+            break;
+        }
+    }
+}
+
+$pageTitle = $pageTitle !== '' ? $pageTitle : 'FinEdu';
+$browserTitle = $pageTitle === 'FinEdu' ? 'FinEdu' : $pageTitle . ' | FinEdu';
+?>
 <!DOCTYPE html>
 <html lang="it">
 
 <head>
-    <title>MVC</title>
+    <title><?= esc($browserTitle) ?></title>
     <meta charset="utf-8">
     <meta name="author" content="f.n.">
     <meta name="description" content="mvc">
-    <title>Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,13 +92,6 @@
      * - /?: slash opzionale;
      * - i: confronto case-insensitive.
      */
-    $currentPath = trim((string) service('request')->getUri()->getPath(), '/');
-    $basePath = trim((string) (parse_url(base_url(), PHP_URL_PATH) ?? ''), '/');
-    if ($basePath !== '' && strpos($currentPath, $basePath) === 0) {
-        $currentPath = trim(substr($currentPath, strlen($basePath)), '/');
-    }
-    $currentPath = trim((string) preg_replace('#^index\.php/?#i', '', $currentPath), '/');
-
     /*
      * Ritorna true se il path corrente contiene uno dei prefissi passati.
      * Usiamo preg_match con separatori (^|/) e (/|$) per evitare falsi positivi:

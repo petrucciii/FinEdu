@@ -65,4 +65,22 @@ class ExchangeModel extends Model
             return false;
         }
     }
+
+    public function hasDependencies(string $mic): bool
+    {
+        //una borsa non si disattiva se esistono quotazioni o societa collegate
+        $mic = trim($mic);
+        $listingCount = (int) $this->db->table('listings')
+            ->where('mic', $mic)
+            ->where('active', 1)
+            ->countAllResults();
+        if ($listingCount > 0) {
+            return true;
+        }
+
+        return (int) $this->db->table('companies')
+            ->where('main_exchange', $mic)
+            ->where('active', 1)
+            ->countAllResults() > 0;
+    }
 }

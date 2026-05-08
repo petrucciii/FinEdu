@@ -90,6 +90,14 @@ class PortfolioModel extends Model
         }
     }
 
+    public function hasOrders(int $portfolioId): bool
+    {
+        //evita di nascondere portafogli che hanno storico ordini collegato
+        return (int) $this->db->table('orders')
+            ->where('portfolio_id', $portfolioId)
+            ->countAllResults() > 0;
+    }
+
     //aggiorna il nome del portafoglio
     public function updateName(int $portfolioId, string $name): bool
     {

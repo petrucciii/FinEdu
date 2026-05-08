@@ -44,11 +44,11 @@
                     <h2 class="accordion-header">
                         <button class="accordion-button bg-white text-dark fw-bold <?= $index === 0 ? '' : 'collapsed' ?>"
                             type="button" data-bs-toggle="collapse" data-bs-target="#<?= esc($collapseId) ?>">
-                            <span class="me-auto">
-                                Modulo <?= (int) ($index + 1) ?>: <?= esc($module['name']) ?>
-                            </span>
-                            <span class="badge bg-primary rounded-pill me-3">
-                                <?= (int) $module['lesson_count'] ?> lezioni
+                            <span class="d-flex align-items-center justify-content-between w-100 me-3 gap-3">
+                                <span>Modulo <?= (int) ($index + 1) ?>: <?= esc($module['name']) ?></span>
+                                <span class="badge bg-primary rounded-pill flex-shrink-0">
+                                    <?= (int) $module['lesson_count'] ?> lezioni
+                                </span>
                             </span>
                         </button>
                     </h2>

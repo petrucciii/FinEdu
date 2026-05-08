@@ -109,6 +109,16 @@ const row = (listing) => {
     const template = document.getElementById('listingRowTemplate');
     const tr = template.content.cloneNode(true).querySelector('tr');
 
+    //mostra il logo gia collegato alla societa, se presente nel database
+    const logo = tr.querySelector('[data-field="company_logo"]');
+    if (logo) {
+        if (listing.logo_path && listing.logo_path.trim() !== '') {
+            logo.src = listing.logo_path;
+            logo.alt = listing.company_name || listing.ticker || '';
+            logo.classList.remove('d-none');
+        }
+    }
+
     tr.querySelector('[data-field="ticker"]').textContent = listing.ticker || '';
     tr.querySelector('[data-field="isin"]').textContent = listing.isin || '';
     tr.querySelector('[data-field="company_name"]').textContent = listing.company_name || '—';

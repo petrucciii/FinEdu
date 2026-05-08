@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\CompletedLessonModel;
 use App\Models\EducationModuleModel;
 use App\Models\LessonModel;
+use App\Models\LevelModel;
 use App\Models\QuestionModel;
 use App\Models\UserModel;
 
@@ -49,8 +50,157 @@ class EducationController extends BaseController
             'totalLessons' => $totalLessons,
             'completedLessons' => $completedLessons,
             'progressPercent' => $totalLessons > 0 ? (int) round(($completedLessons / $totalLessons) * 100) : 0,
+            'initialTestAvailable' => $completedLessons === 0 && !$this->session->get('skip_initial_test') && model(QuestionModel::class)->countActiveWithAnswers() > 0,
         ]);
         echo view('templates/footer');
+    }
+
+    public function skipInitialTest()
+    {
+        //salta il test solo per la sessione corrente: non esiste una colonna persistente dedicata
+        if ($redirect = $this->loginRedirect()) {
+            return $redirect;
+        }
+
+        $this->session->set('skip_initial_test', true);
+
+        return redirect()->to('/EducationController/index')->with('alert', 'Puoi iniziare direttamente dal primo modulo.');
+    }
+
+    public function initialTest()
+    {
+        /*
+         * Test facoltativo iniziale.
+         * Viene proposto solo a chi non ha ancora completamenti salvati, cosi non altera
+         * un percorso gia iniziato. Le domande sono i quiz reali collegati alle lesson.
+         */
+        if ($redirect = $this->loginRedirect()) {
+            return $redirect;
+        }
+
+        $userId = (int) $this->session->get('user_id');
+        if (model(CompletedLessonModel::class)->countCompletedForUser($userId) > 0) {
+            return redirect()->to('/EducationController/index')->with('alert', 'Il percorso risulta gia iniziato.');
+        }
+
+        $questions = model(QuestionModel::class)->findInitialTestQuestions(30);
+        if (empty($questions)) {
+            return redirect()->to('/EducationController/index')->with('alert', 'Test iniziale non disponibile.');
+        }
+
+        echo view('templates/header');
+        echo view('pages/viewEducationInitialTest', [
+            'questions' => $questions,
+            'adminSection' => false,
+        ]);
+        echo view('templates/footer');
+    }
+
+    public function submitInitialTest()
+    {
+        //valuta il test iniziale e completa solo i moduli superati in modo conservativo
+        if ($redirect = $this->loginRedirect()) {
+            return $redirect;
+        }
+
+        $userId = (int) $this->session->get('user_id');
+        if (model(CompletedLessonModel::class)->countCompletedForUser($userId) > 0) {
+            return redirect()->to('/EducationController/index')->with('alert', 'Il percorso risulta gia iniziato.');
+        }
+
+        $questionIds = $this->request->getPost('question_ids');
+        $questionIds = is_array($questionIds) ? $questionIds : [];
+        $answersPost = $this->request->getPost('answers');
+        $answersPost = is_array($answersPost) ? $answersPost : [];
+        $questions = model(QuestionModel::class)->findInitialTestQuestionsByIds($questionIds);
+
+        if (empty($questions)) {
+            return redirect()->to('/EducationController/index')->with('alert', 'Test iniziale non valido.');
+        }
+
+        $score = 0;
+        $experience = 0;
+        $moduleScores = [];
+
+        foreach ($questions as $question) {
+            $moduleId = (int) $question['id_module'];
+            if (!isset($moduleScores[$moduleId])) {
+                $moduleScores[$moduleId] = ['total' => 0, 'correct' => 0];
+            }
+            $moduleScores[$moduleId]['total']++;
+
+            $selectedId = (int) ($answersPost[(int) $question['id_question']] ?? 0);
+            $isCorrect = false;
+            foreach ($question['answers'] as $answer) {
+                //confronta solo risposte attive ricaricate dal database
+                if ((int) $answer['id_answer'] === $selectedId && (int) $answer['is_correct'] === 1) {
+                    $isCorrect = true;
+                    break;
+                }
+            }
+
+            if ($isCorrect) {
+                $score++;
+                $moduleScores[$moduleId]['correct']++;
+                $experience += (int) $question['experience'];
+            }
+        }
+
+        $modulesToComplete = $this->initialTestPassedModules($moduleScores);
+        $completedLessons = 0;
+
+        $db = db_connect();
+        //transazione necessaria: test, lezioni completate, xp e livello devono restare coerenti
+        $db->transStart();
+
+        $completedModel = model(CompletedLessonModel::class);
+        $lessonModel = model(LessonModel::class);
+        foreach ($modulesToComplete as $moduleId) {
+            $lessons = $lessonModel->findActiveForModule((int) $moduleId);
+            foreach ($lessons as $lesson) {
+                $lessonId = (int) $lesson['id_lesson'];
+                if (!$completedModel->hasCompleted($userId, $lessonId)) {
+                    $completedModel->recordAttempt($userId, $lessonId, true);
+                    $completedLessons++;
+                }
+            }
+        }
+
+        $userModel = model(UserModel::class);
+        $user = $userModel->find($userId);
+        $newExperience = (int) ($user['experience'] ?? 0) + $experience;
+        $newLevelId = $this->estimateLevelId(count($modulesToComplete));
+        $userModel->update($userId, [
+            'experience' => $newExperience,
+            'level_id' => $newLevelId,
+            'id_user_updated' => $userId,
+        ]);
+
+        //chiudo la transazione solo dopo tutti gli aggiornamenti collegati
+        $db->transComplete();
+        if (!$db->transStatus()) {
+            return redirect()->to('/EducationController/index')
+                ->with('alert', 'Errore durante il salvataggio del test iniziale.')
+                ->with('alert_type', 'danger');
+        }
+
+        $this->session->set('experience', $newExperience);
+        $this->session->set('level_id', $newLevelId);
+        if ($completedLessons > 0) {
+            $this->session->remove('skip_initial_test');
+        } else {
+            //evita di riproporre subito il test se non sono stati superati moduli
+            $this->session->set('skip_initial_test', true);
+        }
+
+        $message = 'Test completato: ' . $score . ' risposte corrette su ' . count($questions) . '.';
+        if ($completedLessons > 0) {
+            $message .= ' Sono state completate ' . $completedLessons . ' lezioni dei moduli superati.';
+        }
+
+        return redirect()->to('/EducationController/index')
+            ->with('alert', $message)
+            ->with('alert_type', 'success');
     }
 
     public function module($moduleId)
@@ -460,5 +610,55 @@ class EducationController extends BaseController
         }
 
         return false;
+    }
+
+    private function initialTestPassedModules(array $moduleScores): array
+    {
+        /*
+         * In assenza di soglie nel db usiamo una regola prudente:
+         * un modulo viene riconosciuto solo se tutte le sue domande presenti nel test
+         * sono corrette, e solo in ordine progressivo di id_module.
+         */
+        $passed = [];
+        $modules = model(EducationModuleModel::class)->findActiveOrdered();
+
+        foreach ($modules as $module) {
+            $moduleId = (int) $module['id_module'];
+            $score = $moduleScores[$moduleId] ?? null;
+            if (!$score || (int) $score['total'] === 0) {
+                break;
+            }
+
+            if ((int) $score['correct'] === (int) $score['total']) {
+                $passed[] = $moduleId;
+                continue;
+            }
+
+            break;
+        }
+
+        return $passed;
+    }
+
+    private function estimateLevelId(int $completedModuleCount): int
+    {
+        /*
+         * La tabella levels contiene solo le etichette, non soglie numeriche.
+         * Per ora distribuiamo i moduli completati sui livelli attivi; se verranno
+         * aggiunte soglie esplicite nel db questo metodo va sostituito con quelle.
+         */
+        $levels = model(LevelModel::class)->fread();
+        if (empty($levels) || !is_array($levels)) {
+            return 1;
+        }
+
+        $totalModules = max(1, count(model(EducationModuleModel::class)->findActiveOrdered()));
+        $ratio = max(0, min(1, $completedModuleCount / $totalModules));
+        $index = (int) floor($ratio * count($levels));
+        if ($index >= count($levels)) {
+            $index = count($levels) - 1;
+        }
+
+        return (int) ($levels[$index]['level_id'] ?? 1);
     }
 }

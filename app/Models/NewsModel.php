@@ -148,6 +148,18 @@ class NewsModel extends Model
             ->findAll();
     }
 
+    public function findLatestPublic(int $limit = 4): array
+    {
+        //ultime notizie attive mostrate in home senza caricare il blob del corpo
+        return $this->select('news.news_id, news.headline, news.subtitle, news.author, news.date, newspapers.newspaper')
+            //left join: la news resta visibile anche se manca temporaneamente la fonte
+            ->join('newspapers', 'newspapers.newspaper_id = news.newspaper_id', 'left')
+            ->where('news.active', 1)
+            ->orderBy('news.date', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
+
     //recupera tutti i campi di una news (headline, subtitle, body, author, date, newspaper) per il modal di lettura lato utente (viewCompany).
     //verifica che la news sia effettivamente collegata all'isin richiesto
     public function getBodyJson(int $newsId, string $isin): ?array

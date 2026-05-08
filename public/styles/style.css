@@ -363,3 +363,12 @@
  .board-member-form input.form-control {
      min-width: 12rem;
  }
+
+ /* input disabilitati: stile coerente con i campi in sola lettura admin */
+ .form-control:disabled,
+ .form-select:disabled {
+     background-color: #f1f3f5;
+     color: #6c757d;
+     border-color: #dee2e6;
+     opacity: 1;
+ }

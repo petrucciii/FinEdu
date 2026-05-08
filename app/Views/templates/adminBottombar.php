@@ -101,6 +101,13 @@ $isAdminActive = static function (array $prefixes) use ($currentPath): bool {
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="/admin/DictionaryManagementController/"
+                            class="nav-link <?= $isAdminActive(['admin/DictionaryManagementController']) ? 'active' : '' ?>">
+                            <i class="fas fa-list"></i>
+                            <span class="d-none d-sm-block">Dizionari</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="/AuthController/logout" class="nav-link text-danger">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="d-none d-sm-block">Logout</span>

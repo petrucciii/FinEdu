@@ -293,6 +293,13 @@ class PortfolioController extends BaseController
         }
 
         //l'eliminazione è tipicamente logica (set active = 0) per non perdere lo storico ordini
+        if ($pfModel->hasOrders($portfolioId)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile eliminare il portafoglio: esistono ordini collegati.')
+                ->with('alert_type', 'danger');
+        }
+
+        //l'eliminazione e logica solo quando non ci sono dipendenze operative
         $pfModel->deletePortfolio($portfolioId);
         return redirect()->back()->with('alert', 'Portafoglio eliminato.')->with('alert_type', 'success');
     }

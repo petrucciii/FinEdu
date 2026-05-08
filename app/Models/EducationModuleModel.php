@@ -30,6 +30,17 @@ class EducationModuleModel extends Model
             ->findAll();
     }
 
+    public function findLatestActive(): ?array
+    {
+        //serve alla home per mostrare il badge "nuovo" solo se esiste davvero un modulo attivo
+        $row = $this->where('active', 1)
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('id_module', 'DESC')
+            ->first();
+
+        return $row ?: null;
+    }
+
     public function findActiveById(int $moduleId): ?array
     {
         //recupera un modulo attivo per id, centralizzando la condizione active.
@@ -137,6 +148,15 @@ class EducationModuleModel extends Model
         return (int) $this->db->table('lessons')
             ->where('active', 1)
             ->countAllResults();
+    }
+
+    public function hasActiveLessons(int $moduleId): bool
+    {
+        //blocca la disattivazione di un modulo se contiene lezioni attive
+        return (int) $this->db->table('lessons')
+            ->where('id_module', $moduleId)
+            ->where('active', 1)
+            ->countAllResults() > 0;
     }
 
     private function withProgressStatuses(array $modules): array

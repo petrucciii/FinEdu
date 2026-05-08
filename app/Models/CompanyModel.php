@@ -59,6 +59,17 @@ class CompanyModel extends Model
         return (int) $this->where('active', 1)->countAllResults();
     }
 
+    public function findLatestActive(): ?array
+    {
+        //serve alla home per mostrare la nuova societa solo se il dato esiste nel db
+        $row = $this->where('active', 1)
+            ->orderBy('created_at', 'DESC')
+            ->orderBy('isin', 'DESC')
+            ->first();
+
+        return $row ?: null;
+    }
+
     /*
      * Ricerca e impagina risultato per la view elenco società.
      *
@@ -116,30 +127,39 @@ class CompanyModel extends Model
 
 
 
-    //eliminazione logica: non rimuove record, li disattiva per conservare storico e relazioni
+    public function hasDependencies(string $isin): bool
+    {
+        //una societa si puo disattivare solo se non ha dati collegati
+        $isin = trim($isin);
+        $checks = [
+            ['listings', 'isin'],
+            ['data', 'isin'],
+            ['companies_board', 'isin'],
+            ['companies_shareholders', 'isin'],
+            ['companies_news', 'isin'],
+            ['analysts_consensus', 'isin'],
+        ];
+
+        foreach ($checks as [$table, $field]) {
+            if ((int) $this->db->table($table)->where($field, $isin)->countAllResults() > 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    //eliminazione logica: non rimuove record, disattiva solo la societa senza toccare dati collegati
     public function deleteCompany($isin, $data)
     {
-        //transazione per assicurare che tutte le tabelle vengano aggiornate o nessuna
-        $this->db->transStart();
-
         try {
-            $data = array_push($data, 'active', 0); //aggiunge active=0 ai dati ricevuti (es. id_user) per tenere traccia di chi ha fatto l'operazione
-            $data = ['active' => 0];
-            $this->update($isin, $data);
+            $payload = [
+                'active' => 0,
+                'id_user' => $data['id_user'] ?? null,
+            ];
 
-            $whereCondition = ['isin' => $isin];
-
-            $this->db->table('listings')->update($data, $whereCondition);
-            $this->db->table('companies_board')->update($data, $whereCondition);
-            $this->db->table('shareholders')->update($data, $whereCondition);
-            $this->db->table('analyst_consensus')->update($data, $whereCondition);
-
-            $this->db->transComplete();
-
-            return $this->db->transStatus();
-
+            return $this->update($isin, $payload);
         } catch (\Throwable $e) {
-
             return false;
         }
     }

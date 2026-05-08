@@ -157,7 +157,13 @@ class UserManagementController extends BaseController
 
             //necessaria possword admin per eliminazione
             if (password_verify($this->request->getPost('password'), $hashAdminPassword)) {
-                if ($model->fdelete($userId)) { //soft
+                if ($model->hasDependencies((int) $userId)) {
+                    return redirect()->back()
+                        ->with('alert', 'Impossibile eliminare il profilo: esistono portafogli o progressi collegati.')
+                        ->with('alert_type', 'danger');
+                }
+
+                if ($model->fdelete($userId, (int) $this->session->get('user_id'))) { //soft
                     return redirect()->back()->with('alert', 'Profilo eliminato!');
                 } else {
                     return redirect()->back()->with('alert', 'Profilo non eliminato!');

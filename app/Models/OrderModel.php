@@ -87,9 +87,12 @@ class OrderModel extends Model
         $mic,
         $status,
         $dateFrom,
+        $dateTo,
         $pnlMin,
         $pnlMax,
-        int $page
+        int $page,
+        string $orderColumn = 'order_id',
+        string $orderType = 'DESC'
     ): array {
         /*
          * Calcolo del P&L realizzato direttamente in SQL.
@@ -167,6 +170,12 @@ class OrderModel extends Model
             $builder->where('DATE(orders.date) >=', $dateFrom);
         }
 
+        //per data fine ordine: ha senso solo su ordini chiusi con closed_at valorizzato
+        if ($dateTo !== '' && $dateTo !== null) {
+            $builder->where('orders.closed_at IS NOT NULL', null, false);
+            $builder->where('DATE(orders.closed_at) <=', $dateTo);
+        }
+
         //filtro profitto minimo: forza ordini chiusi perché solo loro hanno pnl realizzato
         if ($pnlMin !== '' && $pnlMin !== null && is_numeric($pnlMin)) {
             $builder->where($pnlSql . ' >= ' . (float) $pnlMin, null, false);
@@ -181,7 +190,27 @@ class OrderModel extends Model
             $builder->where('orders.sellPrice IS NOT NULL', null, false);
         }
 
-        $builder->orderBy('orders.order_id', 'DESC');
+        //whitelist ordinamenti: permette sort dinamico senza esporre orderBy a input libero
+        $sortMap = [
+            'order_id' => 'orders.order_id',
+            'date' => 'orders.date',
+            'closed_at' => 'orders.closed_at',
+            'user' => 'users.last_name',
+            'portfolio' => 'portfolios.name',
+            'ticker' => 'orders.ticker',
+            'quantity' => 'orders.quantity',
+            'buyPrice' => 'orders.buyPrice',
+            'sellPrice' => 'orders.sellPrice',
+            'notional' => 'orders.quantity * orders.buyPrice',
+            'realized_pnl' => $pnlSql,
+            'status' => 'orders.status',
+        ];
+        if (!array_key_exists($orderColumn, $sortMap)) {
+            $orderColumn = 'order_id';
+        }
+        $orderType = strtoupper($orderType) === 'ASC' ? 'ASC' : 'DESC';
+        $builder->orderBy($sortMap[$orderColumn], $orderType, false)
+            ->orderBy('orders.order_id', 'DESC');
 
         //impaginazione manuale: necessaria perché il paginate di codeigniter fatica con query complesse.
         //viene creata una subquery per contare il totale dei record filtrati.

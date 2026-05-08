@@ -79,13 +79,35 @@ class UserModel extends Model
     }
 
     //soft delete
-    public function fdelete(int $id)
+    public function fdelete(int $id, ?int $updatedBy = null)
     {
         try {
-            return $this->update($id, ['active' => 0]) ? true : false;
+            $payload = ['active' => 0];
+            if ($updatedBy !== null) {
+                $payload['id_user_updated'] = $updatedBy;
+            }
+
+            return $this->update($id, $payload) ? true : false;
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    public function hasDependencies(int $id): bool
+    {
+        //blocca eliminazione utenti con dati operativi collegati
+        $checks = [
+            ['portfolios', 'user_id'],
+            ['completed_lessons', 'user_id'],
+        ];
+
+        foreach ($checks as [$table, $field]) {
+            if ((int) $this->db->table($table)->where($field, $id)->countAllResults() > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /*

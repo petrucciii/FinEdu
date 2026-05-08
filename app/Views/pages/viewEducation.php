@@ -23,6 +23,27 @@
     </div>
 
     <div class="container" style="max-width: 850px;">
+        <?php if (!empty($initialTestAvailable)): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4 d-flex justify-content-between align-items-center gap-3 flex-wrap">
+                    <div>
+                        <h5 class="fw-bold mb-1">Test iniziale facoltativo</h5>
+                        <p class="text-muted mb-0">
+                            Rispondi a 30 domande miste per valutare da dove iniziare il percorso.
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/EducationController/initialTest" class="btn btn-primary">
+                            Fai il test
+                        </a>
+                        <a href="/EducationController/skipInitialTest" class="btn btn-outline-secondary">
+                            Inizia senza test
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <?php //messaggio mostrato quando non ci sono moduli attivi nel db ?>
         <?php if (empty($modules)): ?>
             <div class="card border-0 shadow-sm">

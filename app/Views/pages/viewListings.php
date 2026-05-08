@@ -30,6 +30,7 @@
                 <table class="table align-middle table-hover w-100">
                     <thead class="table-light">
                         <tr>
+                            <th></th>
                             <th>Ticker</th>
                             <th>ISIN</th>
                             <th>Società</th>
@@ -50,6 +51,10 @@
     <!--template per le righe della tabella, clonato dal js come in viewUserManagement-->
     <template id="listingRowTemplate">
         <tr>
+            <td>
+                <img src="" data-field="company_logo" class="rounded border d-none" width="36" height="36"
+                    style="object-fit: contain;" alt="">
+            </td>
             <td class="fw-bold" data-field="ticker"></td>
             <td class="text-muted small" data-field="isin"></td>
             <td data-field="company_name"></td>

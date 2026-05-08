@@ -18,7 +18,7 @@ class UserController extends BaseController
             $userId = (int) $this->session->get('user_id');
             $user = model(UserModel::class)->fread(['users.user_id' => $userId])[0] ?? [];
             $modules = $this->enrichModuleStatuses(model(EducationModuleModel::class)->findProgressForUser($userId));
-            $recentAttempts = model(CompletedLessonModel::class)->recentAttemptsForUser($userId, 6);
+            $recentAttempts = model(CompletedLessonModel::class)->recentAttemptsForUser($userId, 3);
 
             $totalLessons = 0;
             $completedLessons = 0;
@@ -31,6 +31,12 @@ class UserController extends BaseController
             echo view("pages/viewProfile", [
                 'user' => $user,
                 'modules' => $modules,
+                'completedModules' => array_values(array_filter($modules, static function ($module) {
+                    return ($module['status'] ?? '') === 'completed';
+                })),
+                'allModulesCompleted' => !empty($modules) && count(array_filter($modules, static function ($module) {
+                    return ($module['status'] ?? '') === 'completed';
+                })) === count($modules),
                 'recentAttempts' => $recentAttempts,
                 'totalLessons' => $totalLessons,
                 'completedLessons' => $completedLessons,
@@ -51,7 +57,8 @@ class UserController extends BaseController
         if ($this->session->has('logged') && $this->request->getPost('edit') && $this->request->getPost('new_value')) {
             if (in_array(trim($this->request->getPost('edit')), $allowedColumns)) {
                 $data = [
-                    trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value'))
+                    trim($this->request->getPost('edit')) => trim($this->request->getPost('new_value')),
+                    'id_user_updated' => $this->session->get('user_id')
                 ];
 
                 if ($model->fupdate($this->session->get('user_id'), $data)) {
@@ -86,7 +93,8 @@ class UserController extends BaseController
                     //validazione passweord
                     if (password_verify($this->request->getPost('password'), $hashPassword)) {
                         $data = [
-                            'password' => $this->request->getPost('new_password')
+                            'password' => $this->request->getPost('new_password'),
+                            'id_user_updated' => $this->session->get('user_id')
                         ];
 
                         if ($model->fupdate($this->session->get('user_id'), $data)) {
@@ -116,7 +124,13 @@ class UserController extends BaseController
             $hashPassword = $user[0]['password'];
             //validazione password
             if (password_verify($this->request->getPost('password'), $hashPassword)) {
-                if ($model->fdelete((int) $this->session->get('user_id'))) {//delete user
+                if ($model->hasDependencies((int) $this->session->get('user_id'))) {
+                    return redirect()->back()
+                        ->with('alert', 'Impossibile eliminare il profilo: esistono portafogli o progressi collegati.')
+                        ->with('alert_type', 'danger');
+                }
+
+                if ($model->fdelete((int) $this->session->get('user_id'), (int) $this->session->get('user_id'))) {//delete user
                     $this->session->remove([
                         'user_id',
                         'first_name',

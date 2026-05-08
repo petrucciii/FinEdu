@@ -14,6 +14,7 @@ use App\Models\ExchangeModel;
 use App\Models\FirmModel;
 use App\Models\FinancialDataModel;
 use App\Models\ListingModel;
+use App\Models\PriceModel;
 use App\Models\RatingModel;
 use App\Models\SectorModel;
 use App\Models\ShareholderModel;
@@ -106,6 +107,8 @@ class CompanyManagementController extends BaseController
         $data = [
             'isin' => strtoupper(trim((string) $this->request->getPost('isin'))),
             'name' => trim((string) $this->request->getPost('name')),
+            'website' => '',
+            'logo_path' => '',
             'ea_code' => $this->request->getPost('sector'),
             'country_code' => $this->request->getPost('country'),
             'id_user' => $this->session->get('user_id'),
@@ -195,7 +198,14 @@ class CompanyManagementController extends BaseController
         if (!$this->isAdmin()) {
             return redirect()->to('/');
         }
-        model(CompanyModel::class)->deleteCompany($isin, ['id_user' => $this->session->get('user_id')]);
+        $companyModel = model(CompanyModel::class);
+        if ($companyModel->hasDependencies($isin)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile disattivare la societa: esistono dati collegati.')
+                ->with('alert_type', 'danger');
+        }
+
+        $companyModel->deleteCompany($isin, ['id_user' => $this->session->get('user_id')]);
 
         return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda disattivata.');
     }
@@ -215,7 +225,7 @@ class CompanyManagementController extends BaseController
             'active' => 1,
         ]);
 
-        return redirect()->back()->with('alert', 'Quotazione aggiunta con successo.');
+        return redirect()->back()->with('alert', 'Quotazione aggiunta con successo.')->with('tab', 'listings');
     }
 
     //elimina listing
@@ -228,11 +238,103 @@ class CompanyManagementController extends BaseController
         $ticker = trim(rawurldecode($ticker));
         $mic = trim(rawurldecode($mic));
 
-        if (model(ListingModel::class)->deleteRow($ticker, $mic)) {
+        $listingModel = model(ListingModel::class);
+        if ($listingModel->hasDependencies($ticker, $mic)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile rimuovere la quotazione: esistono prezzi o ordini collegati.')
+                ->with('alert_type', 'danger')
+                ->with('tab', 'listings');
+        }
+
+        if ($listingModel->deleteRow($ticker, $mic)) {
             return redirect()->back()->with('alert', 'Quotazione rimossa.')->with('tab', 'listings');
         }
 
         return redirect()->back()->with('alert', 'Impossibile rimuovere la quotazione.')->with('alert_type', 'danger')->with('tab', 'listings');
+    }
+
+    public function importPricesCsv()
+    {
+        //importa prezzi storici per una quotazione gia collegata alla societa
+        if (!$this->isAdmin()) {
+            return redirect()->to('/');
+        }
+
+        $isin = trim((string) $this->request->getPost('isin'));
+        $listingKey = trim((string) $this->request->getPost('listing_key'));
+        $file = $this->request->getFile('prices_csv');
+
+        [$ticker, $mic] = array_pad(explode('|', $listingKey, 2), 2, '');
+        $ticker = strtoupper(trim($ticker));
+        $mic = trim($mic);
+
+        $listing = model(ListingModel::class)->findActiveByTickerMic($ticker, $mic);
+        if (!$listing || $listing['isin'] !== $isin) {
+            return redirect()->back()->with('alert', 'Quotazione non valida per l\'import prezzi.')->with('alert_type', 'danger')->with('tab', 'listings');
+        }
+
+        if (!$file || !$file->isValid()) {
+            return redirect()->back()->with('alert', 'File CSV non valido o mancante.')->with('alert_type', 'danger')->with('tab', 'listings');
+        }
+
+        $handle = fopen($file->getTempName(), 'r');
+        if (!$handle) {
+            return redirect()->back()->with('alert', 'Impossibile leggere il file CSV.')->with('alert_type', 'danger')->with('tab', 'listings');
+        }
+
+        $priceModel = model(PriceModel::class);
+        $inserted = 0;
+        $skipped = 0;
+        $line = 0;
+
+        $db = db_connect();
+        //transazione necessaria: l'import riguarda molte righe della stessa quotazione
+        $db->transStart();
+
+        while (($row = fgetcsv($handle, 0, ';')) !== false) {
+            $line++;
+            if (count($row) < 2) {
+                $skipped++;
+                continue;
+            }
+
+            $dateRaw = trim((string) $row[0]);
+            $priceRaw = trim((string) $row[1]);
+
+            //salta header date;price senza dipendere dalle altre colonne presenti
+            if ($line === 1 && strtolower($dateRaw) === 'date') {
+                continue;
+            }
+
+            $date = $this->normalizeCsvDate($dateRaw);
+            $price = $this->normalizeCsvPrice($priceRaw);
+            if ($date === null || $price === null) {
+                $skipped++;
+                continue;
+            }
+
+            if ($priceModel->existsForListingDate($ticker, $mic, $date)) {
+                $skipped++;
+                continue;
+            }
+
+            if ($priceModel->insertCsvPrice($ticker, $mic, $date, $price)) {
+                $inserted++;
+            } else {
+                $skipped++;
+            }
+        }
+        fclose($handle);
+
+        //chiudo la transazione dopo aver validato e inserito tutte le righe utili
+        $db->transComplete();
+        if (!$db->transStatus()) {
+            return redirect()->back()->with('alert', 'Import CSV non riuscito.')->with('alert_type', 'danger')->with('tab', 'listings');
+        }
+
+        return redirect()->back()
+            ->with('alert', "Import CSV completato: {$inserted} prezzi inseriti, {$skipped} righe saltate.")
+            ->with('tab', 'listings');
     }
 
     //import bilanci da file XML (standard progetto): upsert per anno su tabella data
@@ -603,6 +705,31 @@ class CompanyManagementController extends BaseController
         }
 
         return $row;
+    }
+
+    private function normalizeCsvDate(string $value): ?string
+    {
+        //accetta i formati piu comuni senza cambiare il formato datetime del db
+        $formats = ['Y-m-d', 'd/m/Y', 'd-m-Y', 'Y-m-d H:i:s', 'd/m/Y H:i:s'];
+        foreach ($formats as $format) {
+            $date = \DateTimeImmutable::createFromFormat('!' . $format, $value);
+            if ($date && $date->format($format) === $value) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeCsvPrice(string $value): ?float
+    {
+        //supporta sia decimali con punto sia con virgola
+        $normalized = str_replace(',', '.', trim($value));
+        if ($normalized === '' || !is_numeric($normalized)) {
+            return null;
+        }
+
+        return (float) $normalized;
     }
 
     //parser XML bilanci (percorsi XPath come da specifica progetto)

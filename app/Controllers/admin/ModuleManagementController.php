@@ -157,7 +157,14 @@ class ModuleManagementController extends BaseController
             return redirect()->back()->with('alert', 'Modulo non valido.');
         }
 
-        model(EducationModuleModel::class)->update($moduleId, [
+        $moduleModel = model(EducationModuleModel::class);
+        if ($moduleModel->hasActiveLessons($moduleId)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile disattivare il modulo: contiene lezioni attive.')
+                ->with('alert_type', 'danger');
+        }
+
+        $moduleModel->update($moduleId, [
             'active' => 0,
             'id_user' => $this->session->get('user_id'),
         ]);
@@ -317,6 +324,12 @@ class ModuleManagementController extends BaseController
         $lesson = model(LessonModel::class)->findDetail($lessonId);
         if (!$lesson) {
             return redirect()->back()->with('alert', 'Lezione non valida.');
+        }
+
+        if (model(LessonModel::class)->hasAttempts($lessonId)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile disattivare la lezione: esistono tentativi utente collegati.')
+                ->with('alert_type', 'danger');
         }
 
         $db = db_connect();

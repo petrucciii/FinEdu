@@ -68,7 +68,7 @@
         <tr>
             <td>
                 <div class="d-flex align-items-center">
-                    <img src="" data-field="logo" class="rounded me-2 border" width="40" height="40"
+                    <img src="" data-field="logo" class="rounded me-2 border d-none" width="40" height="40"
                         style="object-fit: contain;">
                     <strong data-field="name"></strong>
                 </div>

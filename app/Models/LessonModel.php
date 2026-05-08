@@ -66,6 +66,14 @@ class LessonModel extends Model
             ->getResultArray();
     }
 
+    public function hasAttempts(int $lessonId): bool
+    {
+        //una lezione con tentativi utente non va disattivata per non rompere lo storico progressi
+        return (int) $this->db->table('completed_lessons')
+            ->where('id_lesson', $lessonId)
+            ->countAllResults() > 0;
+    }
+
     private function baseDetailQuery()
     {
         /*query comune per riconoscere la specializzazione della lesson.

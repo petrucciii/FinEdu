@@ -57,9 +57,26 @@ class OrderManagementController extends BaseController
         $ticker = $this->request->getGet('ticker');
         $mic = $this->request->getGet('mic');
         $status = $this->request->getGet('status');
-        $dateFrom = $this->request->getGet('date_from');
+        $dateFrom = $this->request->getGet('date_start') ?? $this->request->getGet('date_from');
+        $dateTo = $this->request->getGet('date_end');
         $pnlMin = $this->request->getGet('pnl_min');
         $pnlMax = $this->request->getGet('pnl_max');
+        $sort = (string) ($this->request->getGet('sort') ?? 'order_id');
+        $dir = (string) ($this->request->getGet('dir') ?? 'DESC');
+
+        $dateError = $this->validateDateRange($dateFrom, $dateTo);
+        if ($dateError !== null) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'error' => $dateError,
+                'orders' => [],
+                'pagination' => [
+                    'currentPage' => 1,
+                    'perPage' => 15,
+                    'total' => 0,
+                    'pageCount' => 1,
+                ],
+            ]);
+        }
 
         $result = model(OrderModel::class)->searchAdminOrders(
             (string) $query,
@@ -69,14 +86,55 @@ class OrderManagementController extends BaseController
             $mic,
             $status,
             $dateFrom,
+            $dateTo,
             $pnlMin,
             $pnlMax,
-            $page
+            $page,
+            $sort,
+            $dir
         );
 
         return $this->response->setJSON([
             'orders' => $result['orders'],
             'pagination' => $result['pager'],
         ]);
+    }
+
+    private function validateDateRange($dateFrom, $dateTo): ?string
+    {
+        //controlli server side allineati ai controlli client sulle date
+        $from = $this->parseDate($dateFrom);
+        $to = $this->parseDate($dateTo);
+        $today = new \DateTimeImmutable('today');
+
+        if ($dateFrom && !$from) {
+            return 'Data inizio ordine non valida.';
+        }
+        if ($dateTo && !$to) {
+            return 'Data fine ordine non valida.';
+        }
+        if ($from && $from > $today) {
+            return 'La data inizio ordine non puo essere futura.';
+        }
+        if ($to && $to > $today) {
+            return 'La data fine ordine non puo essere futura.';
+        }
+        if ($from && $to && $from > $to) {
+            return 'La data inizio ordine non puo essere successiva alla data fine.';
+        }
+
+        return null;
+    }
+
+    private function parseDate($value): ?\DateTimeImmutable
+    {
+        //accetta solo il formato prodotto dagli input type=date
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('!Y-m-d', $value);
+        return $date && $date->format('Y-m-d') === $value ? $date : null;
     }
 }

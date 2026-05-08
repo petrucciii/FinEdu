@@ -7,6 +7,8 @@ $email = $profileUser['email'] ?? session()->get('email') ?? '';
 $level = $profileUser['level'] ?? session()->get('level') ?? '-';
 $experience = (int) ($profileUser['experience'] ?? session()->get('experience') ?? 0);
 $modules = $modules ?? [];
+$completedModules = $completedModules ?? [];
+$allModulesCompleted = (bool) ($allModulesCompleted ?? false);
 $recentAttempts = $recentAttempts ?? [];
 $overallPercent = (int) ($progressPercent ?? 0);
 $completedLessons = (int) ($completedLessons ?? 0);
@@ -156,21 +158,21 @@ $totalLessons = (int) ($totalLessons ?? 0);
                         <div class="col-md-8">
                             <div class="card border-0 shadow-sm rounded-4 mb-4">
                                 <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-3">Progressi moduli</h5>
+                                    <h5 class="fw-bold mb-3">Moduli completati</h5>
 
-                                    <?php if (empty($modules)): ?>
-                                        <p class="text-muted mb-0">Nessun modulo disponibile.</p>
+                                    <?php if ($allModulesCompleted): ?>
+                                        <div class="alert alert-success border-0 shadow-sm">
+                                            <i class="fas fa-award me-2"></i>
+                                            Complimenti, hai completato tutti i moduli disponibili.
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <?php if (empty($completedModules)): ?>
+                                        <p class="text-muted mb-0">Non hai ancora completato moduli.</p>
                                     <?php else: ?>
-                                        <?php foreach ($modules as $module): ?>
+                                        <?php foreach ($completedModules as $module): ?>
                                             <?php
                                             $modulePercent = (int) ($module['progress_percent'] ?? 0);
-                                            $status = (string) ($module['status'] ?? 'available');
-                                            $barClass = 'bg-primary';
-                                            if ($status === 'completed') {
-                                                $barClass = 'bg-success';
-                                            } elseif ($status === 'locked') {
-                                                $barClass = 'bg-secondary';
-                                            }
                                             ?>
                                             <div class="mb-3">
                                                 <div class="d-flex justify-content-between small mb-1">
@@ -178,8 +180,7 @@ $totalLessons = (int) ($totalLessons ?? 0);
                                                     <span class="fw-bold"><?= $modulePercent ?>%</span>
                                                 </div>
                                                 <div class="progress" style="height: 6px;">
-                                                    <div class="progress-bar <?= esc($barClass) ?>"
-                                                        style="width: <?= $modulePercent ?>%"></div>
+                                                    <div class="progress-bar bg-success" style="width: <?= $modulePercent ?>%"></div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>

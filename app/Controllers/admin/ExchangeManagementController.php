@@ -105,7 +105,14 @@ class ExchangeManagementController extends BaseController
             return redirect()->back()->with('alert', 'MIC mancante.');
         }
 
-        if (model(ExchangeModel::class)->fdelete($mic)) {
+        $model = model(ExchangeModel::class);
+        if ($model->hasDependencies($mic)) {
+            return redirect()->back()
+                ->with('alert', 'Impossibile disattivare la borsa: esistono quotazioni o societa collegate.')
+                ->with('alert_type', 'danger');
+        }
+
+        if ($model->fdelete($mic)) {
             return redirect()->back()->with('alert', 'Borsa disattivata.');
         }
 

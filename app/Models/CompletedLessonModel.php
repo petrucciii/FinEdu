@@ -102,6 +102,28 @@ class CompletedLessonModel extends Model
             ->getResultArray();
     }
 
+    public function recentCompletionsForUser(int $userId, int $limit = 1, int $days = 7): array
+    {
+        /*
+         * La home mostra un alert solo per completamenti davvero recenti.
+         * In assenza di una soglia nel db usiamo una finestra breve e visibile:
+         * la regola resta centralizzata qui per poterla cambiare senza toccare la view.
+         */
+        return $this->db->table('completed_lessons cl')
+            ->select('cl.*, l.title, m.name AS module_name')
+            //left join: mantengo il completamento anche se il contenuto collegato viene disattivato dopo
+            ->join('lessons l', 'l.id_lesson = cl.id_lesson', 'left')
+            //left join: mantengo il completamento anche se il modulo collegato manca
+            ->join('modules m', 'm.id_module = l.id_module', 'left')
+            ->where('cl.user_id', $userId)
+            ->where('cl.completed', 1)
+            ->where('cl.date >=', date('Y-m-d H:i:s', strtotime('-' . max(1, $days) . ' days')))
+            ->orderBy('cl.date', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+    }
+
     public function progressByUsers(string $searchQuery = '', int $page = 1, ?int $userId = null): array
     {
         /*

@@ -80,8 +80,8 @@ $finNumVal = static function ($v) {
                             <div class="row g-4">
                                 <div class="col-md-4">
                                     <label class="form-label small fw-bold">ISIN (non modificabile)</label>
-                                    <input type="text" class="form-control bg-light"
-                                        value="<?= esc($company['isin']) ?>" readonly>
+                                    <input type="text" class="form-control bg-light text-muted"
+                                        value="<?= esc($company['isin']) ?>" disabled>
                                 </div>
                                 <div class="col-md-8">
                                     <label class="form-label small fw-bold">Nome società</label>
@@ -175,6 +175,42 @@ $finNumVal = static function ($v) {
                                         class="fas fa-plus me-1"></i>Aggiungi</button>
                             </div>
                         </form>
+                        <?php if (!empty($listings)): ?>
+                            <!-- import prezzi csv: usa solo date e price, eventuali colonne extra vengono ignorate dal controller -->
+                            <div class="card border mb-4">
+                                <div class="card-body py-3">
+                                    <h6 class="small fw-bold mb-2">Import prezzi da CSV</h6>
+                                    <form action="<?= base_url('admin/CompanyManagementController/importPricesCsv') ?>"
+                                        method="post" enctype="multipart/form-data" class="row g-2 align-items-end">
+                                        <input type="hidden" name="isin" value="<?= esc($company['isin']) ?>">
+                                        <input type="hidden" name="active_tab" value="listings">
+
+                                        <div class="col-12 col-md-4">
+                                            <label class="form-label small mb-0">Quotazione</label>
+                                            <select name="listing_key" class="form-select form-select-sm" required>
+                                                <?php foreach ($listings as $listing): ?>
+                                                    <option value="<?= esc($listing['ticker'] . '|' . $listing['mic'], 'attr') ?>">
+                                                        <?= esc($listing['ticker']) ?> - <?= esc($listing['mic']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-12 col-md-5">
+                                            <label class="form-label small mb-0">File CSV (date;price)</label>
+                                            <input type="file" name="prices_csv" class="form-control form-control-sm"
+                                                accept=".csv,text/csv,text/plain" required>
+                                        </div>
+
+                                        <div class="col-12 col-md-auto">
+                                            <button type="submit" class="btn btn-sm btn-primary fw-bold">
+                                                <i class="fas fa-file-import me-1"></i>Importa prezzi
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                         <!-- elenco quotazioni esistenti -->
                         <div class="table-responsive">
                             <table class="table table-sm align-middle table-hover border mb-0">

@@ -11,7 +11,7 @@ class ListingModel extends Model
 
     protected $returnType = 'array';
 
-    protected $allowedFields = ['ticker', 'mic', 'isin', 'active'];
+    protected $allowedFields = ['ticker', 'mic', 'isin', 'id_user', 'active'];
 
     //trova listing di una società
     public function findActiveByIsin(string $isin): array
@@ -62,6 +62,26 @@ class ListingModel extends Model
         }
     }
 
+    public function hasDependencies(string $ticker, string $mic): bool
+    {
+        //blocca eliminazioni se la quotazione ha storico prezzi o ordini collegati
+        $ticker = trim($ticker);
+        $mic = trim($mic);
+
+        $orders = (int) $this->db->table('orders')
+            ->where('ticker', $ticker)
+            ->where('mic', $mic)
+            ->countAllResults();
+        if ($orders > 0) {
+            return true;
+        }
+
+        return (int) $this->db->table('prices')
+            ->where('ticker', $ticker)
+            ->where('mic', $mic)
+            ->countAllResults() > 0;
+    }
+
     //listings attive con MIC per Yahoo, solo borse attualmente aperte (CET) 
     public function findAllActiveForQuotes(): array|bool
     {
@@ -97,6 +117,7 @@ class ListingModel extends Model
         $builder = $this->select('listings.ticker, listings.mic, listings.isin, listings.active,
                 exchanges.full_name as exchange_name, exchanges.short_name,
                 companies.name as company_name,
+                companies.logo_path,
                 (SELECT p.price FROM prices p WHERE p.ticker = listings.ticker AND p.mic = listings.mic ORDER BY p.date DESC LIMIT 1) as last_price')
             //left join: tengo comunque il record principale anche se il dato collegato manca
             ->join('exchanges', 'exchanges.mic = listings.mic', 'left')

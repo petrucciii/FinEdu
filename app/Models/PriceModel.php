@@ -24,6 +24,26 @@ class PriceModel extends Model
         ]);
     }
 
+    public function existsForListingDate(string $ticker, string $mic, string $date): bool
+    {
+        //evita duplicati applicativi per data/listing, dato che nel db non c'e una chiave unica
+        return $this->where('ticker', $ticker)
+            ->where('mic', $mic)
+            ->where('DATE(date)', $date)
+            ->countAllResults() > 0;
+    }
+
+    public function insertCsvPrice(string $ticker, string $mic, string $date, float $price): bool
+    {
+        //salva la data importata a mezzanotte per mantenere il formato datetime della tabella prices
+        return (bool) $this->insert([
+            'ticker' => $ticker,
+            'mic' => $mic,
+            'price' => round($price, 2),
+            'date' => $date . ' 00:00:00',
+        ]);
+    }
+
     //recupera l'ultimo prezzo disponibile per un listing specifico.
     //usato nella viewCompany per mostrare il prezzo corrente in alto a destra
     public function getLatestForListing(string $ticker, string $mic): ?array
