@@ -32,6 +32,8 @@ class QuizManagementController extends BaseController
         echo view('templates/footer');
     }
 
+
+    //NON USATA 
     public function editor($lessonId)
     {
         //apre l'editor risposte per una singola lezione quiz
@@ -49,7 +51,7 @@ class QuizManagementController extends BaseController
         $questions = model(QuestionModel::class)->findWithAnswersByLesson($lessonId);
 
         echo view('templates/header');
-        echo view('pages/admins/viewQuizEditor', [
+        echo view('pages/admins/viewQuizEditor', [//non esiste più
             'lesson' => $lesson,
             'question' => $questions[0] ?? null,
             'adminSection' => true,
@@ -57,9 +59,9 @@ class QuizManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    //aggiorna il testo della domanda (lesson)
     public function updatePrompt()
     {
-        //aggiorna il testo della domanda usando title, description e hint di lessons
         if (!$this->isAdmin()) {
             return redirect()->to(base_url('/'));
         }
@@ -87,9 +89,9 @@ class QuizManagementController extends BaseController
         return redirect()->back()->with('alert', 'Quiz aggiornato.')->with('alert_type', 'success');
     }
 
+    //crea l'unico set di quattro risposte della lezione quiz
     public function createQuestion()
     {
-        //crea l'unico set di quattro risposte della lezione quiz
         if (!$this->isAdmin()) {
             return redirect()->to(base_url('/'));
         }
@@ -206,6 +208,7 @@ class QuizManagementController extends BaseController
         return redirect()->back()->with('alert', 'Un quiz deve mantenere il suo unico set di 4 risposte.');
     }
 
+    //helper per validare e preparare le risposte (answers) inviate dal form
     private function prepareAnswers(): array
     {
         /*normalizza le risposte inviate dal form.
@@ -224,6 +227,7 @@ class QuizManagementController extends BaseController
                 continue;
             }
 
+            //formatta array con risposte + corretta
             $answers[] = [
                 'answer' => $text,
                 'is_correct' => ((string) $index === (string) $correctIndex) ? 1 : 0,

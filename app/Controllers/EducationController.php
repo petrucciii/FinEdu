@@ -142,7 +142,7 @@ class EducationController extends BaseController
             if ($isCorrect) {
                 $score++;
                 $moduleScores[$moduleId]['correct']++;
-                $experience += (int) $question['experience'];
+                $experience += $this->weightedQuestionExperience((int) $question['experience'], $moduleId);
             }
         }
 
@@ -169,7 +169,7 @@ class EducationController extends BaseController
         $userModel = model(UserModel::class);
         $user = $userModel->find($userId);
         $newExperience = (int) ($user['experience'] ?? 0) + $experience;
-        $newLevelId = $this->estimateLevelId(count($modulesToComplete));
+        $newLevelId = $this->estimateLevelId($newExperience);
         $userModel->update($userId, [
             'experience' => $newExperience,
             'level_id' => $newLevelId,
@@ -237,6 +237,9 @@ class EducationController extends BaseController
                 //usa solo il primo set risposte: ogni quiz deve averne uno solo
                 $questions = $questionModel->findWithAnswersByLesson((int) $lesson['id_lesson']);
                 $lesson['questions'] = empty($questions) ? [] : [$questions[0]];
+                if (!empty($questions)) {
+                    $lesson['experience'] = $this->weightedQuestionExperience((int) $questions[0]['experience'], (int) $lesson['id_module']);
+                }
             }
         }
         unset($lesson);
@@ -359,7 +362,7 @@ class EducationController extends BaseController
             //la riga questions rappresenta l'unico set di risposte della lezione quiz
             $questionId = (int) $question['id_question'];
             $selectedId = (int) ($answersPost[$questionId] ?? 0);
-            $experience += (int) $question['experience'];
+            $experience += $this->weightedQuestionExperience((int) $question['experience'], (int) $lesson['id_module']);
 
             if ($selectedId < 1) {
                 $allAnswered = false;
@@ -397,8 +400,14 @@ class EducationController extends BaseController
             $userModel = model(UserModel::class);
             $user = $userModel->find($userId);
             $newExperience = (int) ($user['experience'] ?? 0) + $experience;
-            $userModel->update($userId, ['experience' => $newExperience]);
+            $newLevelId = $this->estimateLevelId($newExperience);
+            $userModel->update($userId, [
+                'experience' => $newExperience,
+                'level_id' => $newLevelId,
+                'id_user_updated' => $userId,
+            ]);
             $this->session->set('experience', $newExperience);
+            $this->session->set('level_id', $newLevelId);
         }
 
         //chiudo la transazione solo dopo tutti i controlli, cosi' il db resta coerente
@@ -532,7 +541,7 @@ class EducationController extends BaseController
         se non esiste un campo ordine nel db, l'ordine usato e quello di id_module.*/
         $previousCompleted = true;
 
-        foreach ($modules as &$module) {
+        foreach ($modules as &$module) {//& serve per modificare direttamente array originale
             $lessonCount = (int) ($module['lesson_count'] ?? 0);
             $completedCount = (int) ($module['completed_count'] ?? 0);
             $module['progress_percent'] = $lessonCount > 0 ? (int) round(($completedCount / $lessonCount) * 100) : 0;
@@ -640,25 +649,75 @@ class EducationController extends BaseController
         return $passed;
     }
 
-    private function estimateLevelId(int $completedModuleCount): int
+    private function estimateLevelId(int $experience): int
     {
         /*
-         * La tabella levels contiene solo le etichette, non soglie numeriche.
-         * Per ora distribuiamo i moduli completati sui livelli attivi; se verranno
-         * aggiunte soglie esplicite nel db questo metodo va sostituito con quelle.
+         * I livelli dipendono dall'XP pesata raggiunta sul totale raggiungibile:
+         * - ogni domanda vale experience * id_module, quindi i moduli con id piu alto pesano di piu
+         * - a 1/3 dell'XP totale si passa a Intermedio
+         * - a 2/3 dell'XP totale si passa ad Avanzato
          */
         $levels = model(LevelModel::class)->fread();
         if (empty($levels) || !is_array($levels)) {
             return 1;
         }
 
-        $totalModules = max(1, count(model(EducationModuleModel::class)->findActiveOrdered()));
-        $ratio = max(0, min(1, $completedModuleCount / $totalModules));
-        $index = (int) floor($ratio * count($levels));
-        if ($index >= count($levels)) {
-            $index = count($levels) - 1;
+        usort($levels, static fn(array $a, array $b): int => (int) $a['level_id'] <=> (int) $b['level_id']);
+
+        $beginnerId = $this->findLevelId($levels, ['principiante', 'principante']) ?? (int) ($levels[0]['level_id'] ?? 1);
+        $intermediateId = $this->findLevelId($levels, ['intermedio'])
+            ?? (int) ($levels[min(1, count($levels) - 1)]['level_id'] ?? $beginnerId);
+        $advancedId = $this->findLevelId($levels, ['avanzato'])
+            ?? (int) ($levels[min(2, count($levels) - 1)]['level_id'] ?? $intermediateId);
+
+        $totalExperience = $this->totalReachableWeightedExperience();
+        if ($totalExperience <= 0) {
+            return $beginnerId;
         }
 
-        return (int) ($levels[$index]['level_id'] ?? 1);
+        if ($experience >= ($totalExperience * 2 / 3)) {
+            return $advancedId;
+        }
+
+        if ($experience >= ($totalExperience / 3)) {
+            return $intermediateId;
+        }
+
+        return $beginnerId;
+    }
+
+    private function weightedQuestionExperience(int $experience, int $moduleId): int
+    {
+        return max(0, $experience) * max(1, $moduleId);
+    }
+
+    private function totalReachableWeightedExperience(): int
+    {
+        $sql = 'SELECT COALESCE(SUM(weighted_experience), 0) AS total
+            FROM (
+                SELECT q.id_question, (MAX(q.experience) * MAX(m.id_module)) AS weighted_experience
+                FROM questions q
+                INNER JOIN lessons l ON l.id_lesson = q.id_lesson AND l.active = 1
+                INNER JOIN modules m ON m.id_module = l.id_module AND m.active = 1
+                INNER JOIN answers a ON a.id_question = q.id_question AND a.active = 1
+                WHERE q.active = 1
+                GROUP BY q.id_question
+                HAVING COUNT(a.id_answer) = 4
+            ) weighted_questions';
+
+        return (int) (db_connect()->query($sql)->getRow('total') ?? 0);
+    }
+
+    private function findLevelId(array $levels, array $names): ?int
+    {
+        $names = array_map(static fn(string $name): string => strtolower($name), $names);
+        foreach ($levels as $level) {
+            $label = strtolower(trim((string) ($level['level'] ?? '')));
+            if (in_array($label, $names, true)) {
+                return (int) $level['level_id'];
+            }
+        }
+
+        return null;
     }
 }

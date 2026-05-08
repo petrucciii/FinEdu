@@ -16,7 +16,7 @@ class Home extends BaseController
         $companyModel = model(CompanyModel::class);
         $userId = $this->session->has('logged') ? (int) $this->session->get('user_id') : 0;
 
-        //se l'utente non e loggato i completamenti sono naturalmente a zero
+        //se l'utente non e loggato i completamenti sono a zero
         $modules = $moduleModel->findProgressForUser($userId);
         foreach ($modules as &$module) {
             $lessonCount = (int) ($module['lesson_count'] ?? 0);

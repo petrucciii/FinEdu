@@ -18,6 +18,7 @@ class DictionaryManagementController extends BaseController
         }
 
         $items = [];
+        //carica tutte le tabelle con array mappato
         foreach ($this->dictionaries() as $key => $config) {
             $builder = db_connect()->table($config['table'])
                 ->where('active', 1)
@@ -57,6 +58,7 @@ class DictionaryManagementController extends BaseController
         $payload['id_user'] = $this->session->get('user_id');
         $payload['active'] = 1;
 
+        //no duplicati 
         if ($this->activeDuplicateExists($config, $payload)) {
             return redirect()->back()
                 ->with('alert', 'Voce gia presente tra i record attivi.')
@@ -85,6 +87,7 @@ class DictionaryManagementController extends BaseController
             return redirect()->to(base_url('/'));
         }
 
+        //in base alla tabella dizionario vengono letti i campi da aggiornare
         $config = $this->dictionaryConfig($dictionary);
         $id = $this->request->getPost('id');
         if (!$config || $id === null || $id === '') {
@@ -94,6 +97,7 @@ class DictionaryManagementController extends BaseController
                 ->with('dictionary', $dictionary);
         }
 
+        //payload ha campi recuperati da form
         $payload = $this->payloadFromPost($config, false);
         if ($payload === null) {
             return redirect()->back()
@@ -105,6 +109,7 @@ class DictionaryManagementController extends BaseController
         $payload['id_user'] = $this->session->get('user_id');
         $payload['last_update'] = date('Y-m-d H:i:s');
 
+        //non si possono inserire duplicati
         if ($this->activeDuplicateExists($config, $payload, $id)) {
             return redirect()->back()
                 ->with('alert', 'Voce gia presente tra i record attivi.')
@@ -145,6 +150,7 @@ class DictionaryManagementController extends BaseController
                 ->with('dictionary', $dictionary);
         }
 
+        //solo se non ci sono record collegati in altre tabelle puo essere disattivato
         $dependency = $this->firstDependency($config, $id);
         if ($dependency !== null) {
             return redirect()->back()
@@ -180,15 +186,17 @@ class DictionaryManagementController extends BaseController
         return $all[$key] ?? null;
     }
 
+    //trova cosa estraerre dal form in base alla configurazione dei campi, restituendo null se un campo obbligatorio è vuoto
     private function payloadFromPost(array $config, bool $isCreate): ?array
     {
         $payload = [];
         foreach ($config['fields'] as $field) {
             $name = $field['name'];
-            if (!$isCreate && $name === $config['pk']) {
+            if (!$isCreate && $name === $config['pk']) {//se non è inserimento e chiave primaria 
                 continue;
             }
 
+            //prende campi da post
             $value = trim((string) $this->request->getPost($name));
             if (($field['required'] ?? true) && $value === '') {
                 return null;
@@ -204,6 +212,13 @@ class DictionaryManagementController extends BaseController
         return $payload;
     }
 
+    /**
+     * trova record attivi uguali (case insensitive)
+     * @param array $config
+     * @param array $payload
+     * @param mixed $excludeId per update (esclude se stesso)
+     * @return bool
+     */
     private function activeDuplicateExists(array $config, array $payload, $excludeId = null): bool
     {
         //controllo case insensitive solo sui record ancora attivi
@@ -229,12 +244,12 @@ class DictionaryManagementController extends BaseController
         return (int) $builder->countAllResults() > 0;
     }
 
+    //controlla se ci sono dipendenze (record collegati ad essa)
     private function firstDependency(array $config, $id): ?string
     {
-        //controlla le tabelle operative prima del soft delete
         foreach ($config['dependencies'] as $dependency) {
             $count = (int) db_connect()->table($dependency['table'])
-                ->where($dependency['field'], $id)
+                ->where($dependency['field'], $id)//controlla se quel campo c'è su qualche tabella tra le dipendenze
                 ->countAllResults();
             if ($count > 0) {
                 return $dependency['table'];
@@ -250,6 +265,7 @@ class DictionaryManagementController extends BaseController
          * Sono inclusi solo tabelle dizionario semplici con active/id_user.
          * companies_shareholders resta nella scheda societa perche e una relazione
          * operativa tra azienda e firm, non una tabella dizionario autonoma.
+         * LIMITE: se si cambia db va cambmbiata questa configurazione
          */
         return [
             'roles' => [
@@ -261,6 +277,7 @@ class DictionaryManagementController extends BaseController
                 'fields' => [
                     ['name' => 'role', 'label' => 'Ruolo', 'maxlength' => 50],
                 ],
+                //tabelle collegate
                 'dependencies' => [
                     ['table' => 'users', 'field' => 'role_id'],
                 ],

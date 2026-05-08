@@ -25,6 +25,7 @@ class OrderManagementController extends BaseController
         $orderModel = model(OrderModel::class);
         $users = model(UserModel::class)->fread(['users.role_id' => 2]);
         $ex = model(ExchangeModel::class)->fread();
+        //aggiungo statistiche per dashboard: top società per volume, top utenti per P&L realizzato, migliori trade chiusi
         $data = [
             'users' => is_array($users) ? $users : [],
             'portfolios' => model(PortfolioModel::class)->findActiveOrdered(),
@@ -100,6 +101,7 @@ class OrderManagementController extends BaseController
         ]);
     }
 
+    //validazione filtro data
     private function validateDateRange($dateFrom, $dateTo): ?string
     {
         //controlli server side allineati ai controlli client sulle date
@@ -126,7 +128,8 @@ class OrderManagementController extends BaseController
         return null;
     }
 
-    private function parseDate($value): ?\DateTimeImmutable
+    //helper
+    private function parseDate($value): ?\DateTimeImmutable//non puo essere modificata (immutabile) perfetta per data filtro che non deve essere alterata
     {
         //accetta solo il formato prodotto dagli input type=date
         $value = trim((string) $value);

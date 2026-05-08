@@ -9,7 +9,24 @@
  * e lo confrontiamo con i controller gestiti da ogni voce della bottombar.
  */
 $currentPath = trim((string) service('request')->getUri()->getPath(), '/');
-$basePath = trim((string) (parse_url(base_url(), PHP_URL_PATH) ?? ''), '/');
+$request = service('request');
+$forwardedHost = trim((string) ($request->getServer('HTTP_X_FORWARDED_HOST') ?? ''));
+$forwardedProto = trim((string) ($request->getServer('HTTP_X_FORWARDED_PROTO') ?? ''));
+$host = $forwardedHost !== '' ? $forwardedHost : trim((string) ($request->getServer('HTTP_HOST') ?? ''));
+$scheme = $forwardedProto !== '' ? $forwardedProto : ($request->isSecure() ? 'https' : 'http');
+$hostForCheck = strtolower(trim(explode(':', trim(explode(',', $host)[0]))[0], '[]'));
+$useConfiguredBaseUrl = $host === '' || in_array($hostForCheck, ['localhost', '127.0.0.1', '::1'], true);
+
+if ($useConfiguredBaseUrl) {
+    $configuredBaseUrl = rtrim((string) config('App')->baseURL, '/') . '/';
+} else {
+    $host = trim(explode(',', $host)[0]);
+    $scheme = trim(explode(',', $scheme)[0]) ?: 'https';
+    $configuredBaseUrl = $scheme . '://' . $host . '/';
+}
+
+$adminUrl = static fn(string $path = ''): string => $configuredBaseUrl . ltrim($path, '/');
+$basePath = trim((string) (parse_url($configuredBaseUrl, PHP_URL_PATH) ?? ''), '/');
 if ($basePath !== '' && strpos($currentPath, $basePath) === 0) {
     $currentPath = trim(substr($currentPath, strlen($basePath)), '/');
 }
@@ -45,70 +62,70 @@ $isAdminActive = static function (array $prefixes) use ($currentPath): bool {
 
                 <ul class="nav flex-row justify-content-center align-items-center gap-2 gap-md-4">
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/DashboardController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/DashboardController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/DashboardController']) ? 'active' : '' ?>">
                             <i class="fas fa-tachometer-alt"></i>
                             <span class="d-none d-sm-block">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/CompanyManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/CompanyManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/CompanyManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-building"></i>
                             <span class="d-none d-sm-block">Società</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/ExchangeManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/ExchangeManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/ExchangeManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-globe"></i>
                             <span class="d-none d-sm-block">Borse</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/NewsManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/NewsManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/NewsManagementController']) ? 'active' : '' ?>">
                             <i class="far fa-newspaper"></i>
                             <span class="d-none d-sm-block">News</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/ModuleManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/ModuleManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/ModuleManagementController', 'admin/QuizManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-graduation-cap"></i>
                             <span class="d-none d-sm-block">Moduli</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/UserManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/UserManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/UserManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-users"></i>
                             <span class="d-none d-sm-block">Utenti</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/PortfolioManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/PortfolioManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/PortfolioManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-wallet"></i>
                             <span class="d-none d-sm-block">Portafogli</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/OrderManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/OrderManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/OrderManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-exchange-alt"></i>
                             <span class="d-none d-sm-block">Ordini</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('admin/DictionaryManagementController/') ?>"
+                        <a href="<?= esc($adminUrl('admin/DictionaryManagementController/'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/DictionaryManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-list"></i>
                             <span class="d-none d-sm-block">Dizionari</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= base_url('AuthController/logout') ?>" class="nav-link text-danger">
+                        <a href="<?= esc($adminUrl('AuthController/logout'), 'attr') ?>" class="nav-link text-danger">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="d-none d-sm-block">Logout</span>
                         </a>

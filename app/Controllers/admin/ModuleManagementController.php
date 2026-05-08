@@ -35,7 +35,7 @@ class ModuleManagementController extends BaseController
 
         $data = [
             'modules' => $modules,
-            'adminSection' => true,
+            'adminSection' => true,//serve per evidenziare la voce di menu attiva e mostrare il link alla pagina progressi
         ];
 
         echo view('templates/header');
@@ -43,15 +43,16 @@ class ModuleManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    /*
+     * Mostra una pagina sola lettura con i progressi educativi.
+     *
+     * La pagina puo' essere aperta dalla gestione moduli (tutti gli utenti) oppure dal
+     * modal gestione utente con ?user_id=...; in quel caso il model filtra lo stesso
+     * riepilogo su un singolo utente senza creare una view duplicata.
+     */
     public function progress()
     {
-        /*
-         * Mostra una pagina sola lettura con i progressi educativi.
-         *
-         * La pagina puo' essere aperta dalla gestione moduli (tutti gli utenti) oppure dal
-         * modal gestione utente con ?user_id=...; in quel caso il model filtra lo stesso
-         * riepilogo su un singolo utente senza creare una view duplicata.
-         */
+
         if (!$this->isAdmin()) {
             return redirect()->to(base_url('/'));
         }
@@ -75,15 +76,15 @@ class ModuleManagementController extends BaseController
         echo view('templates/footer');
     }
 
+    /*
+     * Endpoint AJAX per la tabella "Progressi utenti".
+     *
+     * È costruito come la ricerca news: il JavaScript invia testo e pagina, il model
+     * cerca nel database e qui torniamo JSON con righe, paginazione e totale lezioni.
+     * Così la ricerca non filtra solo la pagina già caricata, ma tutti gli utenti.
+     */
     public function progressSearch($query = '')
     {
-        /*
-         * Endpoint AJAX per la tabella "Progressi utenti".
-         *
-         * È costruito come la ricerca news: il JavaScript invia testo e pagina, il model
-         * cerca nel database e qui torniamo JSON con righe, paginazione e totale lezioni.
-         * Così la ricerca non filtra solo la pagina già caricata, ma tutti gli utenti.
-         */
         if (!$this->isAdmin()) {
             return redirect()->to(base_url('/'));
         }
@@ -99,9 +100,9 @@ class ModuleManagementController extends BaseController
         ]);
     }
 
+    //nuovo modulo
     public function createModule()
     {
-        //crea un modulo usando solo i campi reali della tabella modules
         if (!$this->isAdmin()) {
             return redirect()->to(base_url('/'));
         }
@@ -158,6 +159,7 @@ class ModuleManagementController extends BaseController
         }
 
         $moduleModel = model(EducationModuleModel::class);
+        //se contiene lezioni il modulo non puo essere eliminato
         if ($moduleModel->hasActiveLessons($moduleId)) {
             return redirect()->back()
                 ->with('alert', 'Impossibile disattivare il modulo: contiene lezioni attive.')
