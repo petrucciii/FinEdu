@@ -18,7 +18,7 @@ class ExchangeManagementController extends BaseController
     public function index()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $ex = model(ExchangeModel::class)->fread();
@@ -40,7 +40,7 @@ class ExchangeManagementController extends BaseController
     public function create()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $model = model(ExchangeModel::class);
@@ -68,7 +68,7 @@ class ExchangeManagementController extends BaseController
     public function update()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $mic = strtoupper(trim((string) $this->request->getPost('mic')));
@@ -97,7 +97,7 @@ class ExchangeManagementController extends BaseController
     public function delete()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $mic = strtoupper(trim((string) $this->request->getPost('mic')));

@@ -11,14 +11,14 @@
                                 eventuali moduli gi&agrave; padroneggiati.
                             </p>
                         </div>
-                        <a href="/EducationController/skipInitialTest" class="btn btn-outline-secondary">
+                        <a href="<?= base_url('EducationController/skipInitialTest') ?>" class="btn btn-outline-secondary">
                             Salta
                         </a>
                     </div>
                 </div>
             </div>
 
-            <form action="/EducationController/submitInitialTest" method="post">
+            <form action="<?= base_url('EducationController/submitInitialTest') ?>" method="post">
                 <?php foreach ($questions as $index => $question): ?>
                     <?php $answers = $question['answers'] ?? []; ?>
                     <input type="hidden" name="question_ids[]" value="<?= (int) $question['id_question'] ?>">
@@ -59,7 +59,7 @@
 
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4 d-flex justify-content-end gap-2">
-                        <a href="/EducationController/index" class="btn btn-light">Annulla</a>
+                        <a href="<?= base_url('EducationController/index') ?>" class="btn btn-light">Annulla</a>
                         <button type="submit" class="btn btn-primary fw-bold">
                             <i class="fas fa-check me-2"></i>Concludi test
                         </button>

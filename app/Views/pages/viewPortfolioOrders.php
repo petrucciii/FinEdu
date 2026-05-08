@@ -1,14 +1,14 @@
 <?php
 //parametri passati dal controller per gestire il dataset iniziale
 $filterPfId = (int) ($filterPortfolioId ?? 0);
-$baseUrl = '/PortfolioController/orders';
+$baseUrl = base_url('PortfolioController/orders');
 ?>
 
 <div class="container mt-4 mb-5" style="min-height: 80vh;">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2><i class="fas fa-history text-primary me-2"></i>Storico ordini</h2>
-        <a href="/PortfolioController/index" class="btn btn-outline-primary">I miei portafogli</a>
+        <a href="<?= base_url('PortfolioController/index') ?>" class="btn btn-outline-primary">I miei portafogli</a>
     </div>
 
     <div class="card border-0 shadow-sm mb-3">
@@ -168,7 +168,7 @@ $baseUrl = '/PortfolioController/orders';
                             </td>
                             <td class="text-end">
                                 <?php if ((int) $o['status'] === 1): ?>
-                                    <form action="/PortfolioController/close" method="post" class="d-inline"
+                                    <form action="<?= base_url('PortfolioController/close') ?>" method="post" class="d-inline"
                                         onsubmit="return confirm('Chiudere la posizione al prezzo di mercato corrente?');">
                                         <input type="hidden" name="order_id" value="<?= (int) $o['order_id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Chiudi</button>
@@ -188,5 +188,5 @@ $baseUrl = '/PortfolioController/orders';
     </div>
 </div>
 
-<script type="module" src="/javascript/ajax/userOrders.js"></script>
-<script type="module" src="/javascript/ajax/ordersRefresh.js"></script>
+<script type="module" src="<?= base_url('javascript/ajax/userOrders.js') ?>"></script>
+<script type="module" src="<?= base_url('javascript/ajax/ordersRefresh.js') ?>"></script>

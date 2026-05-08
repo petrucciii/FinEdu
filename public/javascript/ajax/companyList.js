@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 //variabile globale di stato per ricordare l'ultima ricerca
 let currentQuery = '';
 
@@ -24,7 +26,7 @@ const loadCompanies = (page = 1, query = '') => {
      */
     const searchPath = query ? `/search/${encodeURIComponent(query)}` : '/search';
     //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
-    fetch(`/CompanyController${searchPath}?page=${page}`)
+    fetch(appUrl(`CompanyController${searchPath}?page=${page}`))
         .then(res => res.json())
         .then(data => {
             renderCompanies(data.companies);
@@ -74,12 +76,12 @@ const createCompanyRow = (company, index) => {
 
     //se esiste bottone admin
     if (editBtn) {
-        editBtn.href = `/admin/CompanyManagementController/edit/${encodeURIComponent(company.isin)}`;
+        editBtn.href = appUrl(`admin/CompanyManagementController/edit/${encodeURIComponent(company.isin)}`);
     }
 
     //se esiste bottone per utente
     if (viewBtn) {
-        viewBtn.href = `/CompanyController/viewCompany/${encodeURIComponent(company.isin)}`;
+        viewBtn.href = appUrl(`CompanyController/viewCompany/${encodeURIComponent(company.isin)}`);
     }
 
     return tr;

@@ -22,7 +22,7 @@ class ModuleManagementController extends BaseController
     {
         //mostra la gestione admin di moduli e lezioni educative
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         //carica i moduli con contatori e poi aggancia le lezioni attive di ognuno
@@ -53,7 +53,7 @@ class ModuleManagementController extends BaseController
          * riepilogo su un singolo utente senza creare una view duplicata.
          */
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         //ricerca e paginazione tengono leggera la tabella quando gli utenti crescono
@@ -85,7 +85,7 @@ class ModuleManagementController extends BaseController
          * Così la ricerca non filtra solo la pagina già caricata, ma tutti gli utenti.
          */
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $page = (int) ($this->request->getGet('page') ?? 1);
@@ -103,7 +103,7 @@ class ModuleManagementController extends BaseController
     {
         //crea un modulo usando solo i campi reali della tabella modules
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $name = trim((string) $this->request->getPost('name'));
@@ -126,7 +126,7 @@ class ModuleManagementController extends BaseController
     {
         //modifica nome e descrizione del modulo senza toccare i progressi utente
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $moduleId = (int) $this->request->getPost('id_module');
@@ -149,7 +149,7 @@ class ModuleManagementController extends BaseController
     {
         //disattiva il modulo con soft delete tramite active = 0
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $moduleId = (int) $this->request->getPost('id_module');
@@ -176,7 +176,7 @@ class ModuleManagementController extends BaseController
     {
         //crea una lezione e la specializza subito come spiegazione oppure quiz
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         //i campi comuni finiscono sempre in lessons
@@ -244,7 +244,7 @@ class ModuleManagementController extends BaseController
 
         if ($type === 'quiz') {
             //dopo un quiz nuovo porta subito l'admin all'editor risposte
-            return redirect()->to('/admin/QuizManagementController/editor/' . $lessonId)
+            return redirect()->to(base_url('admin/QuizManagementController/editor/' . $lessonId))
                 ->with('alert', 'Quiz creato. Inserisci le risposte.')
                 ->with('alert_type', 'success');
         }
@@ -256,7 +256,7 @@ class ModuleManagementController extends BaseController
     {
         //aggiorna i dati comuni della lezione e il body se e una spiegazione
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $lessonId = (int) $this->request->getPost('id_lesson');
@@ -317,7 +317,7 @@ class ModuleManagementController extends BaseController
     {
         //disattiva una lezione e anche le righe specializzate collegate
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $lessonId = (int) $this->request->getPost('id_lesson');

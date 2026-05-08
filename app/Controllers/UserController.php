@@ -45,7 +45,7 @@ class UserController extends BaseController
             echo view("templates/footer");
             return;
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function editColumn()
@@ -73,7 +73,7 @@ class UserController extends BaseController
             }
 
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function editPassword()
@@ -113,7 +113,7 @@ class UserController extends BaseController
             }
         }
 
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function delete()
@@ -141,7 +141,7 @@ class UserController extends BaseController
                         'role',
                         'logged'
                     ]);
-                    return redirect()->to('/')->with('alert', 'Profilo eliminato!');
+                    return redirect()->to(base_url('/'))->with('alert', 'Profilo eliminato!');
 
                 } else {
                     return redirect()->back()->with('alert', 'Profilo non eliminato!');
@@ -150,7 +150,7 @@ class UserController extends BaseController
                 return redirect()->back()->with('alert', 'Password Errata!');
             }
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     private function enrichModuleStatuses(array $modules): array

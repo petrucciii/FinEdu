@@ -3,7 +3,7 @@
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <h5 class="m-0 text-muted">Quiz Editor</h5>
         <div class="d-flex gap-2">
-            <a href="/admin/ModuleManagementController/" class="btn btn-outline-primary">
+            <a href="<?= base_url('admin/ModuleManagementController/') ?>" class="btn btn-outline-primary">
                 <i class="fas fa-graduation-cap me-1"></i> Moduli
             </a>
         </div>
@@ -27,7 +27,7 @@
                 <h5 class="mb-0 fw-bold">Domanda del quiz</h5>
             </div>
             <div class="card-body">
-                <form action="/admin/QuizManagementController/updatePrompt" method="post">
+                <form action="<?= base_url('admin/QuizManagementController/updatePrompt') ?>" method="post">
                     <input type="hidden" name="id_lesson" value="<?= (int) $lesson['id_lesson'] ?>">
                     <div class="row g-3">
                         <div class="col-md-4">
@@ -67,7 +67,7 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         Questo quiz non ha ancora il set di 4 risposte.
                     </div>
-                    <form action="/admin/QuizManagementController/createQuestion" method="post">
+                    <form action="<?= base_url('admin/QuizManagementController/createQuestion') ?>" method="post">
                         <input type="hidden" name="id_lesson" value="<?= (int) $lesson['id_lesson'] ?>">
                         <div class="mb-3">
                             <label class="fw-bold">Punti esperienza</label>
@@ -94,7 +94,7 @@
                     </form>
                 <?php else: ?>
                     <?php //modifica dell'unico set risposte gia presente ?>
-                    <form action="/admin/QuizManagementController/updateQuestion" method="post">
+                    <form action="<?= base_url('admin/QuizManagementController/updateQuestion') ?>" method="post">
                         <input type="hidden" name="id_question" value="<?= (int) $question['id_question'] ?>">
                         <div class="mb-3">
                             <label class="fw-bold">Punti esperienza</label>

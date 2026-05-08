@@ -19,7 +19,7 @@ class OrderManagementController extends BaseController
     public function index()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $orderModel = model(OrderModel::class);
@@ -48,7 +48,7 @@ class OrderManagementController extends BaseController
     public function search($query = '')
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $page = (int) ($this->request->getGet('page') ?? 1);

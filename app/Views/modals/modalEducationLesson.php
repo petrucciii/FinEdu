@@ -8,7 +8,7 @@
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/ModuleManagementController/createLesson" method="post" id="addLessonForm">
+            <form action="<?= base_url('admin/ModuleManagementController/createLesson') ?>" method="post" id="addLessonForm">
                 <input type="hidden" name="id_module" id="add_lesson_module_id">
                 <div class="modal-body p-4">
                     <div class="alert alert-light border small">
@@ -87,7 +87,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/ModuleManagementController/updateLesson" method="post">
+            <form action="<?= base_url('admin/ModuleManagementController/updateLesson') ?>" method="post">
                 <input type="hidden" name="id_lesson" id="edit_lesson_id">
                 <div class="modal-body p-4 bg-light">
                     <div class="row g-3">

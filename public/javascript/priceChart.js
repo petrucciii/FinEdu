@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
     //canvas del grafico
     const canvas = document.getElementById('priceChart');
     if (!canvas) return;
@@ -118,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //aggiornamento grafico in base a timeline con ajax
     const updateChart = (range) => {
         //endp
-        fetch(`/CompanyController/getChartDataJSON/${isin}/${range}`)
+        fetch(appUrl(`CompanyController/getChartDataJSON/${isin}/${range}`))
             .then(res => res.json())
             .then(data => {
                 //aggiorna il grafico con i nuovi dati

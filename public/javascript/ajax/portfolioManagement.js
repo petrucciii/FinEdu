@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 /*
  * Gestione AJAX della pagina admin portafogli.
  *
@@ -38,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 const buildPortfoliosUrl = (page = 1) => {
     const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
-    let url = `/admin/PortfolioManagementController${searchPath}?page=${page}`;
+    let url = appUrl(`admin/PortfolioManagementController${searchPath}?page=${page}`);
     if (selectedUserId) {
         url += `&user_id=${encodeURIComponent(selectedUserId)}`;
     }
@@ -156,7 +158,7 @@ const row = (p, index) => {
     unrealCell.innerHTML = `<span class="${unreal >= 0 ? 'text-success' : 'text-danger'} fw-bold">${eur(unreal)}${pct}</span>`;
 
     const link = tr.querySelector('[data-field="orders_link"]');
-    link.href = `/admin/OrderManagementController/?pf=${p.portfolio_id}`;
+    link.href = appUrl(`admin/OrderManagementController/?pf=${p.portfolio_id}`);
 
     return tr;
 };

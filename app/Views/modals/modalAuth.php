@@ -45,7 +45,7 @@
                 <h5 class="modal-title">Crea un Account</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/AuthController/singup" method="post">
+            <form action="<?= base_url('AuthController/singup') ?>" method="post">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-6 mb-3">

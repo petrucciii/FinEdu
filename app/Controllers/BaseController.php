@@ -22,8 +22,8 @@ use Psr\Log\LoggerInterface;
 abstract class BaseController extends Controller
 {
     /**
-        * @var \CodeIgniter\Session\Session 
-    */
+     * @var \CodeIgniter\Session\Session 
+     */
     protected $session;
     /**
      * Instance of the main Request object.
@@ -39,7 +39,7 @@ abstract class BaseController extends Controller
      *
      * @var list<string>
      */
-    protected $helpers = [];
+    protected $helpers = ['url'];
 
     /**
      * Be sure to declare properties for any property fetch you initialized.
@@ -52,10 +52,10 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        
+
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
-        $this->session = \Config\Services::session(); 
+        $this->session = \Config\Services::session();
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = service('session');

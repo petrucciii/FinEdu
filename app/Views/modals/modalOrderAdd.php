@@ -26,7 +26,7 @@ $canTrade = session()->has('logged') && !empty($mainListing) && !empty($userPort
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
                 </div>
             <?php else: ?>
-                <form action="/PortfolioController/buy" method="post">
+                <form action="<?= base_url('PortfolioController/buy') ?>" method="post">
                     <div class="modal-body">
                         <input type="hidden" name="ticker" value="<?= esc($mainListing['ticker']) ?>">
                         <input type="hidden" name="mic" value="<?= esc($mainListing['mic']) ?>">

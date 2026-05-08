@@ -1,7 +1,7 @@
 <div id="content-wrapper" data-selected-user-id="<?= !empty($selectedUserId) ? (int) $selectedUserId : '' ?>">
     <div class="top-bar d-flex justify-content-between align-items-center mb-4">
         <h5 class="m-0 text-muted">Progressi Educazione</h5>
-        <a href="/admin/ModuleManagementController/" class="btn btn-outline-secondary">
+        <a href="<?= base_url('admin/ModuleManagementController/') ?>" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-1"></i> Moduli
         </a>
     </div>

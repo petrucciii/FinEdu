@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 //stato globale per la query di ricerca corrente
 let currentQuery = '';
 
@@ -25,7 +27,7 @@ const searchNews = () => {
 //chiama l'endpoint search del controller admin e renderizza tabella + paginazione
 const loadNews = (page = 1, query = '') => {
     //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato della pagina
-    fetch(`/admin/NewsManagementController/search/${encodeURIComponent(query)}?page=${page}`)
+    fetch(appUrl(`admin/NewsManagementController/search/${encodeURIComponent(query)}?page=${page}`))
         .then((res) => res.json())
         //se la risposta va a buon fine aggiorno la ui con i dati appena ricevuti
         .then((data) => {
@@ -83,7 +85,7 @@ const createNewsRow = (n) => {
             const img = document.createElement('img');
             const src = p.trim();
             //gestisce perrorsi assoluti e relativi, se comincia con http lo usa cosi com'è altrimenti perocorso relativo sostituendo ./ con /
-            img.src = src.startsWith('http') ? src : (src.startsWith('/') ? src : '/' + src.replace(/^\.\//, ''));
+            img.src = src.startsWith('http') ? src : appUrl(src.replace(/^\.\//, ''));
             img.alt = '';
             img.style.width = '32px';
             img.style.height = '32px';
@@ -123,7 +125,7 @@ const bindEditButtons = () => {
         if (!btn) return;
         const id = btn.dataset.newsId;
         //chiama l'endpoint detail che restituisce tutti i campi + body + isin collegati
-        fetch('/admin/NewsManagementController/detail/' + id)
+        fetch(appUrl('admin/NewsManagementController/detail/' + id))
             .then((res) => {
                 if (!res.ok) throw new Error('Errore server');
                 return res.json();

@@ -22,7 +22,7 @@ class NewsManagementController extends BaseController
     public function index()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $data = [
@@ -41,7 +41,7 @@ class NewsManagementController extends BaseController
     public function search($query = '')
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $page = (int) ($this->request->getGet('page') ?? 1);
@@ -60,7 +60,7 @@ class NewsManagementController extends BaseController
     public function detail($newsId)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $news = model(NewsModel::class)->findDetailForAdmin((int) $newsId);
@@ -89,7 +89,7 @@ class NewsManagementController extends BaseController
     public function create()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         //regole di validazione per i campi del form
@@ -143,7 +143,7 @@ class NewsManagementController extends BaseController
     public function update()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $newsId = (int) $this->request->getPost('news_id');
@@ -189,7 +189,7 @@ class NewsManagementController extends BaseController
     public function delete()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $newsId = (int) $this->request->getPost('news_id');

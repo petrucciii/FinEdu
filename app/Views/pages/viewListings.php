@@ -77,7 +77,7 @@
                     <h5 class="modal-title" id="buyModalTitle">Negozia</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="/PortfolioController/buy" method="post">
+                <form action="<?= base_url('PortfolioController/buy') ?>" method="post">
                     <div class="modal-body">
                         <input type="hidden" name="ticker" id="buyTicker">
                         <input type="hidden" name="mic" id="buyMic">

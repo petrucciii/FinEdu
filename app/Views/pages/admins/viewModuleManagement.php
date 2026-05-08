@@ -6,7 +6,7 @@
             <i class="fas fa-graduation-cap text-primary me-2"></i>Percorsi Educativi
         </h4>
         <div class="d-flex gap-2">
-            <a href="/admin/ModuleManagementController/progress" class="btn btn-outline-primary fw-bold">
+            <a href="<?= base_url('admin/ModuleManagementController/progress') ?>" class="btn btn-outline-primary fw-bold">
                 <i class="fas fa-chart-line me-1"></i> Progressi utenti
             </a>
             <button class="btn btn-success fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newModuleModal">
@@ -79,7 +79,7 @@
                                         data-module-name="<?= esc($module['name'], 'attr') ?>">
                                         <i class="fas fa-plus"></i> Nuova lezione
                                     </button>
-                                    <form action="/admin/ModuleManagementController/deleteModule" method="post"
+                                    <form action="<?= base_url('admin/ModuleManagementController/deleteModule') ?>" method="post"
                                         class="d-inline confirm-submit" data-confirm="Disattivare questo modulo?">
                                         <input type="hidden" name="id_module" value="<?= (int) $module['id_module'] ?>">
                                         <button type="submit" class="btn btn-sm btn-light text-danger border shadow-sm mt-2">
@@ -147,7 +147,7 @@
                                                 <td class="text-end text-nowrap">
                                                     <?php //spiegazioni in modal, quiz direttamente nel Quiz Editor ?>
                                                     <?php if ($lesson['lesson_type'] === 'quiz'): ?>
-                                                        <a href="/admin/QuizManagementController/editor/<?= (int) $lesson['id_lesson'] ?>"
+                                                        <a href="<?= base_url('admin/QuizManagementController/editor/' . (int) $lesson['id_lesson']) ?>"
                                                             class="btn btn-sm btn-light text-warning border shadow-sm me-1">
                                                             <i class="fas fa-eye"></i> / <i class="fas fa-pen"></i>
                                                             
@@ -165,7 +165,7 @@
                                                         </button>
                                                     <?php endif; ?>
 
-                                                    <form action="/admin/ModuleManagementController/deleteLesson" method="post"
+                                                    <form action="<?= base_url('admin/ModuleManagementController/deleteLesson') ?>" method="post"
                                                         class="d-inline confirm-submit" data-confirm="Disattivare questa lezione?">
                                                         <input type="hidden" name="id_lesson" value="<?= (int) $lesson['id_lesson'] ?>">
                                                         <button type="submit" class="btn btn-sm btn-light text-danger border shadow-sm">

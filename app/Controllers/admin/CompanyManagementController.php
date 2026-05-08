@@ -56,7 +56,7 @@ class CompanyManagementController extends BaseController
     public function index()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $sectors = model(SectorModel::class)->fread();
@@ -100,7 +100,7 @@ class CompanyManagementController extends BaseController
     public function create()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $companyModel = model(CompanyModel::class);
@@ -116,7 +116,7 @@ class CompanyManagementController extends BaseController
         ];
 
         if ($companyModel->insert($data)) {
-            return redirect()->to('/admin/CompanyManagementController/edit/' . $data['isin'])->with('alert', 'Azienda creata. Ora puoi completare il profilo.');
+            return redirect()->to(base_url('admin/CompanyManagementController/edit/' . $data['isin']))->with('alert', 'Azienda creata. Ora puoi completare il profilo.');
         }
 
         return redirect()->back()->with('alert', "Errore. Controlla che l'ISIN non esista già.")->with('alert_type', 'danger');
@@ -126,14 +126,14 @@ class CompanyManagementController extends BaseController
     public function edit($isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $companyModel = model(CompanyModel::class);
         $company = $companyModel->getCompanyByISIN($isin);
 
         if (!$company) {
-            return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda non trovata')->with('alert_type', 'danger');
+            return redirect()->to(base_url('admin/CompanyManagementController/index'))->with('alert', 'Azienda non trovata')->with('alert_type', 'danger');
         }
 
         $exchanges = model(ExchangeModel::class)->fread();
@@ -167,7 +167,7 @@ class CompanyManagementController extends BaseController
     public function update($isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $companyModel = model(CompanyModel::class);
@@ -196,7 +196,7 @@ class CompanyManagementController extends BaseController
     public function delete($isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
         $companyModel = model(CompanyModel::class);
         if ($companyModel->hasDependencies($isin)) {
@@ -207,14 +207,14 @@ class CompanyManagementController extends BaseController
 
         $companyModel->deleteCompany($isin, ['id_user' => $this->session->get('user_id')]);
 
-        return redirect()->to('/admin/CompanyManagementController/index')->with('alert', 'Azienda disattivata.');
+        return redirect()->to(base_url('admin/CompanyManagementController/index'))->with('alert', 'Azienda disattivata.');
     }
 
     //aggiunge listing
     public function addListing()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $ok = model(ListingModel::class)->insertRow([
@@ -232,7 +232,7 @@ class CompanyManagementController extends BaseController
     public function deleteListing($ticker, $mic)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $ticker = trim(rawurldecode($ticker));
@@ -257,7 +257,7 @@ class CompanyManagementController extends BaseController
     {
         //importa prezzi storici per una quotazione gia collegata alla societa
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -344,7 +344,7 @@ class CompanyManagementController extends BaseController
     public function importFinancialXml()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -422,7 +422,7 @@ class CompanyManagementController extends BaseController
     public function saveFinancial()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $model = model(FinancialDataModel::class);
@@ -460,7 +460,7 @@ class CompanyManagementController extends BaseController
     public function deleteFinancial($year, $isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         model(FinancialDataModel::class)->deleteRow(rawurldecode($isin), (int) $year);
@@ -472,7 +472,7 @@ class CompanyManagementController extends BaseController
     public function addBoardMember()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $rawMember = $this->request->getPost('member_id');
@@ -503,7 +503,7 @@ class CompanyManagementController extends BaseController
     public function updateBoardMember()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -530,7 +530,7 @@ class CompanyManagementController extends BaseController
     public function deleteBoardMember($member_id, $isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         model(BoardModel::class)->deleteRow(rawurldecode($isin), (int) $member_id);
@@ -542,7 +542,7 @@ class CompanyManagementController extends BaseController
     public function addShareholder()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -570,7 +570,7 @@ class CompanyManagementController extends BaseController
     public function updateShareholder()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -596,7 +596,7 @@ class CompanyManagementController extends BaseController
     public function deleteShareholder($firm_id, $isin)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         model(ShareholderModel::class)->deleteRow(rawurldecode($isin), (int) $firm_id);
@@ -608,7 +608,7 @@ class CompanyManagementController extends BaseController
     public function addConsensus()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $isin = trim((string) $this->request->getPost('isin'));
@@ -642,7 +642,7 @@ class CompanyManagementController extends BaseController
     public function updateConsensus()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $analysisId = (int) $this->request->getPost('analysis_id');
@@ -673,7 +673,7 @@ class CompanyManagementController extends BaseController
     public function deleteConsensus($analysis_id)
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         if (model(AnalystConsensusModel::class)->deleteRow((int) $analysis_id)) {

@@ -270,7 +270,7 @@
                 e.preventDefault();
                 const id = el.getAttribute('data-news-id');
                 const isin = encodeURIComponent(el.getAttribute('data-isin'));
-                fetch('/CompanyController/newsBody/' + isin + '/' + id)//ajax 
+                fetch(window.appUrl('CompanyController/newsBody/' + isin + '/' + id))//ajax 
                     .then((r) => {
                         if (!r.ok) throw new Error();
                         return r.json();
@@ -292,4 +292,4 @@
     });
 </script>
 
-<script src="/javascript/priceChart.js"></script>
+<script src="<?= base_url('javascript/priceChart.js') ?>"></script>

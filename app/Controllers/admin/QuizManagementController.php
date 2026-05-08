@@ -19,7 +19,7 @@ class QuizManagementController extends BaseController
     {
         //mostra tutti i quiz attivi configurati come lezioni specializzate
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $data = [
@@ -36,14 +36,14 @@ class QuizManagementController extends BaseController
     {
         //apre l'editor risposte per una singola lezione quiz
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         //la lezione deve esistere ed essere di tipo quiz
         $lessonId = (int) $lessonId;
         $lesson = model(LessonModel::class)->findDetail($lessonId);
         if (!$lesson || $lesson['lesson_type'] !== 'quiz') {
-            return redirect()->to('/admin/QuizManagementController/index')->with('alert', 'Quiz non trovato.');
+            return redirect()->to(base_url('admin/QuizManagementController/index'))->with('alert', 'Quiz non trovato.');
         }
 
         $questions = model(QuestionModel::class)->findWithAnswersByLesson($lessonId);
@@ -61,7 +61,7 @@ class QuizManagementController extends BaseController
     {
         //aggiorna il testo della domanda usando title, description e hint di lessons
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $lessonId = (int) $this->request->getPost('id_lesson');
@@ -91,7 +91,7 @@ class QuizManagementController extends BaseController
     {
         //crea l'unico set di quattro risposte della lezione quiz
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $lessonId = (int) $this->request->getPost('id_lesson');
@@ -148,7 +148,7 @@ class QuizManagementController extends BaseController
     {
         //sostituisce le quattro risposte mantenendo lo stesso id_question
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $questionId = (int) $this->request->getPost('id_question');
@@ -194,7 +194,7 @@ class QuizManagementController extends BaseController
     {
         //impedisce di rimuovere l'unico set risposte del quiz
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $questionId = (int) $this->request->getPost('id_question');

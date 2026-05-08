@@ -29,6 +29,6 @@ class DashboardController extends BaseController
             echo view('templates/footer');
             return;
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 }

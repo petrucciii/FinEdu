@@ -91,18 +91,18 @@
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                            <a href="/admin/CompanyManagementController/" class="btn btn-outline-primary"><i
+                            <a href="<?= base_url('admin/CompanyManagementController/') ?>" class="btn btn-outline-primary"><i
                                     class="fas fa-building me-2"></i> Aggiungi Società</a>
-                            <a href="/admin/NewsManagementController/" class="btn btn-outline-success"><i
+                            <a href="<?= base_url('admin/NewsManagementController/') ?>" class="btn btn-outline-success"><i
                                     class="fas fa-newspaper me-2"></i> Pubblica News</a>
-                            <a href="/admin/ModuleManagementController/" class="btn btn-outline-info"><i
+                            <a href="<?= base_url('admin/ModuleManagementController/') ?>" class="btn btn-outline-info"><i
                                     class="fas fa-graduation-cap me-2"></i> Crea Modulo</a>
-                            <a href="/admin/UserManagementController/" class="btn btn-outline-warning"><i
+                            <a href="<?= base_url('admin/UserManagementController/') ?>" class="btn btn-outline-warning"><i
                                     class="fas fa-users me-2"></i>
                                 Gestisci Utenti</a>
-                            <a href="/admin/PortfolioManagementController/" class="btn btn-outline-dark"><i
+                            <a href="<?= base_url('admin/PortfolioManagementController/') ?>" class="btn btn-outline-dark"><i
                                     class="fas fa-wallet me-2"></i> Portafogli</a>
-                            <a href="/admin/OrderManagementController/" class="btn btn-outline-secondary"><i
+                            <a href="<?= base_url('admin/OrderManagementController/') ?>" class="btn btn-outline-secondary"><i
                                     class="fas fa-exchange-alt me-2"></i> Ordini</a>
                         </div>
                     </div>

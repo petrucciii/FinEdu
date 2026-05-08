@@ -22,7 +22,7 @@ class UserManagementController extends BaseController
             return;
         }
 
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     /*
@@ -91,7 +91,7 @@ class UserManagementController extends BaseController
                 ]
             ]);
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     /*
@@ -118,7 +118,7 @@ class UserManagementController extends BaseController
             ]);
         }
 
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function editColumn($userId)
@@ -144,7 +144,7 @@ class UserManagementController extends BaseController
                 return redirect()->back()->with('alert', 'Si è verificato un problema');
             }
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function delete($userId)
@@ -172,7 +172,7 @@ class UserManagementController extends BaseController
                 return redirect()->back()->with('alert', 'Password Errata!');
             }
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     public function add()
@@ -192,14 +192,14 @@ class UserManagementController extends BaseController
                 ];
 
                 if ($userModel->fcreate($data)) {
-                    return redirect()->to('/admin/UserManagementController/index')->with('alert', "Inserimento Riuscito");
+                    return redirect()->to(base_url('admin/UserManagementController/index'))->with('alert', "Inserimento Riuscito");
                 } else {
-                    return redirect()->to('/admin/UserManagementController/index')->with('alert', "Errore durante l'inserimento");
+                    return redirect()->to(base_url('admin/UserManagementController/index'))->with('alert', "Errore durante l'inserimento");
                 }
             }
-            return redirect()->to('/admin/UserManagementController/index')->with('alert', "Dati non validi");
+            return redirect()->to(base_url('admin/UserManagementController/index'))->with('alert', "Dati non validi");
         }
-        return redirect()->to('/');
+        return redirect()->to(base_url('/'));
     }
 
     //ritorna un CSV file

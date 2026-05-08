@@ -5,6 +5,8 @@
  * delegation perché dopo ogni salvataggio il blocco HTML viene ricreato.
  */
 document.addEventListener('DOMContentLoaded', function () {
+    const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
     //gestione click sul pulsante modifica nome
     document.addEventListener('click', function (e) {
         const editBtn = e.target.closest('.edit-name-btn');
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
              * Invio POST esplicito: il controller legge portfolio_id e name da getPost().
              * Senza method/body la richiesta arriverebbe vuota e il salvataggio fallirebbe.
              */
-            fetch('/PortfolioController/updatePortfolioName', {
+            fetch(appUrl('PortfolioController/updatePortfolioName'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 //variabili di stato per ricerca, filtri e ordinamento
 let currentQuery = '';
 let currentUser = 'all';
@@ -136,7 +138,7 @@ const buildOrdersUrl = (page = 1) => {
     if (currentPnlMax !== '') qs += `&pnl_max=${encodeURIComponent(currentPnlMax)}`;
 
     const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
-    return `/admin/OrderManagementController${searchPath}?${qs}`;
+    return appUrl(`admin/OrderManagementController${searchPath}?${qs}`);
 };
 
 const loadOrders = (page) => {

@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 /*
  * Ricerca dinamica per "Progressi utenti".
  *
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 //costruisce l'URL evitando il segmento vuoto quando non c'è ricerca
 const progressUrl = (page = 1, query = '') => {
     const searchPath = query ? `/progressSearch/${encodeURIComponent(query)}` : '/progressSearch';
-    let url = `/admin/ModuleManagementController${searchPath}?page=${page}`;
+    let url = appUrl(`admin/ModuleManagementController${searchPath}?page=${page}`);
     if (selectedUserId) {
         url += `&user_id=${encodeURIComponent(selectedUserId)}`;
     }

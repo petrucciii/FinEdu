@@ -33,10 +33,10 @@
                         </p>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="/EducationController/initialTest" class="btn btn-primary">
+                        <a href="<?= base_url('EducationController/initialTest') ?>" class="btn btn-primary">
                             Fai il test
                         </a>
-                        <a href="/EducationController/skipInitialTest" class="btn btn-outline-secondary">
+                        <a href="<?= base_url('EducationController/skipInitialTest') ?>" class="btn btn-outline-secondary">
                             Inizia senza test
                         </a>
                     </div>
@@ -106,7 +106,7 @@
                     <?php if ($disabled): ?>
                         <button class="<?= esc($buttonClass) ?>" disabled><?= esc($buttonText) ?></button>
                     <?php else: ?>
-                        <a href="/EducationController/module/<?= (int) $module['id_module'] ?>"
+                        <a href="<?= base_url('EducationController/module/' . (int) $module['id_module']) ?>"
                             class="<?= esc($buttonClass) ?>"><?= esc($buttonText) ?></a>
                     <?php endif; ?>
                 </div>

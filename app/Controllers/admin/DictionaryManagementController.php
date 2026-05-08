@@ -14,7 +14,7 @@ class DictionaryManagementController extends BaseController
     public function index()
     {
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $items = [];
@@ -38,7 +38,7 @@ class DictionaryManagementController extends BaseController
     {
         //creazione generica solo per dizionari dichiarati nella configurazione locale
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $config = $this->dictionaryConfig($dictionary);
@@ -82,7 +82,7 @@ class DictionaryManagementController extends BaseController
     {
         //aggiornamento generico: la chiave primaria non viene mai modificata
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $config = $this->dictionaryConfig($dictionary);
@@ -133,7 +133,7 @@ class DictionaryManagementController extends BaseController
     {
         //soft delete consentito solo se non ci sono dipendenze operative
         if (!$this->isAdmin()) {
-            return redirect()->to('/');
+            return redirect()->to(base_url('/'));
         }
 
         $config = $this->dictionaryConfig($dictionary);

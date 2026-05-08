@@ -5,7 +5,7 @@
             <div class="card p-4 mb-4 border-0 shadow-sm rounded-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 gap-3 flex-wrap">
                     <h3 class="mb-0 fw-bold"><?= esc($module['name']) ?></h3>
-                    <a href="/EducationController/index" class="btn btn-sm btn-outline-secondary">
+                    <a href="<?= base_url('EducationController/index') ?>" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Moduli
                     </a>
                 </div>
@@ -84,12 +84,14 @@
 
                         <div id="<?= esc($collapseId) ?>" class="accordion-collapse collapse <?= $isOpen ? 'show' : '' ?>"
                             aria-labelledby="<?= esc($headingId) ?>" data-bs-parent="#moduleAccordion">
-                            <div class="accordion-body <?= $lesson['lesson_type'] === 'quiz' ? 'bg-light' : 'bg-white' ?> p-4">
+                            <div
+                                class="accordion-body <?= $lesson['lesson_type'] === 'quiz' ? 'bg-light' : 'bg-white' ?> p-4">
                                 <?php //pannello mostrato solo quando la lezione e ancora bloccata ?>
                                 <div class="lesson-lock-panel <?= $status === 'locked' ? '' : 'd-none' ?> text-center py-5">
                                     <i class="fas fa-lock text-muted mb-3" style="font-size: 2rem;"></i>
                                     <h6 class="fw-bold text-muted">Lezione bloccata</h6>
-                                    <p class="small text-muted mb-0">Completa la lezione precedente per sbloccare questo contenuto.</p>
+                                    <p class="small text-muted mb-0">Completa la lezione precedente per sbloccare questo
+                                        contenuto.</p>
                                 </div>
 
                                 <?php //pannello contenuto mostrato appena la lezione diventa disponibile ?>
@@ -120,8 +122,9 @@
                                                 </button>
                                             <?php else: ?>
                                                 <?php //form intercettato da education.js ma funzionante anche senza javascript ?>
-                                                <form action="/EducationController/completeExplanation" method="post"
-                                                    class="education-explanation-form" data-lesson-id="<?= (int) $lesson['id_lesson'] ?>">
+                                                <form action="<?= base_url('EducationController/completeExplanation') ?>"
+                                                    method="post" class="education-explanation-form"
+                                                    data-lesson-id="<?= (int) $lesson['id_lesson'] ?>">
                                                     <input type="hidden" name="lesson_id" value="<?= (int) $lesson['id_lesson'] ?>">
                                                     <button type="submit" class="btn btn-primary fw-bold px-4">
                                                         <i class="fas fa-check me-2"></i> Completa lezione
@@ -129,14 +132,16 @@
                                                 </form>
                                             <?php endif; ?>
                                         </div>
-                                    <?php //ramo quiz: mostra le risposte e invia il tentativo via ajax ?>
+                                        <?php //ramo quiz: mostra le risposte e invia il tentativo via ajax ?>
                                     <?php elseif ($lesson['lesson_type'] === 'quiz'): ?>
                                         <div class="mb-4">
-                                            <h5 class="fw-bold"><i class="fas fa-tasks text-primary me-2"></i>Quiz di verifica</h5>
+                                            <h5 class="fw-bold"><i class="fas fa-tasks text-primary me-2"></i>Quiz di verifica
+                                            </h5>
                                             <p class="text-muted mb-0"><?= esc($lesson['description']) ?></p>
                                             <?php if ((int) $lesson['experience'] > 0): ?>
                                                 <small class="text-muted">
-                                                    <i class="fas fa-star text-warning me-1"></i><?= (int) $lesson['experience'] ?> XP disponibili
+                                                    <i class="fas fa-star text-warning me-1"></i><?= (int) $lesson['experience'] ?>
+                                                    XP disponibili
                                                 </small>
                                             <?php endif; ?>
                                         </div>
@@ -160,7 +165,7 @@
                                                 </div>
                                             <?php else: ?>
                                                 <?php //form quiz intercettato da education.js per risposta immediata ?>
-                                                <form action="/EducationController/submitQuiz" method="post"
+                                                <form action="<?= base_url('EducationController/submitQuiz') ?>" method="post"
                                                     class="education-quiz-form" data-lesson-id="<?= (int) $lesson['id_lesson'] ?>">
                                                     <input type="hidden" name="lesson_id" value="<?= (int) $lesson['id_lesson'] ?>">
                                                     <div class="card border-0 shadow-sm mb-4">
@@ -190,7 +195,8 @@
                                         </div>
                                     <?php else: ?>
                                         <div class="alert alert-warning border-0 shadow-sm mb-0">
-                                            <i class="fas fa-exclamation-triangle me-2"></i>Lezione non configurata come spiegazione o quiz.
+                                            <i class="fas fa-exclamation-triangle me-2"></i>Lezione non configurata come
+                                            spiegazione o quiz.
                                         </div>
                                     <?php endif; ?>
                                 </div>

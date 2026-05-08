@@ -30,7 +30,7 @@ class AuthController extends BaseController
                     //salva in sessione i campi utente usati da header, permessi e view profilo
                     $this->session->set('logged', true);
                     $this->session->set($user);
-                    return redirect()->to('/UserController/profile');
+                    return redirect()->to(base_url('UserController/profile'));
                 } else {
                     $data['login_error'] = "Password Errata!";
                 }
@@ -44,7 +44,7 @@ class AuthController extends BaseController
             return;
         }
 
-        return redirect()->to("/");
+        return redirect()->to(base_url('/'));
 
     }
 
@@ -85,7 +85,7 @@ class AuthController extends BaseController
 
         }
 
-        return redirect()->to("/");
+        return redirect()->to(base_url('/'));
     }
 
     //logout
@@ -96,6 +96,6 @@ class AuthController extends BaseController
             $this->session->remove('logged');
         }
 
-        return redirect()->to("/");
+        return redirect()->to(base_url('/'));
     }
 }

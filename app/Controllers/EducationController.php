@@ -15,7 +15,7 @@ class EducationController extends BaseController
     private function loginRedirect()
     {
         if (!$this->session->has('logged')) {
-            return redirect()->to('/')->with('alert', 'Accedi per continuare.');
+            return redirect()->to(base_url('/'))->with('alert', 'Accedi per continuare.');
         }
 
         return null;
@@ -64,7 +64,7 @@ class EducationController extends BaseController
 
         $this->session->set('skip_initial_test', true);
 
-        return redirect()->to('/EducationController/index')->with('alert', 'Puoi iniziare direttamente dal primo modulo.');
+        return redirect()->to(base_url('EducationController/index'))->with('alert', 'Puoi iniziare direttamente dal primo modulo.');
     }
 
     public function initialTest()
@@ -80,12 +80,12 @@ class EducationController extends BaseController
 
         $userId = (int) $this->session->get('user_id');
         if (model(CompletedLessonModel::class)->countCompletedForUser($userId) > 0) {
-            return redirect()->to('/EducationController/index')->with('alert', 'Il percorso risulta gia iniziato.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Il percorso risulta gia iniziato.');
         }
 
         $questions = model(QuestionModel::class)->findInitialTestQuestions(30);
         if (empty($questions)) {
-            return redirect()->to('/EducationController/index')->with('alert', 'Test iniziale non disponibile.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Test iniziale non disponibile.');
         }
 
         echo view('templates/header');
@@ -105,7 +105,7 @@ class EducationController extends BaseController
 
         $userId = (int) $this->session->get('user_id');
         if (model(CompletedLessonModel::class)->countCompletedForUser($userId) > 0) {
-            return redirect()->to('/EducationController/index')->with('alert', 'Il percorso risulta gia iniziato.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Il percorso risulta gia iniziato.');
         }
 
         $questionIds = $this->request->getPost('question_ids');
@@ -115,7 +115,7 @@ class EducationController extends BaseController
         $questions = model(QuestionModel::class)->findInitialTestQuestionsByIds($questionIds);
 
         if (empty($questions)) {
-            return redirect()->to('/EducationController/index')->with('alert', 'Test iniziale non valido.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Test iniziale non valido.');
         }
 
         $score = 0;
@@ -179,7 +179,7 @@ class EducationController extends BaseController
         //chiudo la transazione solo dopo tutti gli aggiornamenti collegati
         $db->transComplete();
         if (!$db->transStatus()) {
-            return redirect()->to('/EducationController/index')
+            return redirect()->to(base_url('EducationController/index'))
                 ->with('alert', 'Errore durante il salvataggio del test iniziale.')
                 ->with('alert_type', 'danger');
         }
@@ -198,7 +198,7 @@ class EducationController extends BaseController
             $message .= ' Sono state completate ' . $completedLessons . ' lezioni dei moduli superati.';
         }
 
-        return redirect()->to('/EducationController/index')
+        return redirect()->to(base_url('EducationController/index'))
             ->with('alert', $message)
             ->with('alert_type', 'success');
     }
@@ -214,14 +214,14 @@ class EducationController extends BaseController
         $moduleId = (int) $moduleId;
         $module = model(EducationModuleModel::class)->findActiveById($moduleId);
         if (!$module) {
-            return redirect()->to('/EducationController/index')->with('alert', 'Modulo non trovato.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Modulo non trovato.');
         }
 
         $userId = (int) $this->session->get('user_id');
         $moduleStatus = $this->findModuleStatus($moduleId, $userId);
         //blocca l'accesso diretto via url ai moduli non ancora sbloccati
         if (!$moduleStatus || $moduleStatus['status'] === 'locked') {
-            return redirect()->to('/EducationController/index')->with('alert', 'Completa i moduli precedenti per sbloccare questo contenuto.');
+            return redirect()->to(base_url('EducationController/index'))->with('alert', 'Completa i moduli precedenti per sbloccare questo contenuto.');
         }
 
         //prende le lezioni attive e assegna completata, disponibile o bloccata
@@ -440,7 +440,7 @@ class EducationController extends BaseController
             ]);
         }
 
-        return redirect()->to('/EducationController/module/' . (int) $lesson['id_module'])
+        return redirect()->to(base_url('EducationController/module/' . (int) $lesson['id_module']))
             ->with('alert', $message)
             ->with('alert_type', 'danger');
     }
@@ -459,11 +459,11 @@ class EducationController extends BaseController
                 'success' => false,
                 'message' => $message,
                 'alert_type' => $alertType,
-                'redirect' => $redirectTo,
+                'redirect' => base_url(ltrim($redirectTo, '/')),
             ]);
         }
 
-        return redirect()->to($redirectTo)
+        return redirect()->to(base_url(ltrim($redirectTo, '/')))
             ->with('alert', $message)
             ->with('alert_type', $alertType);
     }
@@ -479,7 +479,7 @@ class EducationController extends BaseController
             ], $payload));
         }
 
-        return redirect()->to($redirectTo)
+        return redirect()->to(base_url(ltrim($redirectTo, '/')))
             ->with('alert', $message)
             ->with('alert_type', 'success');
     }

@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 /*
  * Gestione AJAX della pagina admin utenti.
  *
@@ -29,7 +31,7 @@ const settingsModal = () => {
         let userId = btn.dataset.id;
 
         //fetch ajax all'endpoint con userId, evitando dati precaricati e modal duplicati
-        fetch('/admin/UserManagementController/settings/' + userId)//endpoint : UserManagement::settings($userId)
+        fetch(appUrl('admin/UserManagementController/settings/' + userId))//endpoint : UserManagement::settings($userId)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Errore server');
@@ -51,14 +53,14 @@ const settingsModal = () => {
                  * esistenti e passano user_id. Quelle view filtrano progressi o portafogli
                  * lato server, quindi si vede subito il dato dell'utente cliccato.
                  */
-                document.getElementById('modalPortfolioLink').href = `/admin/PortfolioManagementController/?user_id=${encodeURIComponent(data.user.user_id)}`;
-                document.getElementById('modalProgressLink').href = `/admin/ModuleManagementController/progress?user_id=${encodeURIComponent(data.user.user_id)}`;
+                document.getElementById('modalPortfolioLink').href = appUrl(`admin/PortfolioManagementController/?user_id=${encodeURIComponent(data.user.user_id)}`);
+                document.getElementById('modalProgressLink').href = appUrl(`admin/ModuleManagementController/progress?user_id=${encodeURIComponent(data.user.user_id)}`);
 
                 //inseisce attributi per i form (bottoni) con le varie azioni
                 document.querySelectorAll('form[name="modalEditForm"]').forEach(form => {
-                    form.action = '/admin/UserManagementController/editColumn/' + userId;
+                    form.action = appUrl('admin/UserManagementController/editColumn/' + userId);
                 });
-                document.getElementById('modalDeleteForm').action = '/admin/UserManagementController/delete/' + userId;
+                document.getElementById('modalDeleteForm').action = appUrl('admin/UserManagementController/delete/' + userId);
 
                 //radio buttons per i ruoli: generati dai dati DB, non scritti fissi nel JS
                 let rolesContainer = document.getElementById('modalRolesContainer');
@@ -127,7 +129,7 @@ const buildUsersUrl = (page = 1, exportCsv = false) => {
 
     //endpoint
     const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
-    return `/admin/UserManagementController${searchPath}?${queryString}`;
+    return appUrl(`admin/UserManagementController${searchPath}?${queryString}`);
 };
 
 

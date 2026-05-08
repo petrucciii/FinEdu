@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(refreshOrders, 120000);
 });
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 const eur = (n) =>
     '\u20ac ' +
     Number(n).toLocaleString('it-IT', {
@@ -14,7 +16,7 @@ const eur = (n) =>
 
 const refreshOrders = () => {
     //uso fetch asincrono per aggiornare solo i dati necessari e preservare lo stato pagina
-    fetch('/PortfolioController/refreshOrders')
+    fetch(appUrl('PortfolioController/refreshOrders'))
         .then(res => res.json())
         .then(data => {
             if (!data.success) return;

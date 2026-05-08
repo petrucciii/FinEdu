@@ -9,7 +9,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="/admin/UserManagementController/add" method="post">
+                <form action="<?= base_url('admin/UserManagementController/add') ?>" method="post">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-6 mb-3">

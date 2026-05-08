@@ -6,7 +6,7 @@
                 <h5 class="modal-title fw-bold">Crea nuovo modulo</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/ModuleManagementController/createModule" method="post">
+            <form action="<?= base_url('admin/ModuleManagementController/createModule') ?>" method="post">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold small">Nome modulo</label>
@@ -38,7 +38,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/ModuleManagementController/updateModule" method="post">
+            <form action="<?= base_url('admin/ModuleManagementController/updateModule') ?>" method="post">
                 <input type="hidden" name="id_module" id="edit_module_id">
                 <div class="modal-body">
                     <div class="mb-3">

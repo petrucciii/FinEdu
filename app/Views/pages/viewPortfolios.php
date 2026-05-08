@@ -28,16 +28,20 @@
                                 <span class="badge bg-secondary">ID: <?= (int) $pf['portfolio_id'] ?></span>
 
                             </h5>
-                            <h2 class="my-3" data-field="total_value">€ <?= number_format((float) ($pf['total_value'] ?? 0), 2, ',', '.') ?></h2>
+                            <h2 class="my-3" data-field="total_value">€
+                                <?= number_format((float) ($pf['total_value'] ?? 0), 2, ',', '.') ?>
+                            </h2>
                             <p class="small text-muted mb-2">Valore totale (liquidità + titoli a prezzo di mercato)</p>
                             <div class="row text-center mb-3">
                                 <div class="col-6 border-end">
                                     <small class="text-muted">Liquidità</small><br>
-                                    <strong data-field="liquidity">€ <?= number_format((int) $pf['liquidity'], 2, ',', '.') ?></strong>
+                                    <strong data-field="liquidity">€
+                                        <?= number_format((int) $pf['liquidity'], 2, ',', '.') ?></strong>
                                 </div>
                                 <div class="col-6">
                                     <small class="text-muted">Investito</small><br>
-                                    <strong data-field="invested">€ <?= number_format((int) $pf['invested'], 2, ',', '.') ?></strong>
+                                    <strong data-field="invested">€
+                                        <?= number_format((int) $pf['invested'], 2, ',', '.') ?></strong>
                                 </div>
                             </div>
                             <div class="mb-2 small">
@@ -47,8 +51,9 @@
                                 </span>
                             </div>
                             <div class="d-flex justify-content-inline gap-2">
-                                <a href="/PortfolioController/orders?portfolio_id=<?= (int) $pf['portfolio_id'] ?>" class="btn btn-outline-primary w-75">Storico ordini</a>
-                                <a href="/PortfolioController/deletePortfolio?portfolio_id=<?= (int) $pf['portfolio_id'] ?>"
+                                <a href="<?= base_url('PortfolioController/orders?portfolio_id=' . (int) $pf['portfolio_id']) ?>"
+                                    class="btn btn-outline-primary w-75">Storico ordini</a>
+                                <a href="<?= base_url('PortfolioController/deletePortfolio?portfolio_id=' . (int) $pf['portfolio_id']) ?>"
                                     class="btn btn-danger w-25">
                                     <i class="fas fa-trash"></i> Elimina</a>
                             </div>
@@ -63,7 +68,7 @@
 <div class="modal fade" id="createPortfolioModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="/PortfolioController/createPortfolio" method="post">
+            <form action="<?= base_url('PortfolioController/createPortfolio') ?>" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">Nuovo portafoglio</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -83,5 +88,5 @@
     </div>
 </div>
 
-<script type="module" src="/javascript/ajax/portfolioEdit.js"></script>
-<script type="module" src="/javascript/ajax/portfolioRefresh.js"></script>
+<script type="module" src="<?= base_url('javascript/ajax/portfolioEdit.js') ?>"></script>
+<script type="module" src="<?= base_url('javascript/ajax/portfolioRefresh.js') ?>"></script>

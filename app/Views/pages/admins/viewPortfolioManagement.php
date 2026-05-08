@@ -60,7 +60,7 @@
             <td class="fw-semibold" data-field="total"></td>
             <td data-field="unreal"></td>
             <td class="text-end">
-                <a href="/admin/OrderManagementController/" class="btn btn-sm btn-light text-primary border shadow-sm"
+                <a href="<?= base_url('admin/OrderManagementController/') ?>" class="btn btn-sm btn-light text-primary border shadow-sm"
                     data-field="orders_link"><i class="fas fa-list-ul"></i> Ordini</a>
             </td>
         </tr>

@@ -42,7 +42,8 @@ $totalLessons = (int) ($totalLessons ?? 0);
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="activity-tab" data-bs-toggle="tab" data-bs-target="#activity"
-                            type="button" role="tab" aria-controls="activity" aria-selected="false">Attivit&agrave;</button>
+                            type="button" role="tab" aria-controls="activity"
+                            aria-selected="false">Attivit&agrave;</button>
                     </li>
                 </ul>
             </div>
@@ -54,7 +55,8 @@ $totalLessons = (int) ($totalLessons ?? 0);
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Dati Personali</h5>
-                                    <form action="/UserController/editColumn" method="post" class="mb-3">
+                                    <form action="<?= base_url('UserController/editColumn') ?>" method="post"
+                                        class="mb-3">
                                         <label class="form-label">Nome</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="new_value" required
@@ -63,7 +65,8 @@ $totalLessons = (int) ($totalLessons ?? 0);
                                                 type="submit">Salva</button>
                                         </div>
                                     </form>
-                                    <form action="/UserController/editColumn" method="post" class="mb-3">
+                                    <form action="<?= base_url('UserController/editColumn') ?>" method="post"
+                                        class="mb-3">
                                         <label class="form-label">Cognome</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control" name="new_value" required
@@ -72,7 +75,7 @@ $totalLessons = (int) ($totalLessons ?? 0);
                                                 type="submit">Salva</button>
                                         </div>
                                     </form>
-                                    <form action="/UserController/editColumn" method="post">
+                                    <form action="<?= base_url('UserController/editColumn') ?>" method="post">
                                         <label class="form-label">Email</label>
                                         <div class="input-group">
                                             <input type="email" class="form-control" name="new_value"
@@ -87,7 +90,7 @@ $totalLessons = (int) ($totalLessons ?? 0);
                             <div class="card shadow-sm border-0 rounded-4 mb-4">
                                 <div class="card-body p-4">
                                     <h5 class="fw-bold mb-4">Cambia Password</h5>
-                                    <form action="/UserController/editPassword" method="post">
+                                    <form action="<?= base_url('UserController/editPassword') ?>" method="post">
                                         <div class="mb-3">
                                             <label class="form-label">Password Attuale</label>
                                             <input type="password" name="password" class="form-control" required>
@@ -180,7 +183,8 @@ $totalLessons = (int) ($totalLessons ?? 0);
                                                     <span class="fw-bold"><?= $modulePercent ?>%</span>
                                                 </div>
                                                 <div class="progress" style="height: 6px;">
-                                                    <div class="progress-bar bg-success" style="width: <?= $modulePercent ?>%"></div>
+                                                    <div class="progress-bar bg-success" style="width: <?= $modulePercent ?>%">
+                                                    </div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
@@ -229,7 +233,7 @@ $totalLessons = (int) ($totalLessons ?? 0);
                 <i class="fas fa-exclamation-circle text-danger mb-3" style="font-size: 3.5rem;"></i>
                 <h4 class="fw-bold">Sei sicuro?</h4>
                 <p class="text-muted">L'azione &egrave; irreversibile. Digita la tua password per confermare.</p>
-                <form action="/UserController/delete" method="post">
+                <form action="<?= base_url('UserController/delete') ?>" method="post">
                     <input type="password" name="password" class="form-control mb-3" placeholder="Password attuale"
                         required>
                     <div class="d-flex gap-2 justify-content-center">

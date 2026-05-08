@@ -77,7 +77,7 @@ class CompanyController extends BaseController
             $isin = trim($isin);
             $company = $companyModel->getCompanyByISIN($isin);
         } catch (Exception $e) {
-            return redirect()->to('/CompanyController/index')->with('alert', 'Società non trovata');
+            return redirect()->to(base_url('CompanyController/index'))->with('alert', 'Società non trovata');
         }
 
         //carica dati correlati dalla rispettive tabelle

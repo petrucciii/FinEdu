@@ -11,7 +11,7 @@
                 <h5 class="mb-0 fw-bold">Aggiungi nuova borsa</h5>
             </div>
             <div class="card-body">
-                <form action="/admin/ExchangeManagementController/create" method="post" class="row g-3 align-items-end">
+                <form action="<?= base_url('admin/ExchangeManagementController/create') ?>" method="post" class="row g-3 align-items-end">
                     <div class="col-md-6 col-lg-2">
                         <label class="form-label small fw-bold text-muted">MIC</label>
                         <input type="text" name="mic" class="form-control text-uppercase" maxlength="7" required
@@ -144,14 +144,14 @@
                                      input hanno attributi form="" con id corrispondente ad un from
                                      (questo sotto) -->
                                     <td class="text-end text-nowrap">
-                                        <form id="<?= esc($fid) ?>" action="/admin/ExchangeManagementController/update"
+                                        <form id="<?= esc($fid) ?>" action="<?= base_url('admin/ExchangeManagementController/update') ?>"
                                             method="post" class="d-inline"></form>
                                         <button type="submit"
                                             class="btn btn-sm btn-light text-primary border shadow-sm me-1"
                                             form="<?= esc($fid) ?>"><i class="fas fa-save"></i></button>
 
                                         <!-- elimina  -->
-                                        <form action="/admin/ExchangeManagementController/delete" method="post"
+                                        <form action="<?= base_url('admin/ExchangeManagementController/delete') ?>" method="post"
                                             class="d-inline" onsubmit="return confirm('Disattivare questa borsa?');">
                                             <input type="hidden" name="mic" value="<?= esc($ex['mic']) ?>">
                                             <button type="submit"

@@ -12,7 +12,7 @@ class PortfolioController extends BaseController
     private function loginRedirect()
     {
         if (!$this->session->has('logged')) {
-            return redirect()->to('/')->with('alert', 'Accedi per continuare.');
+            return redirect()->to(base_url('/'))->with('alert', 'Accedi per continuare.');
         }
 
         return null;

@@ -1,5 +1,7 @@
 import renderPagination from '../control.js';
 
+const appUrl = window.appUrl || ((path = '') => '/' + String(path).replace(/^\/+/, ''));
+
 //stato globale ricerca e filtro borsa
 let currentQuery = '';
 let currentMic = '';
@@ -66,7 +68,7 @@ const buildListingsUrl = (page = 1) => {
     if (currentMic) qs += `&mic=${encodeURIComponent(currentMic)}`;
     //evita /search/ con segmento vuoto e mantiene lo stesso pattern usato nelle news
     const searchPath = currentQuery ? `/search/${encodeURIComponent(currentQuery)}` : '/search';
-    return `/ListingController${searchPath}?${qs}`;
+    return appUrl(`ListingController${searchPath}?${qs}`);
 };
 
 //tiene traccia della pagina corrente per il refresh automatico

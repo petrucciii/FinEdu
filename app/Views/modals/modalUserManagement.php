@@ -78,10 +78,10 @@
                 <h6 class="mb-3">Azioni Amministrative</h6>
 
                 <div class="d-grid gap-2">
-                    <a href="/admin/PortfolioManagementController/" class="btn btn-outline-primary" id="modalPortfolioLink">
+                    <a href="<?= base_url('admin/PortfolioManagementController/') ?>" class="btn btn-outline-primary" id="modalPortfolioLink">
                         <i class="fas fa-eye me-2"></i> Visualizza Portafogli
                     </a>
-                    <a href="/admin/ModuleManagementController/progress" class="btn btn-outline-info" id="modalProgressLink">
+                    <a href="<?= base_url('admin/ModuleManagementController/progress') ?>" class="btn btn-outline-info" id="modalProgressLink">
                         <i class="fas fa-chart-line me-2"></i> Vedi Progressi Educativi
                     </a>
                     <button class="btn btn-warning"><i class="fas fa-key me-2"></i> Invia Reset

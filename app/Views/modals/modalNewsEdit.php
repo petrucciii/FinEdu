@@ -10,7 +10,7 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="card-body bg-white">
-                    <form action="<?= base_url('/admin/NewsManagementController/update') ?>" method="post"
+                    <form action="<?= base_url('admin/NewsManagementController/update') ?>" method="post"
                         id="formEditNews">
                         <input type="hidden" name="news_id" id="edit_news_id" value="">
                         <div class="mb-3">
