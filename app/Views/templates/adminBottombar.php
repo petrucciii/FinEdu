@@ -42,7 +42,7 @@ $isAdminActive = static function (array $prefixes) use ($currentPath): bool {
     $path = strtolower($currentPath);
     foreach ($prefixes as $prefix) {
         $prefix = strtolower(trim($prefix, '/'));
-        if ($prefix !== '' && preg_match('#(^|/)' . preg_quote($prefix, '#') . '(/|$)#', $path)) {
+        if ($prefix !== '' && preg_match('#(^|/)' . preg_quote($prefix, '#') . '(/|$)#', $path)) {//il path corrente inizia con uno dei prefissi associati alla voce di menu
             return true;
         }
     }
@@ -62,70 +62,70 @@ $isAdminActive = static function (array $prefixes) use ($currentPath): bool {
 
                 <ul class="nav flex-row justify-content-center align-items-center gap-2 gap-md-4">
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/DashboardController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/dashboardController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/DashboardController']) ? 'active' : '' ?>">
                             <i class="fas fa-tachometer-alt"></i>
                             <span class="d-none d-sm-block">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/CompanyManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/companyManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/CompanyManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-building"></i>
                             <span class="d-none d-sm-block">Società</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/ExchangeManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/exchangeManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/ExchangeManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-globe"></i>
                             <span class="d-none d-sm-block">Borse</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/NewsManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/newsManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/NewsManagementController']) ? 'active' : '' ?>">
                             <i class="far fa-newspaper"></i>
                             <span class="d-none d-sm-block">News</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/ModuleManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/moduleManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/ModuleManagementController', 'admin/QuizManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-graduation-cap"></i>
                             <span class="d-none d-sm-block">Moduli</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/UserManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/userManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/UserManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-users"></i>
                             <span class="d-none d-sm-block">Utenti</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/PortfolioManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/portfolioManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/PortfolioManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-wallet"></i>
                             <span class="d-none d-sm-block">Portafogli</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/OrderManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/orderManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/OrderManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-exchange-alt"></i>
                             <span class="d-none d-sm-block">Ordini</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('admin/DictionaryManagementController/'), 'attr') ?>"
+                        <a href="<?= esc($adminUrl('admin/dictionaryManagementController'), 'attr') ?>"
                             class="nav-link <?= $isAdminActive(['admin/DictionaryManagementController']) ? 'active' : '' ?>">
                             <i class="fas fa-list"></i>
                             <span class="d-none d-sm-block">Dizionari</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="<?= esc($adminUrl('AuthController/logout'), 'attr') ?>" class="nav-link text-danger">
+                        <a href="<?= esc($adminUrl('authController/logout'), 'attr') ?>" class="nav-link text-danger">
                             <i class="fas fa-sign-out-alt"></i>
                             <span class="d-none d-sm-block">Logout</span>
                         </a>

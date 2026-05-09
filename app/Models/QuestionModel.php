@@ -100,9 +100,10 @@ class QuestionModel extends Model
         return $this->pickMixedQuestions($this->attachAnswers($questions), $limit);
     }
 
+    //chiamata quando viene inviato il test finale per ricontrollare
     public function findInitialTestQuestionsByIds(array $ids): array
     {
-        //ricarica dal db le domande inviate dal form, evitando di fidarsi dei dati client
+        //ricarica dal db le domande inviate dal form
         $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
         if (empty($ids)) {
             return [];
@@ -147,6 +148,7 @@ class QuestionModel extends Model
         }
 
         $mixed = [];
+        //gira tra i moduli prendendo una domanda per volta finché non raggiunge il limite o finisce le domande
         while (count($mixed) < $limit && !empty($byModule)) {
             foreach (array_keys($byModule) as $moduleId) {
                 if (empty($byModule[$moduleId])) {

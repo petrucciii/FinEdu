@@ -117,7 +117,7 @@ class CompletedLessonModel extends Model
             ->join('modules m', 'm.id_module = l.id_module', 'left')
             ->where('cl.user_id', $userId)
             ->where('cl.completed', 1)
-            ->where('cl.date >=', date('Y-m-d H:i:s', strtotime('-' . max(1, $days) . ' days')))
+            ->where('cl.date >=', date('Y-m-d H:i:s', strtotime('-' . max(1, $days) . ' days')))//completament ultimi N giorni
             ->orderBy('cl.date', 'DESC')
             ->limit($limit)
             ->get()

@@ -83,7 +83,7 @@ class EducationController extends BaseController
             return redirect()->to(base_url('EducationController/index'))->with('alert', 'Il percorso risulta gia iniziato.');
         }
 
-        $questions = model(QuestionModel::class)->findInitialTestQuestions(30);
+        $questions = model(QuestionModel::class)->findInitialTestQuestions(5);
         if (empty($questions)) {
             return redirect()->to(base_url('EducationController/index'))->with('alert', 'Test iniziale non disponibile.');
         }
@@ -169,7 +169,7 @@ class EducationController extends BaseController
         $userModel = model(UserModel::class);
         $user = $userModel->find($userId);
         $newExperience = (int) ($user['experience'] ?? 0) + $experience;
-        $newLevelId = $this->estimateLevelId($newExperience);
+        $newLevelId = $this->estimateInitialTestLevelId($completedLessons);
         $userModel->update($userId, [
             'experience' => $newExperience,
             'level_id' => $newLevelId,
@@ -624,7 +624,7 @@ class EducationController extends BaseController
     private function initialTestPassedModules(array $moduleScores): array
     {
         /*
-         * In assenza di soglie nel db usiamo una regola prudente:
+         * In assenza di soglie nel db usiamo una regola:
          * un modulo viene riconosciuto solo se tutte le sue domande presenti nel test
          * sono corrette, e solo in ordine progressivo di id_module.
          */
@@ -686,11 +686,48 @@ class EducationController extends BaseController
         return $beginnerId;
     }
 
+    private function estimateInitialTestLevelId(int $completedLessons): int
+    {
+        /*
+         * Il test iniziale assegna un livello di base in base alla parte di percorso
+         * riconosciuta come completata: 1/3 Intermedio, 2/3 Avanzato.
+         */
+        $levels = model(LevelModel::class)->fread();
+        if (empty($levels) || !is_array($levels)) {
+            return 1;
+        }
+
+        usort($levels, static fn(array $a, array $b): int => (int) $a['level_id'] <=> (int) $b['level_id']);
+
+        $beginnerId = $this->findLevelId($levels, ['principiante', 'principante']) ?? (int) ($levels[0]['level_id'] ?? 1);
+        $intermediateId = $this->findLevelId($levels, ['intermedio'])
+            ?? (int) ($levels[min(1, count($levels) - 1)]['level_id'] ?? $beginnerId);
+        $advancedId = $this->findLevelId($levels, ['avanzato'])
+            ?? (int) ($levels[min(2, count($levels) - 1)]['level_id'] ?? $intermediateId);
+
+        $totalLessons = model(EducationModuleModel::class)->countActiveLessons();
+        if ($totalLessons <= 0) {
+            return $beginnerId;
+        }
+
+        if ($completedLessons >= ($totalLessons * 2 / 3)) {
+            return $advancedId;
+        }
+
+        if ($completedLessons >= ($totalLessons / 3)) {
+            return $intermediateId;
+        }
+
+        return $beginnerId;
+    }
+
     private function weightedQuestionExperience(int $experience, int $moduleId): int
     {
         return max(0, $experience) * max(1, $moduleId);
     }
 
+    //calcola l'XP totale raggiungibile pesando ogni domanda con l'id del modulo, per stimare i livelli in modo proporzionale al percorso effettivo
+    /**DA SPOSTARE NEL MODEL */
     private function totalReachableWeightedExperience(): int
     {
         $sql = 'SELECT COALESCE(SUM(weighted_experience), 0) AS total
