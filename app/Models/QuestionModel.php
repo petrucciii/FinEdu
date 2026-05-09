@@ -148,7 +148,7 @@ class QuestionModel extends Model
         }
 
         $mixed = [];
-        //gira tra i moduli prendendo una domanda per volta finché non raggiunge il limite o finisce le domande
+        //gira tra i moduli prendendo una domanda per modulo finché non raggiunge il limite o finisce le domande
         while (count($mixed) < $limit && !empty($byModule)) {
             foreach (array_keys($byModule) as $moduleId) {
                 if (empty($byModule[$moduleId])) {

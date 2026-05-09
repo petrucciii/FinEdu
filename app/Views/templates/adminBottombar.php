@@ -9,22 +9,7 @@
  * e lo confrontiamo con i controller gestiti da ogni voce della bottombar.
  */
 $currentPath = trim((string) service('request')->getUri()->getPath(), '/');
-$request = service('request');
-$forwardedHost = trim((string) ($request->getServer('HTTP_X_FORWARDED_HOST') ?? ''));
-$forwardedProto = trim((string) ($request->getServer('HTTP_X_FORWARDED_PROTO') ?? ''));
-$host = $forwardedHost !== '' ? $forwardedHost : trim((string) ($request->getServer('HTTP_HOST') ?? ''));
-$scheme = $forwardedProto !== '' ? $forwardedProto : ($request->isSecure() ? 'https' : 'http');
-$hostForCheck = strtolower(trim(explode(':', trim(explode(',', $host)[0]))[0], '[]'));
-$useConfiguredBaseUrl = $host === '' || in_array($hostForCheck, ['localhost', '127.0.0.1', '::1'], true);
-
-if ($useConfiguredBaseUrl) {
-    $configuredBaseUrl = rtrim((string) config('App')->baseURL, '/') . '/';
-} else {
-    $host = trim(explode(',', $host)[0]);
-    $scheme = trim(explode(',', $scheme)[0]) ?: 'https';
-    $configuredBaseUrl = $scheme . '://' . $host . '/';
-}
-
+$configuredBaseUrl = rtrim((string) config('App')->baseURL, '/') . '/';
 $adminUrl = static fn(string $path = ''): string => $configuredBaseUrl . ltrim($path, '/');
 $basePath = trim((string) (parse_url($configuredBaseUrl, PHP_URL_PATH) ?? ''), '/');
 if ($basePath !== '' && strpos($currentPath, $basePath) === 0) {

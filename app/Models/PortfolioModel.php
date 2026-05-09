@@ -56,7 +56,7 @@ class PortfolioModel extends Model
         try {
             return $this->where('user_id', $userId)->where('active', 1)->orderBy('name', 'ASC')->findAll();
         } catch (\Throwable $th) {
-            return false;
+            return [];
         }
 
     }

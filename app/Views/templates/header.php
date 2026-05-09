@@ -57,20 +57,7 @@ if ($pageTitle === '') {
 $pageTitle = $pageTitle !== '' ? $pageTitle : 'FinEdu';
 $browserTitle = $pageTitle === 'FinEdu' ? 'FinEdu' : $pageTitle . ' | FinEdu';
 
-$request = service('request');
-$forwardedHost = trim((string) ($request->getServer('HTTP_X_FORWARDED_HOST') ?? ''));
-$forwardedProto = trim((string) ($request->getServer('HTTP_X_FORWARDED_PROTO') ?? ''));
-$host = $forwardedHost !== '' ? $forwardedHost : trim((string) ($request->getServer('HTTP_HOST') ?? ''));
-$scheme = $forwardedProto !== '' ? $forwardedProto : ($request->isSecure() ? 'https' : 'http');
-$hostForCheck = strtolower(trim(explode(':', trim(explode(',', $host)[0]))[0], '[]'));
-$useConfiguredBaseUrl = $host === '' || in_array($hostForCheck, ['localhost', '127.0.0.1', '::1'], true);
-if ($useConfiguredBaseUrl) {
-    $runtimeBaseUrl = rtrim((string) config('App')->baseURL, '/') . '/';
-} else {
-    $host = trim(explode(',', $host)[0]);
-    $scheme = trim(explode(',', $scheme)[0]) ?: 'https';
-    $runtimeBaseUrl = $scheme . '://' . $host . '/';
-}
+$runtimeBaseUrl = rtrim((string) config('App')->baseURL, '/') . '/';
 ?>
 <!DOCTYPE html>
 <html lang="it">

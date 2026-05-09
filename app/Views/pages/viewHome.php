@@ -33,16 +33,18 @@ $companyCount = (int) ($companyCount ?? 0);
                         dati disponibili nella piattaforma.
                     </p>
                     <div class="d-flex gap-3 flex-wrap">
-                        <a href="<?= base_url('EducationController/index') ?>" class="btn btn-primary btn-lg px-4 py-3 shadow">
+                        <a href="<?= base_url('EducationController/index') ?>"
+                            class="btn btn-primary btn-lg px-4 py-3 shadow">
                             Inizia ad imparare
                         </a>
-                        <a href="<?= base_url('CompanyController/index') ?>" class="btn btn-outline-dark btn-lg px-4 py-3">
+                        <a href="<?= base_url('CompanyController/index') ?>"
+                            class="btn btn-outline-dark btn-lg px-4 py-3">
                             Esplora i mercati
                         </a>
                     </div>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block">
-                    <img src="https://images.unsplash.com/photo-1611974717482-98252c6a484e?q=80&w=2070&auto=format&fit=crop"
+                    <img src="https://www.shutterstock.com/image-vector/stock-market-isometric-financial-dashboard-600nw-2759556573.jpg"
                         class="img-fluid hero-img" alt="Dashboard FinEdu">
                 </div>
             </div>
@@ -121,7 +123,8 @@ $companyCount = (int) ($companyCount ?? 0);
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <small class="text-muted"><?= $progress ?>% completato</small>
-                                    <a href="<?= base_url('EducationController/index') ?>" class="btn btn-sm btn-outline-primary">
+                                    <a href="<?= base_url('EducationController/index') ?>"
+                                        class="btn btn-sm btn-outline-primary">
                                         Apri
                                     </a>
                                 </div>
@@ -137,38 +140,18 @@ $companyCount = (int) ($companyCount ?? 0);
         <div class="edu-banner">
             <div class="row align-items-center">
                 <div class="col-lg-7">
-                    <h2 class="display-5 fw-bold mb-4">Dashboard e percorso nello stesso posto.</h2>
+                    <h2 class="display-5 fw-bold mb-4">Educazione e simulazioni nello stesso posto.</h2>
                     <p class="fs-5 opacity-75 mb-4">
                         Segui i moduli, consulta societ&agrave; quotate e usa il portafoglio simulato senza lasciare la
                         piattaforma.
                     </p>
-                    <a href="<?= base_url('PortfolioController/index') ?>" class="btn btn-light btn-lg text-primary fw-bold px-5 py-3">
-                        Vai al portafoglio
-                    </a>
+
                 </div>
                 <div class="col-lg-5 d-none d-lg-block">
-                    <div class="card bg-white text-dark p-4 shadow-lg rounded-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary rounded-circle p-2 me-2 text-white">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <span class="fw-bold">Vista dashboard</span>
-                        </div>
-                        <div class="row g-2 small">
-                            <div class="col-6">
-                                <div class="stat-box">
-                                    <strong><?= $moduleCount ?></strong>
-                                    <div class="text-muted">moduli</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="stat-box">
-                                    <strong><?= $companyCount ?></strong>
-                                    <div class="text-muted">societ&agrave;</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="<?= base_url('PortfolioController/index') ?>"
+                        class="btn btn-light btn-lg text-primary fw-bold px-5 py-3">
+                        Vai al portafoglio
+                    </a>
                 </div>
             </div>
         </div>
@@ -181,7 +164,8 @@ $companyCount = (int) ($companyCount ?? 0);
                     <h2 class="fw-bold">Ultime dal mercato</h2>
                     <p class="text-muted mb-0">Le ultime notizie disponibili nel database.</p>
                 </div>
-                <a href="<?= base_url('CompanyController/index') ?>" class="btn btn-link text-primary text-decoration-none fw-bold">
+                <a href="<?= base_url('CompanyController/index') ?>"
+                    class="btn btn-link text-primary text-decoration-none fw-bold">
                     Vai alle societ&agrave; <i class="fas fa-arrow-right ms-1"></i>
                 </a>
             </div>

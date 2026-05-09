@@ -224,7 +224,9 @@ class CompanyManagementController extends BaseController
             'id_user' => $this->session->get('user_id'),
             'active' => 1,
         ]);
-
+        if ($ok) {
+            return redirect()->back()->with('alert', 'Quotazione aggiunta con successo.')->with('tab', 'listings');
+        }
         return redirect()->back()->with('alert', 'Quotazione aggiunta con successo.')->with('tab', 'listings');
     }
 

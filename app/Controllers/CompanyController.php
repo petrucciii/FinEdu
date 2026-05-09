@@ -121,7 +121,7 @@ class CompanyController extends BaseController
             'shareholders' => $shareholders,
             'listings' => model(ListingModel::class)->findActiveByIsin($isin),
             'mainListing' => $mainListing,
-            'userPortfolios' => model(PortfolioModel::class)->findActiveByUser(session()->get('user_id')),
+            'userPortfolios' => model(PortfolioModel::class)->findActiveByUser(session()->get('user_id') ?? 0),
             'countries' => model(CountryModel::class)->findAll(),
             'currencies' => model(CurrencyModel::class)->findAll(),
             'sectors' => model(SectorModel::class)->findAll(),

@@ -11,7 +11,7 @@ class Home extends BaseController
 {
     public function index()
     {
-        //la home usa solo dati reali: niente contatori o card statiche
+        //home page con moduli, progressi, ultime notizie
         $moduleModel = model(EducationModuleModel::class);
         $companyModel = model(CompanyModel::class);
         $userId = $this->session->has('logged') ? (int) $this->session->get('user_id') : 0;
@@ -34,10 +34,10 @@ class Home extends BaseController
             'modules' => $modules,
             'companyCount' => $companyModel->countActive(),
             'moduleCount' => $moduleModel->countActive(),
-            'latestCompany' => $companyModel->findLatestActive(),
-            'latestModule' => $moduleModel->findLatestActive(),
+            'latestCompany' => $companyModel->findLatestActive(),//ultimo
+            'latestModule' => $moduleModel->findLatestActive(),//ultimo
             'recentCompletion' => $recentCompletion[0] ?? null,
-            'latestNews' => model(NewsModel::class)->findLatestPublic(4),
+            'latestNews' => model(NewsModel::class)->findLatestPublic(4),//ultime 4 notizie pubbliche
         ];
         echo view('templates/header', $data);
         echo view('pages/viewHome', $data);

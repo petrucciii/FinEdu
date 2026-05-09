@@ -83,7 +83,7 @@ class EducationController extends BaseController
             return redirect()->to(base_url('EducationController/index'))->with('alert', 'Il percorso risulta gia iniziato.');
         }
 
-        $questions = model(QuestionModel::class)->findInitialTestQuestions(5);
+        $questions = model(QuestionModel::class)->findInitialTestQuestions(30);//domande del test iniziale
         if (empty($questions)) {
             return redirect()->to(base_url('EducationController/index'))->with('alert', 'Test iniziale non disponibile.');
         }
