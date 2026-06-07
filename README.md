@@ -1,5 +1,47 @@
 # FinEdu - Educazione e Analisi Finanziaria per Tutti
 
+## Setup locale
+
+Il progetto include gia' il framework CodeIgniter nella cartella `system/`, quindi per questa consegna non e' necessario usare Composer per avviare l'applicazione. Prima di eseguirla, creare il file locale di configurazione partendo dal modello:
+
+```powershell
+Copy-Item env.example .env
+```
+
+Il file `.env` contiene la configurazione locale dell'applicazione, in particolare `app.baseURL` e i dati di connessione MySQL (`database.default.*`). Non va pubblicato su GitHub: nel repository rimane solo `env.example`, mentre `.env` e `env` sono ignorati.
+
+Per avviare il progetto in locale:
+
+```powershell
+php spark serve
+```
+
+### Database
+
+I file SQL sono nella cartella `database/`:
+
+- `database/finedu-schema.sql`: crea il database `finedu` e tutte le tabelle.
+- `database/finedu-seed-example.sql`: contiene dati di esempio utili per provare l'applicazione. Se e' presente un file dati completo, ad esempio `database/finedu-data.sql`, va importato dopo lo schema.
+
+Esempio da terminale:
+
+```powershell
+mysql -u root -p < database/finedu-schema.sql
+mysql -u root -p finedu < database/finedu-seed-example.sql
+```
+
+Aggiornare poi `.env` con username, password, host e porta corretti del proprio MySQL.
+
+### Scheduler prezzi
+
+L'aggiornamento delle quotazioni viene eseguito dal comando CodeIgniter:
+
+```powershell
+php spark prices:update
+```
+
+In locale puo' essere configurato con Utilita' di pianificazione di Windows: creare un'attivita' ripetuta ogni 15 minuti, impostare come programma il percorso di `php.exe`, come argomento `spark prices:update`, e come cartella di avvio la root del progetto `finedu`. Il comando usa i dati del file `.env`, quindi lo scheduler deve partire dalla cartella corretta.
+
 > **Nota:** Allegati in seguito data la difficoltà della visualizzazione, inoltre non è presente la chiave esterna, presente in quasi ogni entità, riferita all'utente che ha effettuato l'ultima modifica, vista la scarsa leggibilità che causerebbe.
 
 ## Indice
